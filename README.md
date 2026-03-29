@@ -2,18 +2,6 @@
 
 A syncretic 3D harmonic instrument. Dodecahedral geometry maps the Circle of Fifths. Every chord you place materialises a pentagon face. The structure of the song is the structure of the solid.
 
-## Deploy to GitHub Pages (5 steps)
-
-1. Create a new repository named `james-ladder`
-2. Upload these four files to the root:
-   - `index.html` → rename `james_ladder_v15.html` to `index.html`
-   - `manifest.json`
-   - `sw.js`
-   - (optional) `icon.png` — 512×512px app icon
-3. Go to **Settings → Pages**
-4. Set Source to **Deploy from a branch**, select `main`, folder `/root`
-5. Live at `https://[username].github.io/james-ladder/`
-
 ## Architecture
 
 | Layer | Description |
