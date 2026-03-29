@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>James' Ladder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Fira+Code:wght@300;400&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+:root,[data-theme="light"]{
+  --bg:#eeead8;--bg2:rgba(234,229,212,0.97);--bg3:rgba(238,234,218,0.95);
+  --surface:rgba(255,255,255,0.60);--border:rgba(48,38,14,0.11);--border2:rgba(48,38,14,0.22);
+  --text:#1c1808;--text2:rgba(28,24,8,0.56);--text3:rgba(28,24,8,0.30);
+  --gold:#7a4e06;--gold-hi:#a06810;--glo:rgba(122,78,6,0.09);--glm:rgba(122,78,6,0.30);
+  --c-I:#235018;--c-IV:#6a5000;--c-V:#781a00;--c-ii:#142e80;--c-vi:#441480;
+  --glass-bg:rgba(238,234,218,0.70);--glass-border:rgba(48,38,14,0.14);
+}
+[data-theme="dark"]{
+  --bg:#07080e;--bg2:rgba(9,10,19,0.97);--bg3:rgba(8,9,17,0.95);
+  --surface:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.17);
+  --text:rgba(224,230,244,0.92);--text2:rgba(224,230,244,0.52);--text3:rgba(224,230,244,0.25);
+  --gold:#c8a84b;--gold-hi:#e0c060;--glo:rgba(200,168,75,0.09);--glm:rgba(200,168,75,0.32);
+  --c-I:#88c868;--c-IV:#d4c038;--c-V:#e07028;--c-ii:#6088e8;--c-vi:#a870e0;
+  --glass-bg:rgba(12,14,26,0.75);--glass-border:rgba(255,255,255,0.09);
+}
+
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);touch-action:none;user-select:none;}
+body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0.3s;}
+#three{position:fixed;inset:0;}
+
+/* ═══ BUBBLE SYSTEM ═══ */
+#vlayer{position:fixed;inset:0;pointer-events:none;z-index:50;}
+.bubble{position:absolute;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity 0.25s;display:flex;flex-direction:column;align-items:center;}
+.bubble.vis{opacity:1;}
+/* Only the sphere div itself intercepts — everything else passes to canvas */
+.bsphere{pointer-events:all;}
+.bubble.role-primary   .bsphere{--bsz:42px;--bop:1.0;}
+.bubble.role-secondary .bsphere{--bsz:28px;--bop:0.55;}
+.bubble.role-pivot     .bsphere{--bsz:50px;--bop:1.0;--bc:var(--gold)!important;}
+.bsphere{width:var(--bsz,42px);height:var(--bsz,42px);border-radius:50%;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;
+  background:radial-gradient(circle at 34% 34%,color-mix(in srgb,var(--bc,#888) 6%,var(--bg)) 0%,color-mix(in srgb,var(--bc,#888) 18%,var(--bg)) 60%,color-mix(in srgb,var(--bc,#888) 28%,var(--bg)) 100%);
+  border:1.5px solid color-mix(in srgb,var(--bc,#888) 50%,transparent);
+  box-shadow:0 2px 10px color-mix(in srgb,var(--bc,#888) 10%,transparent),inset 0 1px 3px rgba(255,255,255,0.32);
+  transition:transform 0.14s,box-shadow 0.14s;opacity:var(--bop,1);}
+.bsphere::before{content:'';position:absolute;top:18%;left:22%;width:26%;height:18%;border-radius:50%;background:rgba(255,255,255,0.52);transform:rotate(-30deg);pointer-events:none;}
+.bsphere:hover{transform:scale(1.11);box-shadow:0 4px 18px color-mix(in srgb,var(--bc,#888) 26%,transparent),inset 0 1px 3px rgba(255,255,255,0.38);}
+.bsphere.struck{transform:scale(1.09);box-shadow:0 0 26px color-mix(in srgb,var(--bc,#888) 55%,transparent),inset 0 1px 4px rgba(255,255,255,0.48);
+  background:radial-gradient(circle at 34% 34%,color-mix(in srgb,var(--bc,#888) 26%,var(--bg)) 0%,color-mix(in srgb,var(--bc,#888) 44%,var(--bg)) 60%,color-mix(in srgb,var(--bc,#888) 54%,var(--bg)) 100%);}
+.b-roman{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.12em;font-weight:400;color:var(--bc);position:relative;z-index:1;text-shadow:0 1px 2px rgba(255,255,255,0.55);line-height:1.1;text-align:center;}
+.b-roman2{font-family:'Cormorant Garamond',serif;font-size:8px;font-style:italic;color:var(--gold);position:relative;z-index:1;text-shadow:0 1px 2px rgba(255,255,255,0.55);line-height:1;text-align:center;display:none;}
+.b-note{position:absolute;top:calc(100%+6px);left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--bc);white-space:nowrap;pointer-events:none;}
+.b-key-label{position:absolute;top:calc(100%+19px);left:50%;transform:translateX(-50%);font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.18em;color:var(--text3);white-space:nowrap;pointer-events:none;opacity:0;}
+.bubble.role-secondary .b-note{font-size:9px;}
+.bubble.role-secondary .b-key-label{opacity:1;}
+.bubble.role-pivot .b-note{color:var(--gold);}
+.b-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.fn-I{--bc:var(--c-I);}.fn-IV{--bc:var(--c-IV);}.fn-V{--bc:var(--c-V);}.fn-ii{--bc:var(--c-ii);}.fn-vi{--bc:var(--c-vi);}
+#pivot-svg{position:fixed;inset:0;pointer-events:none;z-index:40;}
+
+/* ═══ TOPBAR ═══ */
+#bar{position:fixed;top:0;left:0;right:0;height:50px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);}
+#wm{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;font-weight:400;color:var(--gold);letter-spacing:0.06em;}
+#bar-r{display:flex;gap:6px;align-items:center;}
+#lvl-seg{display:flex;border:1px solid var(--border2);border-radius:2px;overflow:hidden;background:var(--surface);}
+.ls{background:transparent;border:none;border-right:1px solid var(--border);color:var(--text3);padding:5px 13px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;transition:all 0.12s;}
+.ls:last-child{border-right:none;}.ls:hover{color:var(--gold);background:var(--glo);}.ls.on{color:var(--gold);background:var(--glo);}
+.tb{background:var(--surface);border:1px solid var(--border2);color:var(--text3);padding:5px 12px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.12s;}
+.tb:hover{border-color:var(--glm);color:var(--gold);}.tb.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+/* Grimoire button — distinct */
+#grimoire-btn{background:var(--glo);border:1px solid var(--gold);color:var(--gold);padding:5px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;cursor:pointer;border-radius:2px;transition:all 0.14s;letter-spacing:0.04em;}
+#grimoire-btn:hover{background:color-mix(in srgb,var(--gold) 18%,transparent);}
+#theme-btn{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;color:var(--text2);}
+#theme-btn:hover{border-color:var(--glm);color:var(--gold);}
+
+/* ═══ SUB BAR ═══ */
+#sub{position:fixed;top:50px;left:0;right:0;height:32px;z-index:199;display:flex;align-items:center;padding:0 20px;gap:16px;background:var(--bg3);border-bottom:1px solid var(--border);}
+#lvl-tag{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;flex-shrink:0;}
+#lvl-tag b{color:var(--gold);font-weight:400;}
+#status{font-size:8px;letter-spacing:0.24em;color:var(--text3);text-transform:uppercase;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#fc{font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);}
+#fc b{color:var(--gold);font-weight:400;}
+#reset-btn{position:fixed;top:58px;right:20px;z-index:250;background:var(--surface);border:1px solid var(--border);color:var(--text3);padding:4px 10px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;}
+#reset-btn:hover{border-color:rgba(130,35,15,0.42);color:rgba(130,35,15,0.82);}
+
+/* ═══ BOTTOM ═══ */
+#bot{position:fixed;bottom:0;left:0;right:0;z-index:200;padding:10px 20px 14px;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
+#key-row{display:flex;align-items:center;gap:4px;margin-bottom:7px;flex-wrap:wrap;}
+#key-lbl{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;flex-shrink:0;margin-right:3px;}
+.ks{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:3px 9px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.13em;cursor:pointer;border-radius:2px;transition:all 0.10s;}
+.ks:hover{border-color:var(--glm);color:var(--gold);background:var(--glo);}.ks.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+#chord-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
+.cp{padding:5px 11px;border:1px solid var(--border);border-radius:2px;background:var(--surface);font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.07em;cursor:pointer;transition:all 0.10s;white-space:nowrap;color:var(--text2);}
+.cp:hover{border-color:var(--border2);color:var(--text);}.cp:active{transform:scale(0.89);}
+#led-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;min-height:24px;}
+#led-lbl{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;flex-shrink:0;}
+#led-seq{display:flex;gap:3px;flex-wrap:wrap;flex:1;align-items:baseline;}
+.le{padding:3px 8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:8px;border-radius:2px;font-family:'Fira Code',monospace;white-space:nowrap;animation:lein 0.17s ease;}
+.le.pivot{border-color:var(--gold);background:var(--glo);color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:9px;font-style:italic;}
+.le.keymod{border:none;background:none;color:var(--text3);padding:0 2px;letter-spacing:0.15em;}
+@keyframes lein{from{opacity:0;transform:scale(0.72)}to{opacity:1;transform:scale(1)}}
+#led-acts{display:flex;gap:5px;flex-shrink:0;}
+.pa{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:4px 11px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.20em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;}
+.pa:hover{border-color:var(--glm);color:var(--gold);}
+
+/* ═══════════════════════════════════════════════════════════
+   GLASSMORPHIC GRIMOIRE PANEL
+   Slides in from the right. Contains:
+   · Plasma Transposer (global pitch offset)
+   · Harmonic Cloud visualiser
+   · Consonance Correspondence Matrix
+   · Chord Ledger export
+═══════════════════════════════════════════════════════════ */
+#grimoire{
+  position:fixed;top:0;right:0;bottom:0;width:360px;
+  z-index:500;
+  transform:translateX(100%);
+  transition:transform 0.48s cubic-bezier(0.16,1,0.3,1);
+  display:flex;flex-direction:column;
+  /* Glassmorphism */
+  background:var(--glass-bg);
+  backdrop-filter:blur(28px) saturate(1.5);
+  -webkit-backdrop-filter:blur(28px) saturate(1.5);
+  border-left:1px solid var(--glass-border);
+  box-shadow:-12px 0 48px rgba(0,0,0,0.15);
+}
+#grimoire.open{transform:translateX(0);}
+/* Inner highlight rim */
+#grimoire::before{content:'';position:absolute;inset:0;border-left:1px solid rgba(255,255,255,0.12);pointer-events:none;}
+
+#grimoire-header{padding:18px 20px 14px;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
+#grimoire-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:2px;}
+#grimoire-sub{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;}
+#grimoire-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px;transition:color 0.12s;}
+#grimoire-close:hover{color:var(--text);}
+
+/* Tab bar inside grimoire */
+#grimoire-tabs{display:flex;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
+.gtab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:8px 16px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.26em;text-transform:uppercase;cursor:pointer;transition:all 0.14s;flex:1;text-align:center;}
+.gtab:hover{color:var(--text2);}.gtab.on{color:var(--gold);border-bottom-color:var(--gold);}
+
+#grimoire-body{flex:1;overflow-y:auto;padding:18px 20px;}
+#grimoire-body::-webkit-scrollbar{width:3px;}
+#grimoire-body::-webkit-scrollbar-thumb{background:var(--glm);border-radius:2px;}
+
+/* Grimoire panes */
+.gpane{display:none;}.gpane.on{display:block;}
+.g-section{font-size:8px;letter-spacing:0.38em;color:var(--gold);text-transform:uppercase;margin:18px 0 10px;border-bottom:1px solid var(--glass-border);padding-bottom:5px;}
+.g-section:first-child{margin-top:0;}
+
+/* ── PLASMA TRANSPOSER ── */
+#transposer-display{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border2);border-radius:3px;
+  padding:12px 16px;margin-bottom:12px;
+}
+#plasma-root{font-family:'Cormorant Garamond',serif;font-size:28px;font-style:italic;color:var(--gold);font-weight:400;}
+#plasma-delta{font-size:9px;letter-spacing:0.3em;color:var(--text3);}
+.plasma-btns{display:flex;gap:6px;}
+.pbtn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.pbtn:hover{border-color:var(--gold);color:var(--gold);}
+.transposer-row{display:flex;gap:5px;flex-wrap:wrap;}
+.tkey{background:var(--surface);border:1px solid var(--border);color:var(--text3);padding:4px 9px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.14em;cursor:pointer;border-radius:2px;transition:all 0.11s;}
+.tkey:hover{border-color:var(--glm);color:var(--gold);}.tkey.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+
+/* ── HARMONIC CLOUD ── */
+#cloud-display{
+  display:flex;flex-wrap:wrap;gap:6px;
+  background:var(--surface);border:1px solid var(--border);border-radius:3px;
+  padding:12px;margin-bottom:12px;min-height:52px;
+}
+.cloud-note{
+  padding:4px 10px;border-radius:14px;font-family:'Fira Code',monospace;font-size:9px;
+  border:1px solid transparent;transition:all 0.25s;
+}
+.cloud-note.active{opacity:1;}
+.cloud-note.inactive{opacity:0.18;}
+#cloud-count{font-size:8px;letter-spacing:0.3em;color:var(--text3);margin-bottom:8px;}
+
+/* ── CONSONANCE MATRIX ── */
+.score-row{
+  display:flex;align-items:center;gap:8px;padding:7px 0;
+  border-bottom:1px solid var(--glass-border);
+}
+.score-row:last-child{border-bottom:none;}
+.score-name{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.score-bar-wrap{width:80px;height:4px;background:var(--border);border-radius:2px;flex-shrink:0;}
+.score-bar{height:100%;border-radius:2px;background:var(--gold);transition:width 0.4s ease;}
+.score-pct{font-family:'Fira Code',monospace;font-size:8px;color:var(--gold);min-width:32px;text-align:right;flex-shrink:0;}
+.score-row.top-score .score-name{color:var(--gold);}
+.score-row.top-score .score-bar{background:var(--gold-hi);}
+.score-row.high-score .score-name{color:var(--text);}
+.score-row.high-score .score-bar{background:color-mix(in srgb,var(--gold) 70%,var(--text2));}
+
+/* ── FLOATING CENTROID SIGNIFIERS ──
+   Projected from 3D face centroid to screen space.
+   Each built face broadcasts its key as a billboard label.
+   Depth-faded via JS dot product. ── */
+.fsign{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:400;
+  letter-spacing:0.04em;
+  text-align:center;
+  line-height:1;
+  transition:opacity 0.22s ease;
+  /* layered text shadow for legibility against geometry */
+  text-shadow:
+    0 0 12px color-mix(in srgb,var(--fc) 55%,transparent),
+    0 1px 3px rgba(0,0,0,0.18);
+}
+.fsign.active{
+  font-size:22px;
+  color:var(--fc);
+  opacity:1;
+}
+.fsign.inactive{
+  font-size:14px;
+  color:var(--fc);
+  opacity:0.52;
+}
+/* sub-label: roman function or CoF position */
+.fsign-sub{
+  display:block;
+  font-family:'Fira Code',monospace;
+  font-size:7px;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  margin-top:3px;
+  opacity:0.65;
+}
+
+/* ── CHORD LEDGER ── */
+.ledger-entry{
+  display:flex;align-items:baseline;gap:8px;padding:6px 0;
+  border-bottom:1px solid var(--glass-border);font-size:8px;
+}
+.ledger-entry:last-child{border-bottom:none;}
+.le-face{font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);min-width:24px;flex-shrink:0;}
+.le-key{letter-spacing:0.2em;color:var(--gold);min-width:28px;}
+.le-chord{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);flex:1;}
+.le-semis{color:var(--text3);font-size:7px;letter-spacing:0.1em;}
+.export-btns{display:flex;gap:6px;margin-top:12px;}
+.exp-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 14px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.22em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;flex:1;text-align:center;}
+.exp-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── GUIDE ── */
+#drawer{position:fixed;top:82px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:3px;padding:18px 22px 14px;z-index:600;min-width:340px;max-width:480px;box-shadow:0 6px 28px rgba(0,0,0,0.12);display:none;}
+#drawer.open{display:block;animation:din 0.2s ease;}
+@keyframes din{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#dr-title{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--gold);margin-bottom:12px;}
+#dr-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 6px;}
+.lcard{display:flex;gap:14px;padding:10px 12px;border-radius:2px;cursor:pointer;border:1px solid transparent;margin-bottom:5px;transition:all 0.12s;}
+.lcard:hover{background:var(--glo);border-color:var(--glm);}.lcard.on{background:var(--glo);border-color:var(--gold);}
+.lc-n{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;color:var(--gold);line-height:1;flex-shrink:0;min-width:18px;}
+.lc-title{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.26em;text-transform:uppercase;color:var(--text);margin-bottom:3px;}
+.lc-desc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.55;}
+
+/* ════════════════════════════════════════════════════════
+   TEMPORAL LOOM — left flank panel, mirrors Grimoire
+════════════════════════════════════════════════════════ */
+#loom{
+  position:fixed;top:0;left:0;bottom:0;width:320px;
+  z-index:500;
+  transform:translateX(-100%);
+  transition:transform 0.48s cubic-bezier(0.16,1,0.3,1);
+  display:flex;flex-direction:column;
+  background:var(--glass-bg);
+  backdrop-filter:blur(28px) saturate(1.5);
+  -webkit-backdrop-filter:blur(28px) saturate(1.5);
+  border-right:1px solid var(--glass-border);
+  box-shadow:12px 0 48px rgba(0,0,0,0.14);
+}
+#loom.open{transform:translateX(0);}
+#loom::before{content:'';position:absolute;inset:0;border-right:1px solid rgba(255,255,255,0.10);pointer-events:none;}
+
+#loom-header{padding:18px 20px 14px;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
+#loom-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:2px;}
+#loom-sub{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;}
+#loom-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px;transition:color 0.12s;}
+#loom-close:hover{color:var(--text);}
+
+/* Loom tabs */
+#loom-tabs{display:flex;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
+.ltab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:8px 16px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.26em;text-transform:uppercase;cursor:pointer;transition:all 0.14s;flex:1;text-align:center;}
+.ltab:hover{color:var(--text2);}.ltab.on{color:var(--gold);border-bottom-color:var(--gold);}
+
+#loom-body{flex:1;overflow-y:auto;padding:16px 18px;}
+#loom-body::-webkit-scrollbar{width:3px;}
+#loom-body::-webkit-scrollbar-thumb{background:var(--glm);border-radius:2px;}
+.lpane{display:none;}.lpane.on{display:block;}
+.l-section{font-size:8px;letter-spacing:0.38em;color:var(--gold);text-transform:uppercase;margin:16px 0 8px;border-bottom:1px solid var(--glass-border);padding-bottom:4px;}
+.l-section:first-child{margin-top:0;}
+
+/* ── SEQUENCER ── */
+#bpm-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+#bpm-disp{font-family:'Cormorant Garamond',serif;font-size:28px;font-style:italic;color:var(--gold);min-width:52px;}
+#bpm-lbl{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;display:block;}
+input[type=range].loom-range{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;flex:1;}
+input[type=range].loom-range::-webkit-slider-runnable-track{height:2px;background:var(--border2);border-radius:1px;}
+input[type=range].loom-range::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--gold);margin-top:-5px;box-shadow:0 0 5px rgba(200,168,75,0.3);}
+
+#play-row{display:flex;gap:6px;margin-bottom:14px;}
+.lbtn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:5px 14px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;}
+.lbtn:hover{border-color:var(--glm);color:var(--gold);}
+.lbtn.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+
+/* Sequencer grid */
+#seq-grid{
+  display:grid;
+  grid-template-columns:28px repeat(16,1fr);
+  gap:2px;
+  margin-bottom:12px;
+}
+.seq-row-label{
+  font-family:'Fira Code',monospace;font-size:7px;
+  letter-spacing:0.10em;color:var(--text3);
+  display:flex;align-items:center;justify-content:flex-end;
+  padding-right:4px;white-space:nowrap;
+}
+.seq-cell{
+  height:22px;border-radius:2px;
+  background:var(--surface);border:1px solid var(--border);
+  cursor:pointer;transition:background 0.10s,border-color 0.10s;
+  position:relative;
+}
+.seq-cell:hover{border-color:var(--border2);}
+.seq-cell.on{background:var(--glo);border-color:var(--gold);}
+.seq-cell.playing{background:var(--gold)!important;border-color:var(--gold-hi)!important;}
+/* Colour-coded rows matching vertex colours */
+.seq-cell.row-IV.on{background:rgba(106,80,0,0.28);border-color:rgba(106,80,0,0.65);}
+.seq-cell.row-I.on {background:rgba(35,80,24,0.28);border-color:rgba(35,80,24,0.65);}
+.seq-cell.row-V.on {background:rgba(120,26,0,0.28);border-color:rgba(120,26,0,0.65);}
+.seq-cell.row-ii.on{background:rgba(20,46,128,0.28);border-color:rgba(20,46,128,0.65);}
+.seq-cell.row-vi.on{background:rgba(68,20,128,0.28);border-color:rgba(68,20,128,0.65);}
+[data-theme="dark"] .seq-cell.row-IV.on{background:rgba(212,192,56,0.18);border-color:rgba(212,192,56,0.5);}
+[data-theme="dark"] .seq-cell.row-I.on {background:rgba(136,200,104,0.18);border-color:rgba(136,200,104,0.5);}
+[data-theme="dark"] .seq-cell.row-V.on {background:rgba(224,112,40,0.22);border-color:rgba(224,112,40,0.5);}
+[data-theme="dark"] .seq-cell.row-ii.on{background:rgba(96,136,232,0.20);border-color:rgba(96,136,232,0.5);}
+[data-theme="dark"] .seq-cell.row-vi.on{background:rgba(168,112,224,0.20);border-color:rgba(168,112,224,0.5);}
+
+/* Step number row */
+.seq-step-num{font-family:'Fira Code',monospace;font-size:6px;color:var(--text3);text-align:center;padding:1px 0;}
+
+/* Pattern presets */
+.pat-row{display:flex;gap:5px;flex-wrap:wrap;}
+.pbtn2{background:var(--surface);border:1px solid var(--border);color:var(--text3);padding:4px 9px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.16em;cursor:pointer;border-radius:2px;transition:all 0.11s;text-transform:uppercase;}
+.pbtn2:hover{border-color:var(--glm);color:var(--gold);}
+
+/* ── PITCH CONSTELLATION ── */
+#constellation-wrap{position:relative;margin:0 auto 12px;width:100%;max-width:260px;}
+#constellation-canvas{display:block;width:100%;aspect-ratio:1;cursor:default;}
+#constellation-label{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);text-align:center;margin-top:6px;min-height:18px;}
+#constellation-sub{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.28em;color:var(--text3);text-align:center;text-transform:uppercase;margin-top:2px;}
+text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;background:var(--bg2);border:1px solid var(--border2);padding:28px 38px;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,0.12);}
+#complete.show{opacity:1;pointer-events:all;}
+#complete h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:6px;}
+#complete p{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div id="three"></div>
+<svg id="pivot-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="slayer" style="position:fixed;inset:0;pointer-events:none;z-index:45;"></div>
+<div id="vlayer"></div>
+
+<header id="bar">
+  <div id="wm">James' Ladder</div>
+  <div id="bar-r">
+    <button id="loom-btn" onclick="toggleLoom()" style="background:var(--glo);border:1px solid var(--gold);color:var(--gold);padding:5px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;cursor:pointer;border-radius:2px;transition:all 0.14s;letter-spacing:0.04em;">⊟ Loom</button>
+    <div id="lvl-seg">
+      <button class="ls on" id="ls1" onclick="setLevel(1)">I·Planar</button>
+      <button class="ls"    id="ls2" onclick="setLevel(2)">II·Spatial</button>
+      <button class="ls"    id="ls3" onclick="setLevel(3)">III·Free</button>
+    </div>
+    <button class="tb" onclick="toggleDrawer()">Guide</button>
+    <button class="tb on" id="btn-rot" onclick="toggleRot()">Auto ⟳</button>
+    <button id="grimoire-btn" onclick="toggleGrimoire()">⊞ Grimoire</button>
+    <button id="theme-btn" onclick="toggleTheme()">☀</button>
+  </div>
+</header>
+
+<div id="sub">
+  <div id="lvl-tag">Level&thinsp;<b id="lvl-n">I</b>&thinsp;·&thinsp;Planar Sovereignty</div>
+  <div id="status">tap the solid to open your first tonal center</div>
+  <div id="fc">faces&thinsp;<b id="fc-n">0</b>&thinsp;/&thinsp;12</div>
+</div>
+<button id="reset-btn" onclick="resetAll()">↺ Reset</button>
+
+<!-- ═══ TEMPORAL LOOM — LEFT FLANK ═══ -->
+<aside id="loom">
+  <div id="loom-header">
+    <div id="loom-title">Temporal Loom</div>
+    <div id="loom-sub">rhythmic matrix · pitch constellation</div>
+    <button id="loom-close" onclick="toggleLoom()">×</button>
+  </div>
+  <div id="loom-tabs">
+    <button class="ltab on" id="lt-seq"   onclick="showLTab('seq')">Sequencer</button>
+    <button class="ltab"    id="lt-const" onclick="showLTab('const')">Constellation</button>
+  </div>
+  <div id="loom-body">
+
+    <!-- SEQUENCER PANE -->
+    <div class="lpane on" id="lpane-seq">
+      <div class="l-section">Tempo</div>
+      <div id="bpm-row">
+        <div><span id="bpm-lbl">BPM</span><span id="bpm-disp">120</span></div>
+        <input type="range" class="loom-range" id="bpm-sl" min="40" max="240" value="120"
+               oninput="setBpm(+this.value)">
+      </div>
+      <div id="play-row">
+        <button class="lbtn" id="seq-play-btn" onclick="toggleSeq()">▶ Play</button>
+        <button class="lbtn" onclick="clearSeq()">✕ Clear</button>
+        <button class="lbtn" onclick="randSeq()">⟳ Rand</button>
+      </div>
+
+      <div class="l-section">Matrix — 5 vertices × 16 steps</div>
+      <!-- Step numbers -->
+      <div id="seq-grid"></div>
+
+      <div class="l-section">Patterns</div>
+      <div class="pat-row">
+        <button class="pbtn2" onclick="loadPat('clave')">Clave</button>
+        <button class="pbtn2" onclick="loadPat('bossa')">Bossa</button>
+        <button class="pbtn2" onclick="loadPat('waltz')">Waltz</button>
+        <button class="pbtn2" onclick="loadPat('tresillo')">Tresillo</button>
+        <button class="pbtn2" onclick="loadPat('harmonic')">Harmonic</button>
+      </div>
+    </div>
+
+    <!-- CONSTELLATION PANE -->
+    <div class="lpane" id="lpane-const">
+      <div class="l-section">Pitch Constellation</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
+        The chromatic circle, divided into 12 equidistant nodes. The top-scoring scale from the Consonance Matrix is projected as a geometric polygon — intervals become spatial distances.
+      </p>
+      <div id="constellation-wrap">
+        <canvas id="constellation-canvas" width="260" height="260"></canvas>
+      </div>
+      <div id="constellation-label">—</div>
+      <div id="constellation-sub">place chords to generate</div>
+    </div>
+
+  </div>
+</aside>
+
+
+<aside id="grimoire">
+  <div id="grimoire-header">
+    <div id="grimoire-title">Harmonic Grimoire</div>
+    <div id="grimoire-sub">utility extraction layer</div>
+    <button id="grimoire-close" onclick="toggleGrimoire()">×</button>
+  </div>
+  <div id="grimoire-tabs">
+    <button class="gtab on" id="gt-plasma"   onclick="showGTab('plasma')">Transposer</button>
+    <button class="gtab"    id="gt-cloud"    onclick="showGTab('cloud')">Cloud</button>
+    <button class="gtab"    id="gt-scores"   onclick="showGTab('scores')">Scales</button>
+    <button class="gtab"    id="gt-ledger"   onclick="showGTab('ledger')">Ledger</button>
+  </div>
+  <div id="grimoire-body">
+
+    <!-- PLASMA TRANSPOSER -->
+    <div class="gpane on" id="gpane-plasma">
+      <div class="g-section">Plasma Transposer</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
+        Transpose the entire harmonic structure through chromatic space. The geometry of intervals is preserved; only the absolute pitch coordinates shift.
+      </p>
+      <div id="transposer-display">
+        <div>
+          <div id="plasma-root">C</div>
+          <div id="plasma-delta">Δ = 0 semitones</div>
+        </div>
+        <div class="plasma-btns">
+          <button class="pbtn" onclick="shiftPlasma(-1)">♭</button>
+          <button class="pbtn" onclick="shiftPlasma(1)">♯</button>
+        </div>
+      </div>
+      <div class="g-section">Target Root</div>
+      <div class="transposer-row" id="plasma-keys"></div>
+      <div class="g-section" style="margin-top:16px;">Effect</div>
+      <div id="plasma-effect" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2.2;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 12px;"></div>
+    </div>
+
+    <!-- HARMONIC CLOUD -->
+    <div class="gpane" id="gpane-cloud">
+      <div class="g-section">Harmonic Cloud H</div>
+      <div id="cloud-count">0 pitch classes active</div>
+      <div id="cloud-display"></div>
+      <div class="g-section">Cloud Composition</div>
+      <div id="cloud-detail" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2;color:var(--text2);"></div>
+    </div>
+
+    <!-- CONSONANCE SCORES -->
+    <div class="gpane" id="gpane-scores">
+      <div class="g-section">Melodic Derivative Matrix</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);line-height:1.7;margin-bottom:12px;">
+        C<sub>k</sub> = (|H∩S<sub>k</sub>| / |H∪S<sub>k</sub>|) × 100
+      </p>
+      <div id="score-list"></div>
+    </div>
+
+    <!-- CHORD LEDGER -->
+    <div class="gpane" id="gpane-ledger">
+      <div class="g-section">Chord Matrix</div>
+      <div id="chord-ledger-list"></div>
+      <div class="export-btns">
+        <button class="exp-btn" onclick="exportClipboard()">⎘ Copy CSV</button>
+        <button class="exp-btn" onclick="exportJSON()">⎘ Copy JSON</button>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- GUIDE -->
+<div id="drawer">
+  <div id="dr-title">James' Ladder — Three Rungs</div>
+  <button id="dr-close" onclick="toggleDrawer()">×</button>
+  <div class="lcard on" id="lc1" onclick="setLevel(1)"><div class="lc-n">I</div><div><div class="lc-title">Planar Sovereignty</div><div class="lc-desc">Dwell within one key. Tap bubbles or pills to play and log. No fold occurs.</div></div></div>
+  <div class="lcard"    id="lc2" onclick="setLevel(2)"><div class="lc-n">II</div><div><div class="lc-title">Modulation Gateway</div><div class="lc-desc">Play a chord, then tap a ghost face to cross the edge. The pivot is evaluated in both keys.</div></div></div>
+  <div class="lcard"    id="lc3" onclick="setLevel(3)"><div class="lc-n">III</div><div><div class="lc-title">Free Construction</div><div class="lc-desc">Chord taps play and fold simultaneously. The solid builds itself.</div></div></div>
+</div>
+
+<div id="complete"><h2>The Ladder is Complete</h2><p>twelve tonal centers · the solid is the song</p></div>
+
+<section id="bot">
+  <div id="key-row"><span id="key-lbl">Root Key</span></div>
+  <div id="chord-row"></div>
+  <div id="led-row">
+    <span id="led-lbl">Ledger</span>
+    <div id="led-seq"></div>
+    <div id="led-acts">
+      <button class="pa" onclick="playLedger()">▶ Play</button>
+      <button class="pa" onclick="undoLast()">↩ Undo</button>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// MUSIC CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const PHI   = (1+Math.sqrt(5))/2;
+const CHROM = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+const COF   = ['C','G','D','A','E','B','F♯','D♭','A♭','E♭','B♭','F'];
+// Semitone of each COF key from C=0
+const COF_SEMI=[0,7,2,9,4,11,6,1,8,3,10,5];
+const KS    = {C:0,'C♯':1,D:2,'D♯':3,E:4,F:5,'F♯':6,G:7,'G♯':8,A:9,'A♯':10,B:11,'D♭':1,'E♭':3,'A♭':8,'B♭':10};
+const HZ    = {C:261.63,'C♯':277.18,D:293.66,'D♯':311.13,E:329.63,F:349.23,'F♯':369.99,G:392.00,'G♯':415.30,A:440.00,'A♯':466.16,B:493.88,'D♭':277.18,'E♭':311.13,'A♭':415.30,'B♭':466.16};
+
+const D_ROM=['I','ii','iii','IV','V','vi','vii°'];
+const D_QUAL=['maj','min','min','maj','maj','min','dim'];
+const D_SEMI=[0,2,4,5,7,9,11];
+const D_COL=['var(--c-I)','var(--c-ii)','var(--text3)','var(--c-IV)','var(--c-V)','var(--c-vi)','var(--text3)'];
+const DIA=[{roman:'I',semi:0,qual:'maj'},{roman:'ii',semi:2,qual:'min'},{roman:'iii',semi:4,qual:'min'},{roman:'IV',semi:5,qual:'maj'},{roman:'V',semi:7,qual:'maj'},{roman:'vi',semi:9,qual:'min'},{roman:'vii°',semi:11,qual:'dim'}];
+
+const DV=[{roman:'IV',semi:5,qual:'maj',fn:'fn-IV'},{roman:'I',semi:0,qual:'maj',fn:'fn-I'},{roman:'V',semi:7,qual:'maj',fn:'fn-V'},{roman:'ii',semi:2,qual:'min',fn:'fn-ii'},{roman:'vi',semi:9,qual:'min',fn:'fn-vi'}];
+const PULSE=[{hz:0.40,rMax:14,alpha:0.40,ease:'sine'},{hz:0,rMax:0,alpha:0,ease:'none'},{hz:1.18,rMax:20,alpha:0.65,ease:'cubic'},{hz:0.62,rMax:12,alpha:0.46,ease:'sine'},{hz:0.62,rMax:12,alpha:0.44,ease:'sine'}];
+const B_RADIUS=[21,24,25,19,19];
+const PULSE_CSZ=90;
+const FHUE=[0,32,62,95,145,188,215,258,288,322,348,16];
+let FKEY=new Array(12).fill('');
+
+// Chord pitch classes: intervals from root for each quality
+function chordPCs(rootSemi,qual){
+  const iv=qual==='maj'?[0,4,7]:qual==='min'?[0,3,7]:qual==='dim'?[0,3,6]:[0,3,7];
+  return iv.map(s=>(rootSemi+s)%12);
+}
+
+// ── CANDIDATE SCALES for Consonance Matrix ──
+// Each scale: name, intervals from root (semitones)
+const CANDIDATE_SCALES=[
+  // ── Diatonic modes ──
+  {name:'Major (Ionian)',             iv:[0,2,4,5,7,9,11]},
+  {name:'Dorian',                     iv:[0,2,3,5,7,9,10]},
+  {name:'Phrygian',                   iv:[0,1,3,5,7,8,10]},
+  {name:'Lydian',                     iv:[0,2,4,6,7,9,11]},
+  {name:'Mixolydian',                 iv:[0,2,4,5,7,9,10]},
+  {name:'Natural Minor (Aeolian)',    iv:[0,2,3,5,7,8,10]},
+  {name:'Locrian',                    iv:[0,1,3,5,6,8,10]},
+  // ── Harmonic / Melodic variants ──
+  {name:'Harmonic Minor',             iv:[0,2,3,5,7,8,11]},
+  {name:'Harmonic Major',             iv:[0,2,4,5,7,8,11]},
+  {name:'Melodic Minor (ascending)',  iv:[0,2,3,5,7,9,11]},
+  {name:'Melodic Minor (descending)', iv:[0,2,3,5,7,8,10]},
+  {name:'Hungarian Minor',            iv:[0,2,3,6,7,8,11]},
+  {name:'Hungarian Major',            iv:[0,3,4,6,7,9,10]},
+  // ── Pentatonic / Blues ──
+  {name:'Pentatonic Major',           iv:[0,2,4,7,9]},
+  {name:'Pentatonic Minor',           iv:[0,3,5,7,10]},
+  {name:'Blues',                      iv:[0,3,5,6,7,10]},
+  {name:'Blues Major',                iv:[0,2,3,4,7,9]},
+  {name:'Hirajoshi',                  iv:[0,2,3,7,8]},
+  {name:'Insen',                      iv:[0,1,5,7,10]},
+  {name:'Yo (Japanese)',              iv:[0,2,5,7,9]},
+  // ── Symmetrical ──
+  {name:'Whole Tone',                 iv:[0,2,4,6,8,10]},
+  {name:'Octatonic HW (diminished)', iv:[0,1,3,4,6,7,9,10]},
+  {name:'Octatonic WH (diminished)', iv:[0,2,3,5,6,8,9,11]},
+  {name:'Augmented',                  iv:[0,3,4,7,8,11]},
+  {name:'Chromatic',                  iv:[0,1,2,3,4,5,6,7,8,9,10,11]},
+  // ── Exotic / Esoteric ──
+  {name:'Double Harmonic (Byzantine)',iv:[0,1,4,5,7,8,11]},
+  {name:'Enigmatic (Verdi)',          iv:[0,1,4,6,8,10,11]},
+  {name:'Neapolitan Major',           iv:[0,1,3,5,7,9,11]},
+  {name:'Neapolitan Minor',           iv:[0,1,3,5,7,8,11]},
+  {name:'Persian',                    iv:[0,1,4,5,6,8,11]},
+  {name:'Arabic (Rast)',              iv:[0,2,4,5,7,9,10]},
+  {name:'Flamenco',                   iv:[0,1,4,5,7,8,11]},
+  {name:'Phrygian Dominant',         iv:[0,1,4,5,7,8,10]},
+  {name:'Ukrainian Dorian',           iv:[0,2,3,6,7,9,10]},
+  {name:'Prometheus',                 iv:[0,2,4,6,9,10]},
+  {name:'Tritone',                    iv:[0,1,4,6,7,10]},
+  // ── Modal jazz ──
+  {name:'Lydian Dominant',            iv:[0,2,4,6,7,9,10]},
+  {name:'Altered (Super-Locrian)',    iv:[0,1,3,4,6,8,10]},
+  {name:'Lydian ♭7 ♭3',              iv:[0,2,3,6,7,9,10]},
+  {name:'Half-Diminished (Locrian♮2)',iv:[0,2,3,5,6,8,10]},
+];
+
+function noteFrom(k,s){return CHROM[((KS[k]??0)+s)%12];}
+function romanInKey(note,key){const ni=CHROM.indexOf(note),ki=KS[key]??0,iv=(ni-ki+12)%12;const m=DIA.find(d=>d.semi===iv);return m?m.roman:null;}
+
+// ═══════════════════════════════════════════════════════════
+// GLOBAL CHROMATIC OFFSET (Plasma Transposer)
+// ═══════════════════════════════════════════════════════════
+let globalOffset=0; // semitones shift applied to all audio & labels
+
+function transposedNote(baseNoteSemi){return CHROM[(baseNoteSemi+globalOffset+12*10)%12];}
+function transposedFreq(baseHz){return baseHz*Math.pow(2,globalOffset/12);}
+function transposedKey(key){
+  const base=KS[key]??0;
+  const shifted=(base+globalOffset+12)%12;
+  return CHROM[shifted];
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════════════════════════════
+let _ac=null;
+function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==='suspended')_ac.resume();return _ac;}
+function triTone(freq,dur=0.65,vol=0.09,delay=0){
+  const a=getAC(),t=a.currentTime+delay;
+  const o=a.createOscillator(),e=a.createGain();
+  o.connect(e);e.connect(a.destination);
+  o.type='triangle';o.frequency.value=freq;
+  e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(vol,t+0.014);
+  e.gain.setValueAtTime(vol,t+dur*0.5);e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t);o.stop(t+dur+0.02);
+}
+function playChord(root,qual,sched=0){
+  const f=(HZ[root]||261.63)*Math.pow(2,globalOffset/12);
+  const iv=qual==='maj'?[0,4,7]:qual==='min'?[0,3,7]:[0,3,6];
+  triTone(f*0.5,1.0,0.08,sched);
+  iv.forEach((s,i)=>triTone(f*Math.pow(2,s/12),0.85,0.07,sched+i*0.032));
+}
+
+// ═══════════════════════════════════════════════════════════
+// THREE.JS
+// ═══════════════════════════════════════════════════════════
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,0,5.2);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+document.getElementById('three').appendChild(renderer.domElement);
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);updateBubbles();});
+const group=new THREE.Group();scene.add(group);
+
+// ═══════════════════════════════════════════════════════════
+// GEOMETRY
+// ═══════════════════════════════════════════════════════════
+const RADIUS=1.5;
+function extractFaces(r){
+  const geom=new THREE.DodecahedronGeometry(r,0),pos=geom.attributes.position;
+  const faces=[];
+  for(let f=0;f<12;f++){
+    const raw=[];for(let t=0;t<3;t++)for(let v=0;v<3;v++){const i=f*9+t*3+v;raw.push(new THREE.Vector3(pos.getX(i),pos.getY(i),pos.getZ(i)));}
+    const eps=0.001,uniq=[];raw.forEach(v=>{if(!uniq.some(u=>u.distanceTo(v)<eps))uniq.push(v.clone());});
+    const cen=new THREE.Vector3();uniq.forEach(v=>cen.add(v));cen.divideScalar(uniq.length);
+    const nor=cen.clone().normalize();
+    const u=new THREE.Vector3().subVectors(uniq[0],cen);u.addScaledVector(nor,-u.dot(nor)).normalize();
+    const vA=new THREE.Vector3().crossVectors(nor,u).normalize();
+    const wa=uniq.map(pt=>{const d=new THREE.Vector3().subVectors(pt,cen);return{pt,a:Math.atan2(d.dot(vA),d.dot(u))};});
+    wa.sort((a,b)=>a.a-b.a);const ord=wa.map(e=>e.pt);
+    const e1=new THREE.Vector3().subVectors(ord[1],ord[0]),e2=new THREE.Vector3().subVectors(ord[2],ord[0]);
+    if(new THREE.Vector3().crossVectors(e1,e2).dot(nor)<0)ord.reverse();
+    faces.push({verts:ord,cen,nor});
+  }
+  geom.dispose();return faces;
+}
+const FACES=extractFaces(RADIUS);
+
+function buildAdj(faces){
+  const eps=0.001,adj=Array.from({length:12},()=>[]);
+  for(let i=0;i<12;i++)for(let j=i+1;j<12;j++){
+    const sh=[];faces[i].verts.forEach(vi=>faces[j].verts.forEach(vj=>{if(vi.distanceTo(vj)<eps)sh.push(vi.clone());}));
+    if(sh.length>=2){adj[i].push({face:j,pts:sh});adj[j].push({face:i,pts:sh});}
+  }
+  return adj;
+}
+const ADJ=buildAdj(FACES);
+
+(function(){const a=new Array(12).fill(-1);a[0]=0;const q=[0];let ci=1;
+  while(q.length&&ci<12){const c=q.shift();for(const{face:f}of ADJ[c])if(a[f]===-1&&ci<12){a[f]=ci++;q.push(f);}}
+  for(let fi=0;fi<12;fi++)FKEY[fi]=COF[a[fi]]||COF[fi%12];})();
+
+const EPS=0.001;
+const sharedVertMap=Array.from({length:12},()=>({}));
+for(let i=0;i<12;i++)for(const{face:j}of ADJ[i]){
+  const pairs=[];
+  FACES[i].verts.forEach((vi,li)=>FACES[j].verts.forEach((vj,lj)=>{if(vi.distanceTo(vj)<EPS)pairs.push({liLocal:li,ljLocal:lj,worldPt:vi.clone()});}));
+  if(pairs.length>=2){sharedVertMap[i][j]=pairs;sharedVertMap[j][i]=pairs.map(p=>({liLocal:p.ljLocal,ljLocal:p.liLocal,worldPt:p.worldPt}));}
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCENE OBJECTS
+// ═══════════════════════════════════════════════════════════
+const wireGeo=new THREE.EdgesGeometry(new THREE.DodecahedronGeometry(RADIUS,0),5);
+const wireMat=new THREE.LineBasicMaterial({color:0x9a6e14,transparent:true,opacity:0.22});
+group.add(new THREE.LineSegments(wireGeo,wireMat));
+const layers=FACES.map((fd,fi)=>{
+  const h=FHUE[fi];
+  const fa=[];for(let i=1;i<fd.verts.length-1;i++)[fd.verts[0],fd.verts[i],fd.verts[i+1]].forEach(v=>fa.push(v.x,v.y,v.z));
+  const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(fa),3));
+  const fm=new THREE.MeshBasicMaterial({color:new THREE.Color(`hsl(${h},55%,48%)`),transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false});
+  const fill=new THREE.Mesh(fg,fm);group.add(fill);
+  const lm=new THREE.LineBasicMaterial({color:new THREE.Color(`hsl(${h},68%,40%)`),transparent:true,opacity:0});
+  const loop=new THREE.Line(new THREE.BufferGeometry().setFromPoints([...fd.verts,fd.verts[0]]),lm);group.add(loop);
+  const dp=[[0,2],[0,3],[1,3],[1,4],[2,4]],dpts=[];dp.forEach(([a,b])=>{dpts.push(fd.verts[a],fd.verts[b]);});
+  const dm=new THREE.LineBasicMaterial({color:new THREE.Color(`hsl(${h},60%,52%)`),transparent:true,opacity:0});
+  const diag=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(dpts),dm);group.add(diag);
+  const gm=new THREE.LineBasicMaterial({color:new THREE.Color(`hsl(${h},55%,45%)`),transparent:true,opacity:0});
+  const ghost=new THREE.Line(new THREE.BufferGeometry().setFromPoints([...fd.verts,fd.verts[0]]),gm);group.add(ghost);
+  return{fill,fm,loop,lm,diag,dm,ghost,gm,h};
+});
+const pivotEdgeLines=[];
+for(let i=0;i<12;i++)for(const{face:j,pts}of ADJ[i]){
+  if(j<=i)continue;
+  const mat=new THREE.LineBasicMaterial({color:0x9a6e14,transparent:true,opacity:0});
+  group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts.slice(0,2)),mat));
+  pivotEdgeLines.push({i,j,mat});
+}
+const flashState=new Array(12).fill(null);
+const FLASH_DUR=400;
+function triggerFlash(fi){if(fi>=0&&fi<12)flashState[fi]={start:performance.now(),dur:FLASH_DUR};}
+function syncSceneBg(){
+  const dark=document.documentElement.dataset.theme==='dark';
+  scene.background=new THREE.Color(dark?0x07080e:0xeeead8);
+  wireMat.color.set(dark?0xc8a84b:0x9a6e14);wireMat.opacity=dark?0.06:0.22;
+  pivotEdgeLines.forEach(p=>p.mat.color.set(dark?0xc8a84b:0x9a6e14));
+  layers.forEach(lyr=>{const h=lyr.h,l=!dark;
+    lyr.fm.color.set(`hsl(${h},${l?55:62}%,${l?48:36}%)`);
+    lyr.lm.color.set(`hsl(${h},${l?68:78}%,${l?40:64}%)`);
+    lyr.dm.color.set(`hsl(${h},${l?60:50}%,${l?52:58}%)`);
+    lyr.gm.color.set(`hsl(${h},${l?55:48}%,${l?45:36}%)`);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// FLOATING CENTROID SIGNIFIERS
+// One DOM node per built face, projected from its 3D centroid.
+// Fades based on dot product of face normal with camera vector.
+// Acts as a permanent billboard — always screen-facing.
+// ═══════════════════════════════════════════════════════════
+const slayer = document.getElementById('slayer');
+const signifiers = {}; // fi → {el, keyEl, subEl}
+
+function createSignifier(fi) {
+  if (signifiers[fi]) return;
+  const el = document.createElement('div');
+  el.className = 'fsign inactive';
+  el.id = `fsign-${fi}`;
+  // --fc sets the colour from the face hue
+  const h = FHUE[fi];
+  const dark = document.documentElement.dataset.theme === 'dark';
+  el.style.setProperty('--fc', `hsl(${h},${dark?70:58}%,${dark?65:38}%)`);
+  // Key name span
+  const keyEl = document.createElement('span');
+  keyEl.id = `fsign-key-${fi}`;
+  keyEl.textContent = transposedKey(FKEY[fi]);
+  el.appendChild(keyEl);
+  // Sub-label span
+  const subEl = document.createElement('span');
+  subEl.className = 'fsign-sub';
+  subEl.id = `fsign-sub-${fi}`;
+  subEl.textContent = FKEY[fi];
+  el.appendChild(subEl);
+  slayer.appendChild(el);
+  signifiers[fi] = { el, keyEl, subEl };
+}
+
+function destroySignifier(fi) {
+  if (!signifiers[fi]) return;
+  const { el } = signifiers[fi];
+  if (el && el.parentNode) el.parentNode.removeChild(el);
+  delete signifiers[fi];
+}
+
+function updateSignifiers() {
+  // Camera forward vector in world space (camera looks down -Z)
+  const camDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  Object.entries(signifiers).forEach(([fiStr, sig]) => {
+    const fi = parseInt(fiStr);
+    const fd = FACES[fi];
+    if (!fd) return;
+    // Project centroid to screen
+    const worldCen = fd.cen.clone().applyMatrix4(group.matrixWorld);
+    const sc = worldCen.clone();
+    sc.project(camera);
+    const sx = (sc.x * 0.5 + 0.5) * innerWidth;
+    const sy = (-sc.y * 0.5 + 0.5) * innerHeight;
+    // Behind camera — hide
+    if (sc.z > 1.0) { sig.el.style.opacity = '0'; return; }
+    sig.el.style.left = sx + 'px';
+    sig.el.style.top  = sy + 'px';
+    // Dot product: face normal in world space vs camera-forward
+    const worldNor = fd.nor.clone().applyQuaternion(group.quaternion);
+    const dot = worldNor.dot(camDir); // 1 = fully facing, -1 = fully away
+    // Map dot: facing camera when dot < 0 (normal points toward viewer)
+    const facing = -dot; // 1 = face points at camera
+    const baseOp = Math.max(0, Math.min(1, (facing + 0.3) / 0.8));
+    const isAct = fi === activeFace;
+    // Update class and opacity
+    sig.el.classList.toggle('active',   isAct);
+    sig.el.classList.toggle('inactive', !isAct);
+    sig.el.style.opacity = (baseOp * (isAct ? 1.0 : 0.62)).toFixed(3);
+    // Update text with transposer offset
+    sig.keyEl.textContent = transposedKey(FKEY[fi]);
+    sig.subEl.textContent = isAct ? '▸ active' : FKEY[fi];
+    // Update colour for theme
+    const dark = document.documentElement.dataset.theme === 'dark';
+    const h = FHUE[fi];
+    sig.el.style.setProperty('--fc', `hsl(${h},${dark?70:58}%,${dark?65:38}%)`);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// BUBBLE SYSTEM (persistent per face)
+// ═══════════════════════════════════════════════════════════
+const vlayer=document.getElementById('vlayer');
+const bubbleSets={};
+function safe(el,fn){try{if(el&&el.isConnected)fn(el);}catch(e){}}
+function safeText(el,t){safe(el,e=>e.textContent=t);}
+function safeStyle(el,p,v){safe(el,e=>{e.style[p]=v;});}
+function safeClass(el,add,cls){safe(el,e=>e.classList[add?'add':'remove'](cls));}
+
+function createBubbleSet(fi){
+  if(bubbleSets[fi])return;
+  const key=FKEY[fi];const set=[];
+  DV.forEach((dv,v)=>{
+    const el=document.createElement('div');el.className=`bubble ${dv.fn}`;el.id=`b-${fi}-${v}`;
+    const cnv=document.createElement('canvas');cnv.className='b-pulse';cnv.width=PULSE_CSZ;cnv.height=PULSE_CSZ;
+    cnv.style.cssText=`width:${PULSE_CSZ}px;height:${PULSE_CSZ}px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);`;
+    el.appendChild(cnv);
+    const sphere=document.createElement('div');sphere.className='bsphere';sphere.id=`sp-${fi}-${v}`;
+    const romanEl=document.createElement('span');romanEl.className='b-roman';romanEl.textContent=dv.roman;sphere.appendChild(romanEl);
+    const roman2El=document.createElement('span');roman2El.className='b-roman2';roman2El.style.display='none';sphere.appendChild(roman2El);
+    el.appendChild(sphere);
+    sphere.addEventListener('click',e=>{e.stopPropagation();onBubbleTap(fi,v);});
+    const noteEl=document.createElement('span');noteEl.className='b-note';noteEl.textContent=noteFrom(key,dv.semi);el.appendChild(noteEl);
+    const keyLblEl=document.createElement('span');keyLblEl.className='b-key-label';keyLblEl.textContent=key;el.appendChild(keyLblEl);
+    vlayer.appendChild(el);
+    set.push({el,sphere,noteEl,keyLblEl,romanEl,roman2El,pCanvas:cnv,pCtx:cnv.getContext('2d'),fi,v});
+  });
+  bubbleSets[fi]=set;
+}
+function destroyBubbleSet(fi){
+  if(!bubbleSets[fi])return;
+  bubbleSets[fi].forEach(b=>{if(b.el&&b.el.parentNode)b.el.parentNode.removeChild(b.el);});
+  delete bubbleSets[fi];
+}
+function project(worldPt){
+  const p=worldPt.clone().applyMatrix4(group.matrixWorld);p.project(camera);
+  return{x:(p.x*0.5+0.5)*innerWidth,y:(-p.y*0.5+0.5)*innerHeight,z:p.z};
+}
+function computePivotVerts(){
+  const map=new Map();
+  if(activeFace<0)return map;
+  builtFaces.forEach(rec=>{
+    if(rec.fi===activeFace)return;
+    const pairs=sharedVertMap[activeFace]?.[rec.fi];
+    if(!pairs)return;
+    pairs.forEach(p=>{
+      const wp=p.worldPt;
+      const ptKey=`${wp.x.toFixed(3)},${wp.y.toFixed(3)},${wp.z.toFixed(3)}`;
+      map.set(ptKey,{romanInActive:DV[p.liLocal]?.roman||'?',romanInOther:DV[p.ljLocal]?.roman||'?',
+        otherKey:rec.key,activeKey:FKEY[activeFace],liLocal:p.liLocal,ljLocal:p.ljLocal,faceA:activeFace,faceO:rec.fi});
+    });
+  });
+  return map;
+}
+function updateBubbles(){
+  const pivotVerts=computePivotVerts();
+  Object.entries(bubbleSets).forEach(([fiStr,set])=>{
+    const fi=parseInt(fiStr);const fd=FACES[fi];const key=FKEY[fi];const isActive=fi===activeFace;
+    set.forEach((b,v)=>{
+      if(!fd||!fd.verts[v]){safeClass(b.el,false,'vis');return;}
+      const s=project(fd.verts[v]);
+      if(s.z>1.0){safeClass(b.el,false,'vis');return;}
+      safeStyle(b.el,'left',s.x+'px');safeStyle(b.el,'top',s.y+'px');safeClass(b.el,true,'vis');
+      const wp=fd.verts[v];
+      const ptKey=`${wp.x.toFixed(3)},${wp.y.toFixed(3)},${wp.z.toFixed(3)}`;
+      const pivotInfo=pivotVerts.get(ptKey);
+      let role=isActive?'primary':'secondary';
+      if(pivotInfo)role='pivot';
+      b.el.classList.remove('role-primary','role-secondary','role-pivot');
+      b.el.classList.add('role-'+role);
+      // Update note labels with global offset applied
+      const baseNote=noteFrom(key,DV[v].semi);
+      const baseSemi=(KS[key]??0+DV[v].semi)%12;
+      const transNote=CHROM[((KS[key]??0)+DV[v].semi+globalOffset+120)%12];
+      if(role==='pivot'&&pivotInfo){
+        const ra=isActive?pivotInfo.romanInActive:pivotInfo.romanInOther;
+        const ro=isActive?pivotInfo.romanInOther:pivotInfo.romanInActive;
+        safeText(b.romanEl,ra);b.roman2El.style.display='';safeText(b.roman2El,ro);
+        safeText(b.noteEl,transNote);
+        safeText(b.keyLblEl,`${transposedKey(pivotInfo.activeKey)}·${transposedKey(pivotInfo.otherKey)}`);
+      } else {
+        safeText(b.romanEl,DV[v].roman);b.roman2El.style.display='none';
+        safeText(b.noteEl,transNote);
+        safeText(b.keyLblEl,transposedKey(key));
+      }
+    });
+  });
+  drawPivotConnectors(computePivotVerts());
+}
+const pivotSvgEl=document.getElementById('pivot-svg');
+function drawPivotConnectors(pivotVerts){
+  pivotSvgEl.innerHTML='';
+  if(activeFace<0||builtFaces.length<2)return;
+  const drawn=new Set();
+  pivotVerts.forEach((info)=>{
+    const pairKey=`${Math.min(info.faceA,info.faceO)}-${Math.max(info.faceA,info.faceO)}`;
+    if(drawn.has(pairKey))return;drawn.add(pairKey);
+    const cA=project(FACES[info.faceA].cen),cO=project(FACES[info.faceO].cen);
+    if(cA.z>1||cO.z>1)return;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cA.x);line.setAttribute('y1',cA.y);
+    line.setAttribute('x2',cO.x);line.setAttribute('y2',cO.y);
+    const dark=document.documentElement.dataset.theme==='dark';
+    line.setAttribute('stroke',dark?'rgba(200,168,75,0.22)':'rgba(122,78,6,0.18)');
+    line.setAttribute('stroke-width','1');line.setAttribute('stroke-dasharray','4 6');
+    pivotSvgEl.appendChild(line);
+  });
+}
+function drawPulseRing(b,v,t){
+  const cfg=PULSE[v];if(!b.pCtx||cfg.hz===0)return;
+  const c=b.pCtx,sz=PULSE_CSZ;c.clearRect(0,0,sz,sz);
+  const cx=sz/2,cy=sz/2,baseR=B_RADIUS[v];
+  const phase=(t*cfg.hz)%1.0;
+  const eased=cfg.ease==='cubic'?1-Math.pow(1-phase,3):Math.sin(phase*Math.PI);
+  const r=baseR+eased*cfg.rMax,alpha=cfg.alpha*(1-eased);
+  if(alpha<0.01)return;
+  let col=`rgba(128,128,128,${alpha})`;
+  if(b.sphere&&b.sphere.isConnected){
+    const cs=getComputedStyle(b.sphere);const raw=cs.getPropertyValue('--bc').trim();
+    if(raw.startsWith('#')){const hex=raw.replace('#','');const rr=parseInt(hex.slice(0,2),16),gg=parseInt(hex.slice(2,4),16),bb=parseInt(hex.slice(4,6),16);col=`rgba(${rr},${gg},${bb},${alpha.toFixed(3)})`;}
+    else if(raw.startsWith('rgb')){col=raw.replace(/rgba?\(/,'rgba(').replace(/[\d.]+\)$/,`${alpha.toFixed(3)})`);}
+  }
+  c.beginPath();c.arc(cx,cy,Math.max(baseR+1,r),0,Math.PI*2);c.strokeStyle=col;c.lineWidth=1.4;c.stroke();
+}
+function onBubbleTap(fi,v){
+  // Navigate to this face if not already active
+  if(fi!==activeFace){
+    activeFace=fi;curKey=FKEY[fi];previewFace=-1;
+    rotateTo(FACES[fi].cen);renderChordStrip(curKey);syncKeySelector();
+  }
+  const key=FKEY[fi],dv=DV[v],note=noteFrom(key,dv.semi);
+
+  if(pedagogyLevel===3){
+    placeChordAndFace(dv.roman,note,dv.qual,key);
+  } else {
+    // Level I & II: play + log + prime the modulation state
+    playPlanar(dv.roman,note,dv.qual,key,fi);
+    // PRIME: write pendingPivot for the explicit fold vector
+    pendingPivot={roman:dv.roman,note,qual:dv.qual,key,fi,v};
+    lastChord={roman:dv.roman,note,qual:dv.qual,key};
+    // Status hint if ghost faces are reachable
+    if(pedagogyLevel>=2&&getAvailable().length>0&&builtSet.size>0){
+      setSt(`${dv.roman}·${noteFrom(key,dv.semi)} primed — tap a ghost face to fold`);
+    }
+  }
+
+  // Strike visual on this bubble
+  const b=bubbleSets[fi]?.[v];
+  if(b?.sphere?.isConnected){
+    b.sphere.classList.add('struck');
+    setTimeout(()=>safe(b.sphere,s=>s.classList.remove('struck')),360);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HARMONIC CLOUD — H = union of all pitch classes in built chords
+// ═══════════════════════════════════════════════════════════
+function computeHarmonicCloud(){
+  const H=new Set();
+  ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach(e=>{
+    const rootNote=e.note;
+    const rootSemi=(CHROM.indexOf(rootNote)+globalOffset+120)%12;
+    const qual=e.qual||'maj';
+    chordPCs(rootSemi,qual).forEach(pc=>H.add(pc));
+  });
+  return H;
+}
+
+// Consonance Correspondence Score: Ck = (|H∩Sk| / |H∪Sk|) × 100
+function consonanceScore(H, scalePCs){
+  if(H.size===0)return 0;
+  let inter=0;
+  H.forEach(pc=>{if(scalePCs.has(pc))inter++;});
+  const union=new Set([...H,...scalePCs]);
+  return Math.round((inter/union.size)*100);
+}
+
+function updateGrimoire(){
+  if(!grimoireOpen)return;
+  const activeTab=document.querySelector('.gtab.on')?.id?.replace('gt-','');
+  if(activeTab==='cloud')updateCloudPane();
+  if(activeTab==='scores')updateScoresPane();
+  if(activeTab==='ledger')updateLedgerPane();
+  updatePlasmaEffect();
+}
+
+function updateCloudPane(){
+  const H=computeHarmonicCloud();
+  const countEl=document.getElementById('cloud-count');
+  if(countEl)countEl.textContent=`${H.size} of 12 pitch classes active`;
+  const display=document.getElementById('cloud-display');
+  if(!display)return;
+  display.innerHTML='';
+  CHROM.forEach((note,i)=>{
+    const transNote=CHROM[(i+globalOffset+120)%12];
+    const hue=i*30;
+    const active=H.has(i);
+    const d=document.createElement('div');
+    d.className='cloud-note '+(active?'active':'inactive');
+    d.style.cssText=`background:hsla(${hue},${active?65:30}%,${active?50:40}%,${active?0.18:0.06});border-color:hsla(${hue},60%,50%,${active?0.5:0.12});color:hsla(${hue},${active?70:40}%,${active?35:50}%,1)`;
+    d.textContent=transNote;
+    display.appendChild(d);
+  });
+  const detail=document.getElementById('cloud-detail');
+  if(detail){
+    if(H.size===0){detail.textContent='No chords placed yet.';}
+    else{
+      const notes=[...H].map(i=>CHROM[(i+globalOffset+120)%12]).join('  ·  ');
+      detail.textContent=notes;
+    }
+  }
+}
+
+function updateScoresPane(){
+  const H=computeHarmonicCloud();
+  const list=document.getElementById('score-list');
+  if(!list)return;list.innerHTML='';
+  if(H.size===0){list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">Place chords to generate the consonance matrix.</div>';return;}
+  // Score each candidate scale against each possible root
+  const scores=[];
+  COF.forEach((key,ki)=>{
+    const rootSemi=(COF_SEMI[ki]+globalOffset+120)%12;
+    CANDIDATE_SCALES.forEach(sc=>{
+      const scalePCs=new Set(sc.iv.map(s=>(rootSemi+s)%12));
+      const ck=consonanceScore(H,scalePCs);
+      scores.push({name:`${transposedKey(key)} ${sc.name}`,ck,key,scaleName:sc.name});
+    });
+  });
+  scores.sort((a,b)=>b.ck-a.ck);
+  const top=scores.slice(0,20);
+  const maxScore=top[0]?.ck||1;
+  top.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='score-row'+(i===0?' top-score':i<5?' high-score':'');
+    row.innerHTML=`<span class="score-name">${s.name}</span>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:${(s.ck/maxScore)*100}%"></div></div>
+      <span class="score-pct">${s.ck}%</span>`;
+    list.appendChild(row);
+  });
+}
+
+function updateLedgerPane(){
+  const list=document.getElementById('chord-ledger-list');
+  if(!list)return;list.innerHTML='';
+  if(!ledger.length){list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No chords placed yet.</div>';return;}
+  const byFace={};
+  ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach(e=>{
+    const fiKey=e.fi>=0?e.fi:-1;
+    if(!byFace[fiKey])byFace[fiKey]=[];
+    byFace[fiKey].push(e);
+  });
+  Object.entries(byFace).forEach(([fiStr,entries])=>{
+    const fi=parseInt(fiStr);
+    const faceKey=fi>=0?transposedKey(FKEY[fi]??'?'):'—';
+    entries.forEach((e,idx)=>{
+      const row=document.createElement('div');row.className='ledger-entry';
+      const transNote=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
+      const qual=e.qual||'maj';
+      const rootSemi=(CHROM.indexOf(e.note)+globalOffset+120)%12;
+      const pcs=chordPCs(rootSemi,qual).map(i=>CHROM[i]).join('-');
+      row.innerHTML=`<span class="le-face">${fi>=0?fi+1:''}${idx===0?'':''}</span>
+        <span class="le-key">${faceKey}</span>
+        <span class="le-chord">${e.roman} · ${transNote} ${qual}</span>
+        <span class="le-semis">${pcs}</span>`;
+      list.appendChild(row);
+    });
+  });
+}
+
+function updatePlasmaEffect(){
+  const el=document.getElementById('plasma-effect');if(!el)return;
+  if(globalOffset===0){el.textContent='No transposition active. Structure at original pitch.';return;}
+  const lines=[];
+  builtFaces.slice(0,4).forEach(rec=>{
+    const orig=rec.key;const trans=transposedKey(orig);
+    if(orig!==trans)lines.push(`${orig} → ${trans}`);
+  });
+  if(lines.length){el.textContent=lines.join('\n')+'\n...';}
+  else{el.textContent=`Δ = ${globalOffset>0?'+':''}${globalOffset} semitones`;}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLASMA TRANSPOSER FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function setPlasmaOffset(delta){
+  globalOffset=((delta%12)+12)%12;
+  if(globalOffset>6)globalOffset=globalOffset-12; // keep in [-6,+6] range
+  const rootSemi=(globalOffset+12)%12;
+  const rootName=CHROM[rootSemi];
+  const prEl=document.getElementById('plasma-root');
+  if(prEl)prEl.textContent=rootName;
+  const pdEl=document.getElementById('plasma-delta');
+  if(pdEl)pdEl.textContent=`Δ = ${globalOffset>0?'+':''}${globalOffset} semitone${Math.abs(globalOffset)!==1?'s':''}`;
+  // Update plasma key buttons
+  document.querySelectorAll('.tkey').forEach(b=>{
+    const bSemi=KS[b.dataset.note]??0;
+    const targetDelta=(bSemi-0+12)%12;
+    b.classList.toggle('on',CHROM[(globalOffset+12)%12]===b.dataset.note);
+  });
+  updateGrimoire();
+  scheduleConstellationRedraw(); // transposition shifts H coordinates
+}
+function shiftPlasma(dir){setPlasmaOffset(globalOffset+dir);}
+
+function buildPlasmaKeys(){
+  const row=document.getElementById('plasma-keys');if(!row)return;
+  row.innerHTML='';
+  CHROM.forEach((note,i)=>{
+    const b=document.createElement('button');b.className='tkey';b.dataset.note=note;b.textContent=note;
+    b.onclick=()=>setPlasmaOffset(i);
+    row.appendChild(b);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════
+function exportClipboard(){
+  const rows=['face,key,roman,note,qual,pitchClasses'];
+  ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach(e=>{
+    const fi=e.fi>=0?e.fi+1:'';
+    const fk=e.fi>=0?transposedKey(FKEY[e.fi]??'?'):'?';
+    const tn=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
+    const rs=(CHROM.indexOf(e.note)+globalOffset+120)%12;
+    const pcs=chordPCs(rs,e.qual||'maj').map(i=>CHROM[i]).join('-');
+    rows.push(`${fi},${fk},${e.roman},${tn},${e.qual||'maj'},${pcs}`);
+  });
+  navigator.clipboard.writeText(rows.join('\n')).then(()=>setSt('Ledger copied to clipboard'));
+}
+function exportJSON(){
+  const data={offset:globalOffset,cloud:[...computeHarmonicCloud()].map(i=>CHROM[i]),
+    chords:ledger.filter(e=>e.type==='chord'||e.type==='pivot').map(e=>({
+      face:e.fi>=0?e.fi+1:null,key:e.fi>=0?transposedKey(FKEY[e.fi]):null,
+      roman:e.roman,note:CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12],qual:e.qual
+    }))};
+  navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>setSt('JSON copied to clipboard'));
+}
+
+// ═══════════════════════════════════════════════════════════
+// APPLICATION STATE
+// ═══════════════════════════════════════════════════════════
+let ledger=[],builtFaces=[],builtSet=new Set(),faceRecord=new Array(12).fill(null);
+let activeFace=-1,curKey='C',autoRot=true,lastChord=null,pedagogyLevel=1;
+let previewFace=-1;   // hoisted — must precede render loop
+let lastTapTime=0;    // hoisted — double-tap ignition timer
+let pendingPivot=null;// hoisted — primed chord awaiting ghost-face fold
+let grimoireOpen=false;
+const animClock=new Array(12).fill(null);
+function easeOutBack(t){const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);}
+function setSt(m){const el=document.getElementById('status');if(el)el.textContent=m;}
+const LN=['','Planar Sovereignty','Modulation Gateway','Free Construction'];
+const LC=['','I','II','III'];
+function syncLevelUI(){
+  const n=document.getElementById('lvl-n');if(n)n.textContent=LC[pedagogyLevel];
+  const lt=document.getElementById('lvl-tag');if(lt)lt.innerHTML=`Level&thinsp;<b>${LC[pedagogyLevel]}</b>&thinsp;·&thinsp;${LN[pedagogyLevel]}`;
+  ['ls1','ls2','ls3'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',i+1===pedagogyLevel);});
+  ['lc1','lc2','lc3'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',i+1===pedagogyLevel);});
+}
+function setLevel(n){pedagogyLevel=n;syncLevelUI();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open');setSt(['','tap bubbles or pills · no fold','play chord then tap ghost face','chord taps fold next face'][n]);}
+function toggleDrawer(){const dr=document.getElementById('drawer');if(dr)dr.classList.toggle('open');}
+document.addEventListener('click',e=>{const dr=document.getElementById('drawer');if(!dr||!dr.classList.contains('open'))return;if(!dr.contains(e.target)&&!e.target.closest('.tb')&&!e.target.closest('#dr-close'))dr.classList.remove('open');});
+
+// ═══════════════════════════════════════════════════════════
+// GRIMOIRE TOGGLE & TABS
+// ═══════════════════════════════════════════════════════════
+function toggleGrimoire(){
+  grimoireOpen=!grimoireOpen;
+  const g=document.getElementById('grimoire');
+  if(g)g.classList.toggle('open',grimoireOpen);
+  if(grimoireOpen)updateGrimoire();
+}
+function showGTab(id){
+  document.querySelectorAll('.gtab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.gpane').forEach(p=>p.classList.remove('on'));
+  const tb=document.getElementById('gt-'+id);if(tb)tb.classList.add('on');
+  const pn=document.getElementById('gpane-'+id);if(pn)pn.classList.add('on');
+  updateGrimoire();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAY / PLACE LOGIC
+// ═══════════════════════════════════════════════════════════
+function playPlanar(roman,note,qual,key,fi){
+  playChord(note,qual);lastChord={roman,note,qual,key};
+  ledger.push({type:'chord',roman,note,qual,key,fi});
+  renderLedger();triggerFlash(fi>=0?fi:activeFace);
+  updateGrimoire();
+  const avail=getAvailable();
+  if(builtSet.size===0)setSt(`${roman}·${note} — tap solid to open tonal center`);
+  else if(avail.length>0&&pedagogyLevel>=2)setSt(`${roman}·${note} in ${key} — tap ghost face to modulate`);
+  else setSt(`${roman}·${note} · ${key}`);
+}
+function getAvailable(){if(builtSet.size===0)return[0];const out=new Set();builtSet.forEach(fi=>ADJ[fi].forEach(({face})=>{if(!builtSet.has(face))out.add(face);}));return[...out];}
+function bestFace(key,cands){
+  const kp=COF.indexOf(key);if(kp<0)return cands[0];let best=cands[0],bd=Infinity;
+  cands.forEach(fi=>{const fp=COF.indexOf(FKEY[fi]);if(fp<0)return;const d=Math.min(Math.abs(fp-kp),12-Math.abs(fp-kp));if(d<bd){bd=d;best=fi;}});return best;
+}
+function placeFace(fi,key){
+  builtFaces.push({fi,key});faceRecord[fi]={fi,key};builtSet.add(fi);
+  animClock[fi]={start:performance.now(),dur:720};
+  activeFace=fi;curKey=key;previewFace=-1;createBubbleSet(fi);createSignifier(fi);rotateTo(FACES[fi].cen);
+  const fcn=document.getElementById('fc-n');if(fcn)fcn.textContent=builtSet.size;
+  renderChordStrip(key);buildKeySelector();syncKeySelector();updateGrimoire();
+  scheduleConstellationRedraw(); // H changed — safe to redraw now
+  if(builtSet.size===12)setTimeout(()=>{const c=document.getElementById('complete');if(c)c.classList.add('show');},900);
+}
+function plantFirst(fi){placeFace(fi,FKEY[fi]);setSt(`${FKEY[fi]} · tap bubble nodes to play`);}
+function modulate(destFi){
+  if(builtSet.has(destFi))return;
+  const destKey=FKEY[destFi];
+  // Prefer explicitly primed pivot over implicit lastChord
+  const pivot=pendingPivot||lastChord;
+  if(pivot&&builtSet.size>0){
+    const rDest=romanInKey(pivot.note,destKey);
+    if(rDest){
+      const li=ledger.map(e=>e.type).lastIndexOf('chord');
+      if(li>=0){
+        const p=ledger[li];
+        ledger[li]={type:'pivot',roman:p.roman,note:p.note,qual:p.qual,
+          originKey:p.key,destKey,romanInDest:rDest,fi:destFi};
+      }
+    }
+    ledger.push({type:'keymod',fromKey:curKey,toKey:destKey});
+  }
+  // Clear both pivot stores — fold is consumed
+  pendingPivot=null;lastChord=null;
+  placeFace(destFi,destKey);renderLedger();setSt(`modulated → ${destKey}`);
+}
+function placeChordAndFace(roman,note,qual,key){
+  playChord(note,qual);lastChord={roman,note,qual,key};
+  ledger.push({type:'chord',roman,note,qual,key,fi:activeFace});
+  renderLedger();triggerFlash(activeFace);updateGrimoire();
+  if(builtSet.size<12){const avail=getAvailable();if(builtSet.size===0)plantFirst(avail[0]);else modulate(bestFace(key,avail));}
+}
+
+// ═══════════════════════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════════════════════
+let rotTgt=new THREE.Quaternion(),rotAnim=false;
+function rotateTo(cen){rotTgt=new THREE.Quaternion().setFromUnitVectors(cen.clone().normalize(),new THREE.Vector3(0,0,1));rotAnim=true;}
+
+// ═══════════════════════════════════════════════════════════
+// VISUAL UPDATE
+// ═══════════════════════════════════════════════════════════
+function updateVisuals(){
+  const now=performance.now(),avail=getAvailable();
+  const light=document.documentElement.dataset.theme==='light';
+  const fOp=light?[0.52,0.22]:[0.55,0.26];const lOp=light?[0.95,0.52]:[0.90,0.48];
+  const dOp=light?[0.30,0.10]:[0.22,0.08];const gOp=light?0.30:0.15;
+  for(let fi=0;fi<12;fi++){
+    const built=builtSet.has(fi),av=avail.includes(fi),act=fi===activeFace;const lyr=layers[fi];
+    let ep=0;if(built){const cl=animClock[fi];if(cl){const r=Math.min(1,(now-cl.start)/cl.dur);ep=easeOutBack(r);if(r>=1){ep=1;animClock[fi]=null;}}else ep=1;}
+    const s=Math.min(1,Math.max(0,ep));let fillOp=built?(act?fOp[0]:fOp[1])*s:0;
+    if(flashState[fi]){const el=now-flashState[fi].start,fd2=flashState[fi].dur;if(el>=fd2){flashState[fi]=null;}else{const ft=el/fd2;fillOp=Math.min(1,fillOp+(1-Math.pow(ft,2.5))*(light?0.36:0.44));}}
+    const isPreview=fi===previewFace&&!built;
+    lyr.fm.opacity=built?fillOp:(isPreview?0.12:0);
+    lyr.lm.opacity=built?(act?lOp[0]:lOp[1])*s:(isPreview?0.80:0);
+    lyr.dm.opacity=built?(act?dOp[0]:dOp[1])*s:(isPreview?0.18:0);
+    // Ghost opacity: amplified when pendingPivot is set (fold is ready)
+    const primedGop=pendingPivot&&!built&&av ? Math.min(1,gOp*2.2) : gOp;
+    lyr.gm.opacity=(!built&&av&&!isPreview)?primedGop:(!built&&isPreview?0:0);
+  }
+  const pOp=light?[0.85,0.36]:[0.72,0.20];
+  pivotEdgeLines.forEach(({i,j,mat})=>{const both=builtSet.has(i)&&builtSet.has(j),act=i===activeFace||j===activeFace;mat.opacity=both?(act?pOp[0]:pOp[1]):0;});
+  wireMat.opacity=light?(builtSet.size===0?0.26:0.09):(builtSet.size===0?0.07:0.03);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════════════
+const ray=new THREE.Raycaster();
+let drag=false,moved=false,px0=0,py0=0,ix=0,iy=0;
+function onDn(x,y){drag=true;moved=false;px0=x;py0=y;ix=0;iy=0;rotAnim=false;}
+function onMv(x,y){if(!drag)return;const dx=x-px0,dy=y-py0;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;group.rotation.y+=dx*0.007;group.rotation.x+=dy*0.007;ix=dy*0.007;iy=dx*0.007;px0=x;py0=y;}
+function onUp(x,y){
+  drag=false;if(moved)return;
+  // Don't raycast if click is inside grimoire or loom panels
+  if(grimoireOpen&&x>innerWidth-370)return;
+  if(loomOpen&&x<325)return;
+  const ndc=new THREE.Vector2((x/innerWidth)*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(ndc,camera);
+  // ── Built face tap → navigate, clear pending pivot ──
+  const fills=layers.map(l=>l.fill);const fh=ray.intersectObjects(fills,false);
+  if(fh.length){
+    const fi=fills.indexOf(fh[0].object);
+    if(fi>=0&&builtSet.has(fi)){
+      activeFace=fi;curKey=FKEY[fi];previewFace=-1;pendingPivot=null;
+      rotateTo(FACES[fi].cen);renderChordStrip(curKey);syncKeySelector();return;
+    }
+  }
+  // ── Ghost face tap → fold if primed or level II+ ──
+  const ghosts=layers.map(l=>l.ghost);const gh=ray.intersectObjects(ghosts,false);
+  if(gh.length){
+    const fi=ghosts.indexOf(gh[0].object);
+    if(fi>=0&&!builtSet.has(fi)&&getAvailable().includes(fi)){
+      previewFace=-1;
+      if(builtSet.size===0){
+        plantFirst(fi);
+      } else if(pendingPivot!==null){
+        // Explicit modulation vector: primed chord → fold
+        modulate(fi);
+      } else if(pedagogyLevel>=2){
+        // Level II/III: implicit fold using lastChord
+        modulate(fi);
+      }
+      return;
+    }
+  }
+}
+const rd=renderer.domElement;
+rd.addEventListener('mousedown',e=>onDn(e.clientX,e.clientY));
+rd.addEventListener('mousemove',e=>onMv(e.clientX,e.clientY));
+rd.addEventListener('mouseup',e=>onUp(e.clientX,e.clientY));
+rd.addEventListener('mouseleave',()=>drag=false);
+rd.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];onDn(t.clientX,t.clientY);},{passive:false});
+rd.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];onMv(t.clientX,t.clientY);},{passive:false});
+rd.addEventListener('touchend',e=>{
+  e.preventDefault();
+  const t2=e.changedTouches[0];
+  const now=performance.now();
+  if(now-lastTapTime<DBL_TAP_MS&&e.changedTouches.length===1){
+    // Double-tap ignition
+    onIgnition(t2.clientX,t2.clientY);
+    lastTapTime=0; // reset so triple-tap doesn't re-fire
+  } else {
+    onUp(t2.clientX,t2.clientY);
+  }
+  lastTapTime=now;
+},{passive:false});
+
+// ── PRIMARY IGNITION — double-tap / dblclick ──
+// State 0: ignite face under cursor, seed with curKey, play root triad.
+const DBL_TAP_MS = 320;
+
+function onIgnition(x, y) {
+  if (grimoireOpen && x > innerWidth - 370) return;
+  const ndc = new THREE.Vector2((x/innerWidth)*2-1, -(y/innerHeight)*2+1);
+  ray.setFromCamera(ndc, camera);
+  // In State 0: ignite any face under the cursor (wireframe hit)
+  const wireHits = ray.intersectObject(group, true);
+  if (wireHits.length) {
+    // Find the closest face whose centroid is near the hit point
+    let bestFi = 0, bestDist = Infinity;
+    FACES.forEach((fd, fi) => {
+      const worldCen = fd.cen.clone().applyMatrix4(group.matrixWorld);
+      const d = wireHits[0].point.distanceTo(worldCen);
+      if (d < bestDist) { bestDist = d; bestFi = fi; }
+    });
+    if (builtSet.size === 0) {
+      // Plant first face keyed to current curKey selection
+      // Find the face whose FKEY matches curKey; fallback to bestFi
+      const keyFi = faceForKey(curKey);
+      const targetFi = keyFi >= 0 ? keyFi : bestFi;
+      plantFirst(targetFi);
+      // Play the I chord immediately
+      const rootNote = noteFrom(curKey, 0);
+      playChord(rootNote, 'maj');
+      ledger.push({type:'chord',roman:'I',note:rootNote,qual:'maj',key:curKey,fi:targetFi});
+      renderLedger();triggerFlash(targetFi);updateGrimoire();
+      setSt(`Ignition: ${transposedKey(curKey)} Major · double-tap to open`);
+    }
+  }
+}
+
+// Desktop dblclick
+rd.addEventListener('dblclick', e => {
+  e.preventDefault();
+  onIgnition(e.clientX, e.clientY);
+});
+
+let t0=performance.now();
+function animate(){
+  requestAnimationFrame(animate);const t=(performance.now()-t0)/1000;
+  if(!drag&&!rotAnim){group.rotation.x+=ix;group.rotation.y+=iy;ix*=0.88;iy*=0.88;}
+  if(autoRot&&!drag)group.rotation.y+=0.004;
+  if(rotAnim){group.updateMatrixWorld();const cur=new THREE.Quaternion().setFromEuler(group.rotation);cur.slerp(rotTgt,0.065);group.setRotationFromQuaternion(cur);if(cur.angleTo(rotTgt)<0.0015){group.setRotationFromQuaternion(rotTgt);rotAnim=false;}}
+  updateVisuals();
+  // Preview pulse: selected-key unbuilt face loops pulse to signal "tap me"
+  if(previewFace>=0&&!builtSet.has(previewFace)){
+    const pulse=Math.sin(t*3.5)*0.5+0.5;
+    layers[previewFace].lm.opacity=0.45+pulse*0.45;
+    layers[previewFace].fm.opacity=0.06+pulse*0.10;
+  }
+  group.updateMatrixWorld();renderer.render(scene,camera);
+  if(vlayer&&vlayer.isConnected){
+    updateBubbles();
+    updateSignifiers();
+    Object.entries(bubbleSets).forEach(([fiStr,set])=>{
+      set.forEach((b,v)=>{if(b.el.classList.contains('vis'))drawPulseRing(b,v,t);else if(b.pCtx)b.pCtx.clearRect(0,0,PULSE_CSZ,PULSE_CSZ);});
+    });
+  }
+}
+animate();
+
+// ═══════════════════════════════════════════════════════════
+// LEDGER & UNDO
+// ═══════════════════════════════════════════════════════════
+function renderLedger(){
+  const seq=document.getElementById('led-seq');if(!seq)return;seq.innerHTML='';
+  ledger.forEach(e=>{
+    const d=document.createElement('div');
+    if(e.type==='chord'){d.className='le';const idx=D_ROM.indexOf(e.roman);d.style.color=D_COL[idx]||'var(--text2)';
+      const tn=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
+      d.textContent=`${e.roman}·${tn}`;d.title=`${e.roman} in ${transposedKey(e.key||'C')}`;
+    } else if(e.type==='pivot'){d.className='le pivot';
+      const tn=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
+      d.textContent=`${e.roman}${tn}(${e.romanInDest})`;
+      d.title=`${e.roman} in ${transposedKey(e.originKey)} = ${e.romanInDest} in ${transposedKey(e.destKey)}`;
+    } else {d.className='le keymod';d.textContent=`${transposedKey(e.fromKey)}→${transposedKey(e.toKey)}`;}
+    seq.appendChild(d);
+  });
+}
+function playLedger(){ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach((e,i)=>playChord(e.note,e.qual||'maj',i*0.72));}
+function undoLast(){
+  if(builtFaces.length>0){
+    const rec=builtFaces.pop();faceRecord[rec.fi]=null;builtSet.delete(rec.fi);animClock[rec.fi]=null;flashState[rec.fi]=null;
+    destroyBubbleSet(rec.fi);destroySignifier(rec.fi);activeFace=builtFaces.length?builtFaces[builtFaces.length-1].fi:-1;curKey=activeFace>=0?FKEY[activeFace]:'C';
+    const fcn=document.getElementById('fc-n');if(fcn)fcn.textContent=builtSet.size;
+    const c=document.getElementById('complete');if(c)c.classList.remove('show');
+    while(ledger.length>0&&ledger[ledger.length-1].type!=='chord')ledger.pop();
+    renderLedger();renderChordStrip(curKey);buildKeySelector();syncKeySelector();updateGrimoire();
+  } else if(ledger.length>0){ledger.pop();renderLedger();updateGrimoire();}
+}
+function resetAll(){
+  ledger=[];builtFaces=[];builtSet=new Set();faceRecord=new Array(12).fill(null);
+  animClock.fill(null);flashState.fill(null);
+  Object.keys(bubbleSets).forEach(fi=>destroyBubbleSet(parseInt(fi)));
+  Object.keys(signifiers).forEach(fi=>destroySignifier(parseInt(fi)));
+  activeFace=-1;lastChord=null;curKey='C';globalOffset=0;previewFace=-1;pendingPivot=null;
+  const fcn=document.getElementById('fc-n');if(fcn)fcn.textContent='0';
+  const c=document.getElementById('complete');if(c)c.classList.remove('show');
+  renderLedger();renderChordStrip('C');buildKeySelector();syncKeySelector();
+  setPlasmaOffset(0);updateGrimoire();
+  scheduleConstellationRedraw(); // H cleared — redraw empty constellation
+  setSt('tap the solid to open your first tonal center');
+}
+
+// ═══════════════════════════════════════════════════════════
+// UI
+// ═══════════════════════════════════════════════════════════
+// ── KEY ↔ FACE BIDIRECTIONAL LOCK ──
+// Find the face index whose FKEY matches a given COF key string
+function faceForKey(key){return FKEY.findIndex(k=>k===key);}
+
+// Sync the key selector highlight to whichever key is curKey.
+// Called any time curKey changes (face tap, key button, placeFace).
+function syncKeySelector(){
+  const row=document.getElementById('key-row');if(!row)return;
+  const tgt=transposedKey(curKey);
+  row.querySelectorAll('.ks').forEach(b=>{
+    const match=b.dataset.cof===curKey;
+    b.classList.toggle('on',match);
+  });
+}
+
+// Called when user clicks a key button.
+// Locks curKey, syncs strip, then rotates/highlights the matching face.
+function lockKeyToFace(key){
+  curKey=key;
+  syncKeySelector();
+  renderChordStrip(key);
+  const fi=faceForKey(key);
+  if(fi<0)return;
+  if(builtSet.has(fi)){
+    // Face already built — navigate to it
+    activeFace=fi;
+    rotateTo(FACES[fi].cen);
+    setSt(`${transposedKey(key)} · face ${fi+1} · built`);
+  } else {
+    // Face not yet built — preview-highlight it without activating
+    // Set a preview target so updateVisuals can highlight it distinctly
+    previewFace=fi;
+    setSt(`${transposedKey(key)} · tap the highlighted face to open`);
+    // Rotate gently toward it so the user can see it
+    rotateTo(FACES[fi].cen);
+  }
+}
+
+function buildKeySelector(){
+  const row=document.getElementById('key-row');if(!row)return;
+  row.querySelectorAll('.ks').forEach(b=>b.remove());
+  COF.forEach(key=>{
+    const b=document.createElement('button');
+    b.className='ks'+(key===curKey?' on':'');
+    b.dataset.cof=key; // store original COF key for sync
+    b.textContent=transposedKey(key);
+    b.onclick=()=>lockKeyToFace(key);
+    row.appendChild(b);
+  });
+}
+function renderChordStrip(key){
+  const strip=document.getElementById('chord-row');if(!strip)return;strip.innerHTML='';
+  D_ROM.forEach((roman,i)=>{
+    const note=noteFrom(key,D_SEMI[i]),qual=D_QUAL[i];
+    const transNote=CHROM[(CHROM.indexOf(note)+globalOffset+120)%12];
+    const pill=document.createElement('div');pill.className='cp';
+    pill.innerHTML=`<span style="opacity:0.50">${roman}</span>&thinsp;${transNote}&thinsp;<span style="opacity:0.36;font-size:7px">${qual}</span>`;
+    pill.onclick=()=>{
+      pendingPivot=null; // new pill tap resets primed state
+      const fi=activeFace>=0?activeFace:-1;
+      if(pedagogyLevel===3)placeChordAndFace(roman,note,qual,key);
+      else playPlanar(roman,note,qual,key,fi);
+    };
+    strip.appendChild(pill);
+  });
+}
+function toggleRot(){autoRot=!autoRot;const b=document.getElementById('btn-rot');if(b)b.classList.toggle('on',autoRot);}
+function toggleTheme(){const html=document.documentElement;const dark=html.dataset.theme==='dark';html.dataset.theme=dark?'light':'dark';const btn=document.getElementById('theme-btn');if(btn)btn.textContent=dark?'☀':'☾';syncSceneBg();}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// TEMPORAL LOOM ENGINE
+// 5 rows (IV I V ii vi) × 16 steps
+// Δt = (60 / BPM) / 4  (sixteenth notes)
+// ═══════════════════════════════════════════════════════════
+let loomOpen  = false;
+let seqPlaying= false;
+let seqStep   = 0;
+let seqBpm    = 120;
+let seqTimer  = null;
+
+// pattern[row][step] = boolean
+const SEQ_ROWS = 5;   // maps to DV[0..4]: IV, I, V, ii, vi
+const SEQ_STEPS= 16;
+const seqPat   = Array.from({length:SEQ_ROWS}, ()=>new Array(SEQ_STEPS).fill(false));
+
+// Row labels + css class for colour coding
+const ROW_DEF = [
+  {roman:'IV', cls:'row-IV'},
+  {roman:'I',  cls:'row-I' },
+  {roman:'V',  cls:'row-V' },
+  {roman:'ii', cls:'row-ii'},
+  {roman:'vi', cls:'row-vi'},
+];
+
+// ── BUILD GRID ──
+function buildSeqGrid(){
+  const grid = document.getElementById('seq-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  // Step-number header row
+  const blank = document.createElement('div'); // corner
+  grid.appendChild(blank);
+  for(let s=0;s<SEQ_STEPS;s++){
+    const n=document.createElement('div'); n.className='seq-step-num';
+    n.textContent = (s+1)%4===0 ? String(s+1) : (s===0?'1':'·');
+    grid.appendChild(n);
+  }
+  // Data rows
+  ROW_DEF.forEach((rd,r)=>{
+    const lbl=document.createElement('div'); lbl.className='seq-row-label';
+    lbl.textContent=rd.roman; grid.appendChild(lbl);
+    for(let s=0;s<SEQ_STEPS;s++){
+      const cell=document.createElement('div');
+      cell.className=`seq-cell ${rd.cls}`; cell.id=`sc-${r}-${s}`;
+      if(seqPat[r][s]) cell.classList.add('on');
+      cell.onclick=()=>toggleCell(r,s);
+      grid.appendChild(cell);
+    }
+  });
+}
+
+function toggleCell(r,s){
+  seqPat[r][s]=!seqPat[r][s];
+  const cell=document.getElementById(`sc-${r}-${s}`);
+  if(cell) cell.classList.toggle('on', seqPat[r][s]);
+}
+
+// ── PLAYBACK ──
+function setBpm(val){
+  seqBpm=val;
+  const el=document.getElementById('bpm-disp'); if(el)el.textContent=val;
+  if(seqPlaying){ stopSeq(); startSeq(); }
+}
+
+function toggleSeq(){
+  if(seqPlaying) stopSeq(); else startSeq();
+}
+function startSeq(){
+  seqPlaying=true;
+  const btn=document.getElementById('seq-play-btn'); if(btn){btn.textContent='◼ Stop';btn.classList.add('on');}
+  const ms=(60/seqBpm/4)*1000; // sixteenth note in ms
+  seqStep=0;
+  seqTimer=setInterval(tickSeq, ms);
+}
+function stopSeq(){
+  seqPlaying=false;
+  clearInterval(seqTimer); seqTimer=null;
+  // Clear all playing highlights
+  document.querySelectorAll('.seq-cell.playing').forEach(c=>c.classList.remove('playing'));
+  const btn=document.getElementById('seq-play-btn'); if(btn){btn.textContent='▶ Play';btn.classList.remove('on');}
+}
+
+function tickSeq(){
+  // Clear previous column
+  const prev=(seqStep+SEQ_STEPS-1)%SEQ_STEPS;
+  for(let r=0;r<SEQ_ROWS;r++){
+    const cp=document.getElementById(`sc-${r}-${prev}`);
+    if(cp) cp.classList.remove('playing');
+  }
+  // Highlight current column and fire notes
+  for(let r=0;r<SEQ_ROWS;r++){
+    const cell=document.getElementById(`sc-${r}-${seqStep}`);
+    if(cell) cell.classList.add('playing');
+    if(seqPat[r][seqStep] && activeFace>=0){
+      // Fire the chord for this vertex
+      const key=FKEY[activeFace];
+      const dv=DV[r];
+      const note=noteFrom(key,dv.semi);
+      // Short staccato — 80% of step duration
+      const dur=(60/seqBpm/4)*0.78;
+      playChordStaccato(note,dv.qual,dur);
+      // Flash the 3D bubble
+      flashBubble(activeFace,r);
+    }
+  }
+  seqStep=(seqStep+1)%SEQ_STEPS;
+}
+
+// Short staccato version of playChord for sequencer
+function playChordStaccato(root,qual,dur){
+  const f=(HZ[root]||261.63)*Math.pow(2,globalOffset/12);
+  const iv=qual==='maj'?[0,4,7]:qual==='min'?[0,3,7]:[0,3,6];
+  triTone(f*0.5, dur, 0.07, 0);
+  iv.forEach((s,i)=>triTone(f*Math.pow(2,s/12), dur, 0.06, i*0.018));
+}
+
+// Flash a bubble sphere with the struck class
+function flashBubble(fi,v){
+  const set=bubbleSets[fi];
+  if(!set||!set[v]) return;
+  const sphere=set[v].sphere;
+  if(sphere&&sphere.isConnected){
+    sphere.classList.add('struck');
+    setTimeout(()=>{ if(sphere.isConnected) sphere.classList.remove('struck'); },180);
+  }
+  // Also flash the 3D face briefly
+  triggerFlash(fi);
+}
+
+// ── PATTERNS ──
+const PATTERNS={
+  clave:   [[1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0],
+            [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+  bossa:   [[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+            [1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0],
+            [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0],
+            [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]],
+  waltz:   [[1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0],
+            [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+            [0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+  tresillo:[[1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0],
+            [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+  harmonic:[[1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+            [0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]],
+};
+
+function loadPat(name){
+  const p=PATTERNS[name]; if(!p)return;
+  p.forEach((row,r)=>row.forEach((v,s)=>{
+    seqPat[r][s]=!!v;
+    const cell=document.getElementById(`sc-${r}-${s}`);
+    if(cell) cell.classList.toggle('on',!!v);
+  }));
+}
+function clearSeq(){
+  for(let r=0;r<SEQ_ROWS;r++)for(let s=0;s<SEQ_STEPS;s++){
+    seqPat[r][s]=false;
+    const cell=document.getElementById(`sc-${r}-${s}`);
+    if(cell){cell.classList.remove('on');cell.classList.remove('playing');}
+  }
+}
+function randSeq(){
+  for(let r=0;r<SEQ_ROWS;r++)for(let s=0;s<SEQ_STEPS;s++){
+    const v=Math.random()<(r===1?0.28:0.18); // I row slightly denser
+    seqPat[r][s]=v;
+    const cell=document.getElementById(`sc-${r}-${s}`);
+    if(cell) cell.classList.toggle('on',v);
+  }
+}
+
+// ── LOOM TOGGLE & TABS ──
+function toggleLoom(){
+  loomOpen=!loomOpen;
+  const l=document.getElementById('loom'); if(l)l.classList.toggle('open',loomOpen);
+  if(loomOpen){ buildSeqGrid(); drawConstellation(); }
+}
+function showLTab(id){
+  document.querySelectorAll('.ltab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.lpane').forEach(p=>p.classList.remove('on'));
+  const tb=document.getElementById('lt-'+id); if(tb)tb.classList.add('on');
+  const pn=document.getElementById('lpane-'+id); if(pn)pn.classList.add('on');
+  if(id==='const') drawConstellation();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PITCH CONSTELLATION
+// Chromatic circle (C at 12 o'clock) with top-scoring scale
+// projected as a polygon. Intervals = spatial distances.
+// ═══════════════════════════════════════════════════════════
+function getTopScale(){
+  const H=computeHarmonicCloud();
+  if(H.size===0) return null;
+  let best=null, bestScore=-1;
+  COF.forEach((key,ki)=>{
+    const rootSemi=(COF_SEMI[ki]+globalOffset+120)%12;
+    CANDIDATE_SCALES.forEach(sc=>{
+      const scalePCs=new Set(sc.iv.map(s=>(rootSemi+s)%12));
+      const ck=consonanceScore(H,scalePCs);
+      if(ck>bestScore){bestScore=ck;best={key,scaleName:sc.name,scalePCs,ck,rootSemi};}
+    });
+  });
+  return best;
+}
+
+function drawConstellation(){
+  const canvas=document.getElementById('constellation-canvas');
+  if(!canvas) return;
+  const W=canvas.width, H2=canvas.height;
+  const ctx2=canvas.getContext('2d');
+  const dark=document.documentElement.dataset.theme==='dark';
+
+  ctx2.clearRect(0,0,W,H2);
+  // Background
+  ctx2.fillStyle=dark?'rgba(7,8,14,0)':'rgba(238,234,218,0)';
+  ctx2.fillRect(0,0,W,H2);
+
+  const cx=W/2, cy=H2/2, R=W*0.40, Nr=W*0.045;
+  const nodeR=R+Nr*0.6;
+
+  // Outer ring
+  ctx2.beginPath(); ctx2.arc(cx,cy,R,0,Math.PI*2);
+  ctx2.strokeStyle=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.08)';
+  ctx2.lineWidth=1; ctx2.stroke();
+
+  // Get top scale
+  const top=getTopScale();
+  const activePCs=top?top.scalePCs:new Set();
+  const H=computeHarmonicCloud();
+
+  // Draw polygon connecting scale notes (filled)
+  if(top && top.scalePCs.size>0){
+    const pts=[...top.scalePCs].map(pc=>{
+      const ang=(pc/12)*Math.PI*2 - Math.PI/2;
+      return[cx+R*Math.cos(ang), cy+R*Math.sin(ang)];
+    }).sort((a,b)=>{
+      // Sort by angle
+      const aA=Math.atan2(a[1]-cy,a[0]-cx);
+      const bA=Math.atan2(b[1]-cy,b[0]-cx);
+      return aA-bA;
+    });
+    if(pts.length>2){
+      ctx2.beginPath(); ctx2.moveTo(pts[0][0],pts[0][1]);
+      for(let i=1;i<pts.length;i++) ctx2.lineTo(pts[i][0],pts[i][1]);
+      ctx2.closePath();
+      ctx2.fillStyle=dark?'rgba(200,168,75,0.07)':'rgba(122,78,6,0.06)';
+      ctx2.fill();
+      ctx2.strokeStyle=dark?'rgba(200,168,75,0.35)':'rgba(122,78,6,0.30)';
+      ctx2.lineWidth=1.2; ctx2.stroke();
+    }
+  }
+
+  // Draw 12 nodes
+  for(let pc=0;pc<12;pc++){
+    const ang=(pc/12)*Math.PI*2 - Math.PI/2;
+    const nx=cx+R*Math.cos(ang), ny=cy+R*Math.sin(ang);
+    const inScale=activePCs.has(pc);
+    const inCloud=H.has(pc);
+    const noteLabel=CHROM[(pc+globalOffset+120)%12];
+    const hue=pc*30;
+
+    // Node circle
+    const r2=inScale?Nr:Nr*0.52;
+    ctx2.beginPath(); ctx2.arc(nx,ny,r2,0,Math.PI*2);
+    if(inScale){
+      ctx2.fillStyle=`hsla(${hue},${dark?68:55}%,${dark?60:42}%,0.88)`;
+      ctx2.fill();
+      ctx2.strokeStyle=`hsla(${hue},80%,${dark?72:35}%,0.95)`;
+      ctx2.lineWidth=1.5; ctx2.stroke();
+    } else if(inCloud){
+      ctx2.fillStyle=dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)';
+      ctx2.fill();
+      ctx2.strokeStyle=dark?'rgba(255,255,255,0.22)':'rgba(0,0,0,0.18)';
+      ctx2.lineWidth=1; ctx2.stroke();
+    } else {
+      ctx2.fillStyle=dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.03)';
+      ctx2.fill();
+      ctx2.strokeStyle=dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)';
+      ctx2.lineWidth=0.5; ctx2.stroke();
+    }
+
+    // Note label
+    const lx=cx+(R+Nr*1.8)*Math.cos(ang);
+    const ly=cy+(R+Nr*1.8)*Math.sin(ang);
+    ctx2.font=`${inScale?'500':'400'} ${inScale?11:9}px 'Fira Code',monospace`;
+    ctx2.fillStyle=inScale
+      ? (dark?`hsl(${hue},72%,70%)`:`hsl(${hue},65%,30%)`)
+      : (dark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.22)');
+    ctx2.textAlign='center'; ctx2.textBaseline='middle';
+    ctx2.fillText(noteLabel,lx,ly);
+  }
+
+  // Centre label: root note + scale name abbreviated
+  if(top){
+    const rootNote=CHROM[(top.rootSemi+globalOffset+120)%12];
+    ctx2.font=`italic 400 18px 'Cormorant Garamond',serif`;
+    ctx2.fillStyle=dark?'rgba(200,168,75,0.75)':'rgba(122,78,6,0.70)';
+    ctx2.textAlign='center'; ctx2.textBaseline='middle';
+    ctx2.fillText(rootNote,cx,cy-6);
+    ctx2.font=`300 9px 'Fira Code',monospace`;
+    ctx2.fillStyle=dark?'rgba(200,168,75,0.42)':'rgba(122,78,6,0.40)';
+    ctx2.fillText(top.ck+'%',cx,cy+10);
+  }
+
+  // Update labels below canvas
+  const lbl=document.getElementById('constellation-label');
+  const sub=document.getElementById('constellation-sub');
+  if(top){
+    if(lbl)lbl.textContent=`${CHROM[(top.rootSemi+globalOffset+120)%12]} ${top.scaleName}`;
+    if(sub)sub.textContent=`consonance ${top.ck}% · ${top.scalePCs.size} tones`;
+  } else {
+    if(lbl)lbl.textContent='—';
+    if(sub)sub.textContent='place chords to generate';
+  }
+}
+
+// Constellation redraws only when acoustic mass H changes.
+// Called explicitly from placeFace, setPlasmaOffset, and resetAll.
+// NOT called from updateGrimoire (prevents 480-score cascade on every tick).
+function scheduleConstellationRedraw(){
+  if(loomOpen){
+    const activeTab=document.querySelector('.ltab.on')?.id;
+    if(activeTab==='lt-const') drawConstellation();
+  }
+}
+
+syncSceneBg();buildKeySelector();syncKeySelector();renderChordStrip('C');renderLedger();syncLevelUI();buildPlasmaKeys();setPlasmaOffset(0);
+</script>
+</body>
+</html>
