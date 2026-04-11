@@ -34,9 +34,10 @@
   --glass-bg:rgba(12,14,26,0.75);--glass-border:rgba(255,255,255,0.09);
 }
 
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);touch-action:none;user-select:none;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);user-select:none;}
 body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0.3s;}
-#three{position:fixed;inset:0;}
+/* Canvas owns touch — panels override back to pan-y */
+#three{position:fixed;inset:0;touch-action:none;}
 
 /* ═══ BUBBLE SYSTEM ═══ */
 #vlayer{position:fixed;inset:0;pointer-events:none;z-index:50;}
@@ -67,39 +68,45 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .fn-I{--bc:var(--c-I);}.fn-IV{--bc:var(--c-IV);}.fn-V{--bc:var(--c-V);}.fn-ii{--bc:var(--c-ii);}.fn-vi{--bc:var(--c-vi);}
 #pivot-svg{position:fixed;inset:0;pointer-events:none;z-index:40;}
 
-/* ═══ TOPBAR ═══ */
-#bar{position:fixed;top:0;left:0;right:0;height:50px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);}
-#wm{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;font-weight:400;color:var(--gold);letter-spacing:0.06em;}
-#bar-r{display:flex;gap:6px;align-items:center;}
+/* ═══ TOPBAR — three-row mobile header ═══ */
+#bar{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;flex-direction:column;gap:5px;padding:9px 16px 8px;background:var(--bg2);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);}
+.bar-r1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.bar-r2{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.bar-r3{display:flex;align-items:center;gap:10px;}
+#wm{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;font-weight:400;color:var(--gold);letter-spacing:0.06em;flex-shrink:0;}
+.bar-r1-right{display:flex;align-items:center;gap:8px;}
 #lvl-seg{display:flex;border:1px solid var(--border2);border-radius:2px;overflow:hidden;background:var(--surface);}
-.ls{background:transparent;border:none;border-right:1px solid var(--border);color:var(--text3);padding:5px 13px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;transition:all 0.12s;}
+.ls{background:transparent;border:none;border-right:1px solid var(--border);color:var(--text3);padding:7px 13px;font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.20em;text-transform:uppercase;cursor:pointer;transition:all 0.12s;min-height:36px;}
 .ls:last-child{border-right:none;}.ls:hover{color:var(--gold);background:var(--glo);}.ls.on{color:var(--gold);background:var(--glo);}
-.tb{background:var(--surface);border:1px solid var(--border2);color:var(--text3);padding:5px 12px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.12s;}
+.tb{background:var(--surface);border:1px solid var(--border2);color:var(--text3);padding:7px 12px;font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.20em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.12s;min-height:36px;}
 .tb:hover{border-color:var(--glm);color:var(--gold);}.tb.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
-/* Grimoire button — distinct */
-#grimoire-btn{background:var(--glo);border:1px solid var(--gold);color:var(--gold);padding:5px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;cursor:pointer;border-radius:2px;transition:all 0.14s;letter-spacing:0.04em;}
-#grimoire-btn:hover{background:color-mix(in srgb,var(--gold) 18%,transparent);}
-#theme-btn{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;color:var(--text2);}
+#reset-btn{background:var(--surface);border:1px solid var(--border);color:var(--text3);padding:7px 11px;font-family:'Fira Code',monospace;font-size:12px;letter-spacing:0.10em;cursor:pointer;border-radius:2px;transition:all 0.12s;min-height:36px;}
+#reset-btn:hover{border-color:rgba(130,35,15,0.42);color:rgba(130,35,15,0.82);}
+#theme-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;color:var(--text2);flex-shrink:0;}
 #theme-btn:hover{border-color:var(--glm);color:var(--gold);}
 
-/* ═══ SUB BAR ═══ */
-#sub{position:fixed;top:50px;left:0;right:0;height:32px;z-index:199;display:flex;align-items:center;padding:0 20px;gap:16px;background:var(--bg3);border-bottom:1px solid var(--border);}
-#lvl-tag{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;flex-shrink:0;}
+/* ═══ SUB BAR — row 3 of top bar ═══ */
+#sub{display:none;} /* legacy — content moved into #bar rows */
+#lvl-tag{font-size:10px;letter-spacing:0.30em;color:var(--text3);text-transform:uppercase;flex-shrink:0;}
 #lvl-tag b{color:var(--gold);font-weight:400;}
-#status{font-size:8px;letter-spacing:0.24em;color:var(--text3);text-transform:uppercase;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-#fc{font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);}
+#status{font-size:10px;letter-spacing:0.18em;color:var(--text3);text-transform:uppercase;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;}
+#fc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);}
 #fc b{color:var(--gold);font-weight:400;}
-#reset-btn{position:fixed;top:58px;right:20px;z-index:250;background:var(--surface);border:1px solid var(--border);color:var(--text3);padding:4px 10px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.24em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;}
-#reset-btn:hover{border-color:rgba(130,35,15,0.42);color:rgba(130,35,15,0.82);}
 
-/* ═══ BOTTOM ═══ */
-#bot{position:fixed;bottom:0;left:0;right:0;z-index:200;padding:10px 20px 14px;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
-#key-row{display:flex;align-items:center;gap:4px;margin-bottom:7px;flex-wrap:wrap;}
-#key-lbl{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;flex-shrink:0;margin-right:3px;}
-.ks{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:3px 9px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.13em;cursor:pointer;border-radius:2px;transition:all 0.10s;}
+/* ═══ BOTTOM NAV ═══ */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:300;display:flex;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
+.nav-btn{flex:1;background:transparent;border:none;border-top:2px solid transparent;color:var(--text3);font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;letter-spacing:0.04em;cursor:pointer;transition:all 0.14s;display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:0 4px;}
+.nav-btn:hover{color:var(--gold);}
+.nav-btn.nav-on{color:var(--gold);border-top-color:var(--gold);background:var(--glo);}
+
+/* ═══ BOTTOM CHORD STRIP ═══ */
+#bot{position:fixed;bottom:56px;left:0;right:0;z-index:200;padding:9px 16px 10px;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
+#key-row{display:flex;align-items:center;gap:4px;margin-bottom:6px;flex-wrap:wrap;}
+#key-lbl{font-size:9px;letter-spacing:0.30em;color:var(--text3);text-transform:uppercase;flex-shrink:0;margin-right:3px;}
+.ks{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:6px 10px;font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.13em;cursor:pointer;border-radius:2px;transition:all 0.10s;min-height:34px;}
 .ks:hover{border-color:var(--glm);color:var(--gold);background:var(--glo);}.ks.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
-#chord-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
-.cp{padding:5px 11px;border:1px solid var(--border);border-radius:2px;background:var(--surface);font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.07em;cursor:pointer;transition:all 0.10s;white-space:nowrap;color:var(--text2);}
+#chord-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.cp{padding:7px 12px;border:1px solid var(--border);border-radius:2px;background:var(--surface);font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.07em;cursor:pointer;transition:all 0.10s;white-space:nowrap;color:var(--text2);min-height:36px;}
 .cp:hover{border-color:var(--border2);color:var(--text);}.cp:active{transform:scale(0.89);}
 /* Consonance score badge — Level III Harmonic Advisor */
 .cp .score-badge{display:inline-block;margin-left:5px;padding:1px 5px;border-radius:8px;font-size:6px;letter-spacing:0.06em;vertical-align:middle;transition:background 0.25s,color 0.25s;}
@@ -118,47 +125,44 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .le.pivot{border-color:var(--gold);background:var(--glo);color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:9px;font-style:italic;}
 .le.keymod{border:none;background:none;color:var(--text3);padding:0 2px;letter-spacing:0.15em;}
 @keyframes lein{from{opacity:0;transform:scale(0.72)}to{opacity:1;transform:scale(1)}}
+/* Removable ledger entries */
+.le.removable{cursor:pointer;position:relative;transition:background 0.10s,border-color 0.10s,color 0.10s,opacity 0.12s;}
+.le.removable:hover{background:rgba(160,40,20,0.11);border-color:rgba(160,40,20,0.38);color:rgba(170,45,20,0.82);text-decoration:line-through;}
+.le.pivot.removable:hover{background:rgba(160,40,20,0.14);border-color:rgba(160,40,20,0.42);color:rgba(180,50,25,0.85);}
+.le.removable:hover::after{content:'×';position:absolute;top:-5px;right:-4px;font-size:9px;line-height:1;color:rgba(160,40,20,0.70);pointer-events:none;}
+@keyframes leout{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.65)}}
+.le.removing{animation:leout 0.15s ease forwards;pointer-events:none;}
 #led-acts{display:flex;gap:5px;flex-shrink:0;}
 .pa{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:4px 11px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.20em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;}
 .pa:hover{border-color:var(--glm);color:var(--gold);}
 
 /* ═══════════════════════════════════════════════════════════
-   GLASSMORPHIC GRIMOIRE PANEL
-   Slides in from the right. Contains:
-   · Plasma Transposer (global pitch offset)
-   · Harmonic Cloud visualiser
-   · Consonance Correspondence Matrix
-   · Chord Ledger export
+   GRIMOIRE PANE — full-screen, shown via .open class
 ═══════════════════════════════════════════════════════════ */
 #grimoire{
-  position:fixed;top:0;right:0;bottom:0;width:360px;
-  z-index:500;
-  transform:translateX(100%);
-  transition:transform 0.48s cubic-bezier(0.16,1,0.3,1);
-  display:flex;flex-direction:column;
-  /* Glassmorphism */
+  position:fixed;inset:0;bottom:56px;
+  z-index:250;
+  display:none;
+  flex-direction:column;
   background:var(--glass-bg);
   backdrop-filter:blur(28px) saturate(1.5);
   -webkit-backdrop-filter:blur(28px) saturate(1.5);
-  border-left:1px solid var(--glass-border);
-  box-shadow:-12px 0 48px rgba(0,0,0,0.15);
 }
-#grimoire.open{transform:translateX(0);}
-/* Inner highlight rim */
-#grimoire::before{content:'';position:absolute;inset:0;border-left:1px solid rgba(255,255,255,0.12);pointer-events:none;}
+#grimoire.open{display:flex;}
 
-#grimoire-header{padding:18px 20px 14px;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
-#grimoire-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:2px;}
-#grimoire-sub{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;}
-#grimoire-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px;transition:color 0.12s;}
+#grimoire-header{padding:14px 18px 12px;border-bottom:1px solid var(--glass-border);flex-shrink:0;display:flex;align-items:baseline;gap:12px;}
+#grimoire-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;font-weight:400;color:var(--gold);}
+#grimoire-sub{font-size:9px;letter-spacing:0.32em;color:var(--text3);text-transform:uppercase;flex:1;}
+#grimoire-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:2px 6px;transition:color 0.12s;flex-shrink:0;}
 #grimoire-close:hover{color:var(--text);}
 
 /* Tab bar inside grimoire */
-#grimoire-tabs{display:flex;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
-.gtab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:8px 16px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.26em;text-transform:uppercase;cursor:pointer;transition:all 0.14s;flex:1;text-align:center;}
+#grimoire-tabs{display:flex;border-bottom:1px solid var(--glass-border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;touch-action:pan-x;}
+#grimoire-tabs::-webkit-scrollbar{display:none;}
+.gtab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:11px 12px;font-family:'Fira Code',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:all 0.14s;flex:1 0 auto;text-align:center;white-space:nowrap;min-height:44px;}
 .gtab:hover{color:var(--text2);}.gtab.on{color:var(--gold);border-bottom-color:var(--gold);}
 
-#grimoire-body{flex:1;overflow-y:auto;padding:18px 20px;}
+#grimoire-body{flex:1;overflow-y:auto;padding:18px 20px;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 #grimoire-body::-webkit-scrollbar{width:3px;}
 #grimoire-body::-webkit-scrollbar-thumb{background:var(--glm);border-radius:2px;}
 
@@ -210,6 +214,14 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .score-row.top-score .score-bar{background:var(--gold-hi);}
 .score-row.high-score .score-name{color:var(--text);}
 .score-row.high-score .score-bar{background:color-mix(in srgb,var(--gold) 70%,var(--text2));}
+
+/* ── TONNETZ LATTICE ── */
+#tonnetz-canvas{display:block;width:100%;border-radius:3px;margin-bottom:8px;cursor:default;}
+.tz-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.tz-li{display:flex;align-items:center;gap:5px;font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.14em;color:var(--text3);text-transform:uppercase;}
+.tz-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.tz-dash{width:10px;height:2px;border-radius:1px;flex-shrink:0;}
+#tonnetz-info{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.12em;color:var(--text3);line-height:1.8;min-height:14px;}
 
 /* ── FLOATING CENTROID SIGNIFIERS ──
    Projected from 3D face centroid to screen space.
@@ -264,9 +276,29 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .export-btns{display:flex;gap:6px;margin-top:12px;}
 .exp-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:6px 14px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.22em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-transform:uppercase;flex:1;text-align:center;}
 .exp-btn:hover{border-color:var(--gold);color:var(--gold);}
+.genre-strip{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.genre-btn{flex:1;min-width:36px;background:var(--surface);border:1px solid var(--border2);color:var(--text3);padding:5px 3px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.12em;cursor:pointer;border-radius:2px;transition:all 0.12s;text-align:center;text-transform:uppercase;}
+.genre-btn:hover{border-color:var(--glm);color:var(--gold);}
+.genre-btn.on{border-color:var(--genre-clr,var(--gold));color:var(--genre-clr,var(--gold));background:var(--glo);}
+.genre-badge{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.12em;color:var(--text3);margin-bottom:8px;min-height:12px;line-height:1.6;}
+.le-genre{font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.10em;color:var(--text3);margin-left:auto;padding:1px 4px;border-radius:1px;opacity:0.70;}
+.le-genre.ghi{opacity:1;color:var(--genre-clr,var(--gold));font-weight:600;}
+.ledger-entry.ge-hi{background:color-mix(in srgb,var(--genre-clr,var(--gold)) 7%,transparent);border-radius:2px;padding-left:4px;padding-right:4px;}
+.ledger-entry.ge-lo{opacity:0.40;}
+.le-trans-arrow{display:flex;align-items:center;gap:5px;padding:1px 0 1px 28px;opacity:0.55;}
+.le-trans-line{flex:1;height:1px;background:var(--border2);}
+.le-trans-prob{font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.12em;color:var(--text3);white-space:nowrap;flex-shrink:0;}
+.genre-view-toggle{display:flex;gap:4px;margin-bottom:8px;}
+.gv-btn{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text3);padding:4px;font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.14em;cursor:pointer;border-radius:2px;text-align:center;text-transform:uppercase;transition:all 0.12s;}
+.gv-btn:hover{border-color:var(--glm);color:var(--gold);}
+.gv-btn.on{border-color:var(--genre-clr,var(--gold));color:var(--genre-clr,var(--gold));background:var(--glo);}
+.genre-align-bar{height:3px;border-radius:2px;background:var(--border);margin-bottom:8px;overflow:hidden;}
+.genre-align-fill{height:100%;border-radius:2px;background:var(--genre-clr,var(--gold));transition:width 0.4s;}
+.genre-view-header{display:flex;align-items:center;justify-content:space-between;padding:4px 0 6px;margin-bottom:2px;border-bottom:1px solid var(--border);}
+.genre-view-header span{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.14em;color:var(--genre-clr,var(--gold));text-transform:uppercase;}
 
 /* ── GUIDE ── */
-#drawer{position:fixed;top:82px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:3px;padding:18px 22px 14px;z-index:600;min-width:340px;max-width:480px;box-shadow:0 6px 28px rgba(0,0,0,0.12);display:none;}
+#drawer{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:3px;padding:18px 22px 14px;z-index:600;min-width:300px;max-width:92vw;box-shadow:0 6px 28px rgba(0,0,0,0.12);display:none;}
 #drawer.open{display:block;animation:din 0.2s ease;}
 @keyframes din{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 #dr-title{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--gold);margin-bottom:12px;}
@@ -278,35 +310,32 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .lc-desc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.55;}
 
 /* ════════════════════════════════════════════════════════
-   TEMPORAL LOOM — left flank panel, mirrors Grimoire
+   LOOM PANE — full-screen, shown via .open class
 ════════════════════════════════════════════════════════ */
 #loom{
-  position:fixed;top:0;left:0;bottom:0;width:320px;
-  z-index:500;
-  transform:translateX(-100%);
-  transition:transform 0.48s cubic-bezier(0.16,1,0.3,1);
-  display:flex;flex-direction:column;
+  position:fixed;inset:0;bottom:56px;
+  z-index:250;
+  display:none;
+  flex-direction:column;
   background:var(--glass-bg);
   backdrop-filter:blur(28px) saturate(1.5);
   -webkit-backdrop-filter:blur(28px) saturate(1.5);
-  border-right:1px solid var(--glass-border);
-  box-shadow:12px 0 48px rgba(0,0,0,0.14);
 }
-#loom.open{transform:translateX(0);}
-#loom::before{content:'';position:absolute;inset:0;border-right:1px solid rgba(255,255,255,0.10);pointer-events:none;}
+#loom.open{display:flex;}
 
-#loom-header{padding:18px 20px 14px;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
-#loom-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:2px;}
-#loom-sub{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;}
-#loom-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px;transition:color 0.12s;}
+#loom-header{padding:14px 18px 12px;border-bottom:1px solid var(--glass-border);flex-shrink:0;display:flex;align-items:baseline;gap:12px;}
+#loom-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;font-weight:400;color:var(--gold);}
+#loom-sub{font-size:9px;letter-spacing:0.32em;color:var(--text3);text-transform:uppercase;flex:1;}
+#loom-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:2px 6px;transition:color 0.12s;flex-shrink:0;}
 #loom-close:hover{color:var(--text);}
 
 /* Loom tabs */
-#loom-tabs{display:flex;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
-.ltab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:8px 16px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.26em;text-transform:uppercase;cursor:pointer;transition:all 0.14s;flex:1;text-align:center;}
+#loom-tabs{display:flex;border-bottom:1px solid var(--glass-border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;touch-action:pan-x;}
+#loom-tabs::-webkit-scrollbar{display:none;}
+.ltab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text3);padding:11px 16px;font-family:'Fira Code',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:all 0.14s;flex:1 0 auto;text-align:center;white-space:nowrap;min-height:44px;}
 .ltab:hover{color:var(--text2);}.ltab.on{color:var(--gold);border-bottom-color:var(--gold);}
 
-#loom-body{flex:1;overflow-y:auto;padding:16px 18px;}
+#loom-body{flex:1;overflow-y:auto;padding:16px 18px;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 #loom-body::-webkit-scrollbar{width:3px;}
 #loom-body::-webkit-scrollbar-thumb{background:var(--glm);border-radius:2px;}
 .lpane{display:none;}.lpane.on{display:block;}
@@ -425,6 +454,39 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 #complete.show{opacity:1;pointer-events:all;}
 #complete h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:6px;}
 #complete p{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;}
+
+/* ══ FOUR WORLDS INDICATOR ══ */
+#world-ind{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);flex-shrink:0;letter-spacing:0.04em;transition:color 0.4s;}
+#world-ind b{color:var(--gold);font-weight:400;}
+
+/* ══ PLR TRANSFORM STRIP ══ */
+#plr-row{display:none;align-items:center;gap:4px;margin-bottom:6px;flex-wrap:wrap;}
+.plr-lbl{font-size:8px;letter-spacing:0.36em;color:var(--text3);text-transform:uppercase;flex-shrink:0;margin-right:2px;}
+.plr-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:4px 11px;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.10em;cursor:pointer;border-radius:2px;transition:all 0.12s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.plr-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+.plr-t{color:var(--gold-hi);font-size:7px;letter-spacing:0.28em;text-transform:uppercase;font-family:'Fira Code',monospace;}
+.plr-q{font-size:6px;color:var(--text3);letter-spacing:0.12em;}
+#plr-desc{font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ══ KHA-RU / GEVURAH PANE ══ */
+.gevurah-score-wrap{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border2);border-radius:3px;padding:12px 16px;margin-bottom:12px;}
+.gevurah-score-num{font-family:'Cormorant Garamond',serif;font-size:38px;font-style:italic;color:var(--gold);font-weight:400;line-height:1;min-width:52px;}
+.gevurah-score-lbl{font-size:7px;letter-spacing:0.34em;color:var(--text3);text-transform:uppercase;margin-top:2px;}
+.gevurah-bar-wrap{flex:1;height:3px;background:var(--border);border-radius:2px;margin-bottom:4px;}
+.gevurah-bar{height:100%;border-radius:2px;background:var(--gold);transition:width 0.55s ease;}
+.violation-row{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid var(--glass-border);}
+.violation-row:last-child{border-bottom:none;}
+.v-severity{font-size:7px;letter-spacing:0.20em;text-transform:uppercase;flex-shrink:0;min-width:50px;}
+.v-severity.critical{color:#e05030;}.v-severity.high{color:#c07800;}.v-severity.medium{color:#6080c0;}.v-severity.low{color:var(--text3);}
+[data-theme="dark"] .v-severity.critical{color:#f06848;}[data-theme="dark"] .v-severity.high{color:#e0a020;}
+.v-rule{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);flex-shrink:0;min-width:80px;}
+.v-msg{font-family:'Fira Code',monospace;font-size:8px;color:var(--text3);flex:1;}
+.rule-check-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--glass-border);}
+.rule-check-row:last-child{border-bottom:none;}
+.rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background 0.3s;}
+.rule-dot.ok{background:rgba(60,180,60,0.80);}.rule-dot.fail{background:rgba(200,60,40,0.80);}.rule-dot.na{background:var(--border2);}
+.rule-name{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);flex:1;}
+.rule-hint{font-family:'Fira Code',monospace;font-size:7px;color:var(--text3);letter-spacing:0.10em;}
 </style>
 </head>
 <body>
@@ -434,9 +496,15 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 <div id="vlayer"></div>
 
 <header id="bar">
-  <div id="wm">James' Ladder</div>
-  <div id="bar-r">
-    <button id="loom-btn" onclick="toggleLoom()" style="background:var(--glo);border:1px solid var(--gold);color:var(--gold);padding:5px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;cursor:pointer;border-radius:2px;transition:all 0.14s;letter-spacing:0.04em;">⊟ Loom</button>
+  <div class="bar-r1">
+    <div id="wm">James' Ladder</div>
+    <div class="bar-r1-right">
+      <div id="world-ind">◦&thinsp;<b>Atziluth</b></div>
+      <div id="fc">faces&thinsp;<b id="fc-n">0</b>&thinsp;/&thinsp;12</div>
+      <button id="theme-btn" onclick="toggleTheme()">☀</button>
+    </div>
+  </div>
+  <div class="bar-r2">
     <div id="lvl-seg">
       <button class="ls on" id="ls1" onclick="setLevel(1)">I·Planar</button>
       <button class="ls"    id="ls2" onclick="setLevel(2)">II·Spatial</button>
@@ -445,24 +513,20 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <button class="tb" onclick="toggleDrawer()">Guide</button>
     <button class="tb" id="fold-mode-btn" onclick="cycleFoldMode()" title="Folding mode: Proximity / Manual / Discovery">Manual</button>
     <button class="tb on" id="btn-rot" onclick="toggleRot()">Auto ⟳</button>
-    <button id="grimoire-btn" onclick="toggleGrimoire()">⊞ Grimoire</button>
-    <button id="theme-btn" onclick="toggleTheme()">☀</button>
+    <button id="reset-btn" onclick="resetAll()">↺</button>
+  </div>
+  <div class="bar-r3">
+    <div id="lvl-tag">Level&thinsp;<b id="lvl-n">I</b>&thinsp;·&thinsp;Planar Sovereignty</div>
+    <div id="status">tap the solid to open your first tonal center</div>
   </div>
 </header>
 
-<div id="sub">
-  <div id="lvl-tag">Level&thinsp;<b id="lvl-n">I</b>&thinsp;·&thinsp;Planar Sovereignty</div>
-  <div id="status">tap the solid to open your first tonal center</div>
-  <div id="fc">faces&thinsp;<b id="fc-n">0</b>&thinsp;/&thinsp;12</div>
-</div>
-<button id="reset-btn" onclick="resetAll()">↺ Reset</button>
-
-<!-- ═══ TEMPORAL LOOM — LEFT FLANK ═══ -->
-<aside id="loom">
+<!-- ═══ TEMPORAL LOOM — FULL SCREEN PANE ═══ -->
+<div id="loom">
   <div id="loom-header">
     <div id="loom-title">Temporal Loom</div>
     <div id="loom-sub">rhythmic matrix · pitch constellation</div>
-    <button id="loom-close" onclick="toggleLoom()">×</button>
+    <button id="loom-close" onclick="showPane('ladder')">×</button>
   </div>
   <div id="loom-tabs">
     <button class="ltab on" id="lt-seq"   onclick="showLTab('seq')">Sequencer</button>
@@ -470,8 +534,6 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   </div>
   <div id="loom-body">
 
-    <!-- SEQUENCER PANE -->
-    <div class="lpane on" id="lpane-seq">
     <!-- SEQUENCER PANE -->
     <div class="lpane on" id="lpane-seq">
 
@@ -543,14 +605,14 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     </div>
 
   </div>
-</aside>
+</div><!-- /loom -->
 
-
-<aside id="grimoire">
+<!-- ═══ HARMONIC GRIMOIRE — FULL SCREEN PANE ═══ -->
+<div id="grimoire">
   <div id="grimoire-header">
     <div id="grimoire-title">Harmonic Grimoire</div>
     <div id="grimoire-sub">utility extraction layer</div>
-    <button id="grimoire-close" onclick="toggleGrimoire()">×</button>
+    <button id="grimoire-close" onclick="showPane('ladder')">×</button>
   </div>
   <div id="grimoire-tabs">
     <button class="gtab on" id="gt-plasma"   onclick="showGTab('plasma')">Transposer</button>
@@ -558,6 +620,8 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <button class="gtab"    id="gt-scores"   onclick="showGTab('scores')">Scales</button>
     <button class="gtab"    id="gt-ledger"   onclick="showGTab('ledger')">Ledger</button>
     <button class="gtab"    id="gt-sensory"  onclick="showGTab('sensory')">Sensory</button>
+    <button class="gtab"    id="gt-kharu"   onclick="showGTab('kharu')">Kha-Ru</button>
+    <button class="gtab"    id="gt-tonnetz" onclick="showGTab('tonnetz')">Tonnetz</button>
   </div>
   <div id="grimoire-body">
 
@@ -604,11 +668,27 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <!-- CHORD LEDGER -->
     <div class="gpane" id="gpane-ledger">
       <div class="g-section">Chord Matrix</div>
+      <div class="genre-strip" id="genre-strip">
+        <button class="genre-btn" data-genre="DIA" style="--genre-clr:var(--c-I)"   onclick="selectGenre('DIA')">DIA</button>
+        <button class="genre-btn" data-genre="MOD" style="--genre-clr:var(--c-vi)"  onclick="selectGenre('MOD')">MOD</button>
+        <button class="genre-btn" data-genre="JAZ" style="--genre-clr:var(--c-ii)"  onclick="selectGenre('JAZ')">JAZ</button>
+        <button class="genre-btn" data-genre="BLU" style="--genre-clr:var(--c-IV)"  onclick="selectGenre('BLU')">BLU</button>
+        <button class="genre-btn" data-genre="AMB" style="--genre-clr:var(--text3)" onclick="selectGenre('AMB')">AMB</button>
+        <button class="genre-btn" data-genre="GOS" style="--genre-clr:#b8860b"      onclick="selectGenre('GOS')">GOS</button>
+        <button class="genre-btn" data-genre="CHR" style="--genre-clr:var(--c-V)"   onclick="selectGenre('CHR')">CHR</button>
+      </div>
+      <div class="genre-badge" id="genre-badge"></div>
+      <div class="genre-align-bar" id="genre-align-bar" style="display:none;"><div class="genre-align-fill" id="genre-align-fill"></div></div>
+      <div class="genre-view-toggle" id="genre-view-toggle" style="display:none;">
+        <button class="gv-btn on" id="gv-chrono" onclick="setGenreView('chrono')">⌛ Chronological</button>
+        <button class="gv-btn"    id="gv-optimal" onclick="setGenreView('optimal')">✦ Genre Optimal</button>
+      </div>
       <div id="chord-ledger-list"></div>
       <div class="export-btns">
         <button class="exp-btn" onclick="exportClipboard()">⎘ Copy CSV</button>
         <button class="exp-btn" onclick="exportJSON()">⎘ Copy JSON</button>
       </div>
+      <button class="exp-btn" style="margin-top:6px;width:100%;" onclick="transmuteLoomToGenre(selectedGenre||detectAndGetBest())">⟳ Transmute Genre → Loom</button>
     </div>
 
     <!-- SENSORY PRESET PANE -->
@@ -651,6 +731,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
         n=5 · F=5 · Polyrhythm
       </div>
       <button class="exp-btn" onclick="loadFibonacciPattern()">Load Fibonacci Pattern →</button>
+      <button class="exp-btn" onclick="loadPhyllotacticPattern()" style="margin-top:5px;">φ Golden Angle Spiral →</button>
 
       <!-- Colour key -->
       <div class="g-section">Functional Colour Map</div>
@@ -678,8 +759,81 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
       </div>
     </div>
 
+    <!-- ══ KHA-RU / GEVURAH ENGINE PANE ══ -->
+    <div class="gpane" id="gpane-kharu">
+      <div class="g-section">Kha-Ru · Gevurah Engine</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
+        The Kha-Ru engine is the computational <em>tzimtzum</em> — it evaluates your progression against the five laws of Gevurah, the Sephirah of restriction, judgment, and Mars-force. High virtue means the ladder ascends cleanly back to Atziluth.
+      </p>
+
+      <!-- Score display -->
+      <div class="gevurah-score-wrap">
+        <div>
+          <div class="gevurah-score-num" id="gev-score">—</div>
+          <div class="gevurah-score-lbl">Virtue</div>
+        </div>
+        <div style="flex:1;">
+          <div class="gevurah-bar-wrap">
+            <div class="gevurah-bar" id="gev-bar" style="width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:7px;letter-spacing:0.18em;color:var(--text3);">CHAOTIC</span>
+            <span style="font-size:7px;letter-spacing:0.18em;color:var(--text3);">PURE</span>
+          </div>
+          <div id="gev-verdict" style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);margin-top:4px;">Place chords to activate analysis.</div>
+        </div>
+      </div>
+
+      <!-- Five Laws -->
+      <div class="g-section">Five Laws of Gevurah</div>
+      <div id="gev-rules">
+        <div class="rule-check-row"><div class="rule-dot na" id="rd-0"></div><span class="rule-name">Tonic Anchor (I → … → I)</span><span class="rule-hint" id="rh-0">—</span></div>
+        <div class="rule-check-row"><div class="rule-dot na" id="rd-1"></div><span class="rule-name">Subdominant Order (IV before ii)</span><span class="rule-hint" id="rh-1">—</span></div>
+        <div class="rule-check-row"><div class="rule-dot na" id="rd-2"></div><span class="rule-name">No V→IV Retrogression</span><span class="rule-hint" id="rh-2">—</span></div>
+        <div class="rule-check-row"><div class="rule-dot na" id="rd-3"></div><span class="rule-name">vii° precedes V only</span><span class="rule-hint" id="rh-3">—</span></div>
+        <div class="rule-check-row"><div class="rule-dot na" id="rd-4"></div><span class="rule-name">Authentic Cadence V→I</span><span class="rule-hint" id="rh-4">—</span></div>
+      </div>
+
+      <!-- Violations log -->
+      <div class="g-section" style="margin-top:14px;">Violations</div>
+      <div id="gev-violations" style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);">No violations detected.</div>
+
+      <!-- Guided path generator -->
+      <div class="g-section" style="margin-top:14px;">Guided Path Generator</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:10px;">
+        Generate a Gevurah-compliant sequence: tonic anchor, subdominant ordering, authentic V→I cadence. The ladder descends and ascends in virtue.
+      </p>
+      <button class="exp-btn" onclick="generateGevurahPath()">⚔ Generate Kha-Ru Path</button>
+      <button class="exp-btn" onclick="generateFullLadder()" style="margin-top:5px;">◉ Full Ladder — Traverse All Centers</button>
+
+      <!-- Teshuvah — Contextual Resolution -->
+      <div class="g-section" style="margin-top:18px;">Teshuvah · Contextual Resolution</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:10px;">
+        Reads the harmonic context of your ledger and finds substitute chords that resolve naturally — without imposing I–IV–V. The return path uses the same tonal language as the descent.
+      </p>
+      <div id="kharu-ctx-display" style="display:none;margin-bottom:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:3px;font-size:11px;line-height:1.9;"></div>
+      <button class="exp-btn" onclick="resolveContextually()" style="margin-top:2px;">✦ Resolve Contextually</button>
+    </div>
+
+    <!-- TONNETZ LATTICE -->
+    <div class="gpane" id="gpane-tonnetz">
+      <div class="g-section">Tonnetz — Tone Net</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:10px;">
+        Each node is a pitch class. → perfect fifths (+7 st) · ↑ major thirds (+4 st) · ↗ minor thirds (+3 st). Each cell holds one major △ and one minor ▽ triad. The active chord is highlighted; P · L · R neighbors are ringed.
+      </p>
+      <canvas id="tonnetz-canvas" height="200"></canvas>
+      <div class="tz-legend">
+        <div class="tz-li"><div class="tz-dot" style="background:var(--gold);"></div><span>Root</span></div>
+        <div class="tz-li"><div class="tz-dot" style="background:var(--glo);border:1px solid var(--gold);"></div><span>Chord tone</span></div>
+        <div class="tz-li"><div class="tz-dash" style="background:#6088e8;"></div><span>P</span></div>
+        <div class="tz-li"><div class="tz-dash" style="background:#e07028;"></div><span>L</span></div>
+        <div class="tz-li"><div class="tz-dash" style="background:#88c868;"></div><span>R</span></div>
+      </div>
+      <div id="tonnetz-info"></div>
+    </div>
+
   </div>
-</aside>
+</div><!-- /grimoire -->
 
 <!-- GUIDE -->
 <div id="drawer">
@@ -695,6 +849,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 <section id="bot">
   <div id="key-row"><span id="key-lbl">Root Key</span></div>
   <div id="chord-row"></div>
+  <div id="plr-row"></div>
   <div id="led-row">
     <span id="led-lbl">Ledger</span>
     <div id="led-seq"></div>
@@ -705,6 +860,12 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     </div>
   </div>
 </section>
+
+<nav id="bottom-nav">
+  <button id="nav-ladder"   class="nav-btn nav-on" onclick="showPane('ladder')">◉ Ladder</button>
+  <button id="nav-loom"     class="nav-btn"        onclick="showPane('loom')">⊟ Loom</button>
+  <button id="nav-grimoire" class="nav-btn"        onclick="showPane('grimoire')">⊞ Grimoire</button>
+</nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -1321,6 +1482,8 @@ function updateGrimoire(){
   if(activeTab==='cloud')updateCloudPane();
   if(activeTab==='scores')updateScoresPane();
   if(activeTab==='ledger')updateLedgerPane();
+  if(activeTab==='kharu')updateKharuPane();
+  if(activeTab==='tonnetz')drawTonnetz();
   // sensory pane is static — no recalculation needed
   updatePlasmaEffect();
 }
@@ -1380,31 +1543,159 @@ function updateScoresPane(){
   });
 }
 
+let genreViewMode='chrono';
+
+function setGenreView(mode){
+  genreViewMode=mode;
+  document.getElementById('gv-chrono')?.classList.toggle('on',mode==='chrono');
+  document.getElementById('gv-optimal')?.classList.toggle('on',mode==='optimal');
+  updateLedgerPane();
+}
+
+function chordJaccard(rootSemi,qual,G){
+  const chordSet=new Set(chordPCs(rootSemi,qual));
+  let best=0;
+  G.modes.forEach(mode=>{
+    for(let root=0;root<12;root++){
+      const mSet=new Set(mode.pcs.map(p=>(p+root)%12));
+      const inter=[...chordSet].filter(p=>mSet.has(p)).length;
+      const union=new Set([...chordSet,...mSet]).size;
+      const j=inter/union;
+      if(j>best)best=j;
+    }
+  });
+  return best;
+}
+
 function updateLedgerPane(){
   const list=document.getElementById('chord-ledger-list');
-  if(!list)return;list.innerHTML='';
-  if(!ledger.length){list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No chords placed yet.</div>';return;}
+  if(!list)return;
+  list.innerHTML='';
+
+  const G=selectedGenre?GENRES[selectedGenre]:null;
+  const allChords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
+
+  // Show/hide view toggle and alignment bar
+  const toggleEl=document.getElementById('genre-view-toggle');
+  const barEl=document.getElementById('genre-align-bar');
+  const fillEl=document.getElementById('genre-align-fill');
+  if(toggleEl)toggleEl.style.display=G&&allChords.length>1?'flex':'none';
+  if(barEl)barEl.style.display=G?'block':'none';
+  if(G&&fillEl){
+    const s=scoreGenre(selectedGenre);
+    fillEl.style.width=Math.round(s*100)+'%';
+    fillEl.style.setProperty('--genre-clr',G.color);
+    barEl.style.setProperty('--genre-clr',G.color);
+  }
+
+  if(!allChords.length){
+    list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No chords placed yet.</div>';
+    detectGenre();return;
+  }
+
+  if(G&&genreViewMode==='optimal'){
+    renderOptimalView(list,G);
+  } else {
+    renderChronologicalView(list,G);
+  }
+  detectGenre();
+}
+
+function renderChronologicalView(list,G){
   const byFace={};
   ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach(e=>{
     const fiKey=e.fi>=0?e.fi:-1;
     if(!byFace[fiKey])byFace[fiKey]=[];
     byFace[fiKey].push(e);
   });
+  // Flatten to a single ordered list (preserving face grouping) for transition arrows
+  const flat=[];
   Object.entries(byFace).forEach(([fiStr,entries])=>{
     const fi=parseInt(fiStr);
     const faceKey=fi>=0?transposedKey(FKEY[fi]??'?'):'—';
-    entries.forEach((e,idx)=>{
-      const row=document.createElement('div');row.className='ledger-entry';
-      const transNote=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
-      const qual=e.qual||'maj';
-      const rootSemi=(CHROM.indexOf(e.note)+globalOffset+120)%12;
-      const pcs=chordPCs(rootSemi,qual).map(i=>CHROM[i]).join('-');
-      row.innerHTML=`<span class="le-face">${fi>=0?fi+1:''}${idx===0?'':''}</span>
-        <span class="le-key">${faceKey}</span>
-        <span class="le-chord">${e.roman} · ${transNote} ${qual}</span>
-        <span class="le-semis">${pcs}</span>`;
-      list.appendChild(row);
-    });
+    entries.forEach(e=>flat.push({e,fi,faceKey}));
+  });
+
+  flat.forEach(({e,fi,faceKey},idx)=>{
+    const rootSemi=(CHROM.indexOf(e.note)+globalOffset+120)%12;
+    const qual=e.qual||'maj';
+    const transNote=CHROM[rootSemi];
+    const pcs=chordPCs(rootSemi,qual).map(i=>CHROM[i]).join('-');
+
+    // Transition arrow from previous chord
+    if(G&&idx>0){
+      const prev=flat[idx-1].e;
+      const p=(G.transitions[prev.roman]&&G.transitions[prev.roman][e.roman])||G.epsilon;
+      const arrowPct=Math.round(p*100);
+      const hi=p>=0.25;
+      const arrow=document.createElement('div');
+      arrow.className='le-trans-arrow';
+      arrow.style.cssText=G?`--genre-clr:${G.color}`:'';
+      arrow.innerHTML=`<span class="le-trans-line" style="${hi?'background:color-mix(in srgb,var(--genre-clr) 40%,var(--border))':''}"></span>`+
+        `<span class="le-trans-prob" style="${hi?'color:var(--genre-clr);opacity:0.85':''}">→ ${arrowPct}%</span>`;
+      list.appendChild(arrow);
+    }
+
+    const row=document.createElement('div');
+    let jScore=0,genreClass='',genreBadge='';
+    if(G){
+      jScore=chordJaccard(rootSemi,qual,G);
+      genreClass=jScore>=0.60?'ge-hi':jScore<0.28?'ge-lo':'';
+      const pct=Math.round(jScore*100);
+      const hi=pct>=60?'ghi':'';
+      genreBadge=`<span class="le-genre ${hi}" style="--genre-clr:${G.color}">${pct}%</span>`;
+    }
+    row.className=`ledger-entry${genreClass?' '+genreClass:''}`;
+    if(G&&genreClass==='ge-hi')row.style.setProperty('--genre-clr',G.color);
+    row.innerHTML=`<span class="le-face">${fi>=0?fi+1:''}</span>`+
+      `<span class="le-key">${faceKey}</span>`+
+      `<span class="le-chord">${e.roman} · ${transNote} ${qual}</span>`+
+      `<span class="le-semis">${pcs}</span>${genreBadge}`;
+    list.appendChild(row);
+  });
+}
+
+function renderOptimalView(list,G){
+  const ordered=computeGenreOptimalOrder(selectedGenre);
+  if(!ordered.length){
+    list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">Need at least two chords.</div>';
+    return;
+  }
+  const header=document.createElement('div');
+  header.className='genre-view-header';
+  header.style.setProperty('--genre-clr',G.color);
+  header.innerHTML=`<span>${G.name} · Optimal Sequence</span>`+
+    `<button class="exp-btn" style="padding:3px 10px;font-size:7px;flex:0;" onclick="playGenreOptimalSequence('${selectedGenre}')">▶ Play</button>`;
+  list.appendChild(header);
+
+  ordered.forEach((e,idx)=>{
+    const rootSemi=(CHROM.indexOf(e.note)+globalOffset+120)%12;
+    const qual=e.qual||'maj';
+    const transNote=CHROM[rootSemi];
+    const pcs=chordPCs(rootSemi,qual).map(i=>CHROM[i]).join('-');
+    const keyLabel=transposedKey(e.key||curKey);
+
+    if(idx>0){
+      const prev=ordered[idx-1];
+      const p=(G.transitions[prev.roman]&&G.transitions[prev.roman][e.roman])||G.epsilon;
+      const arrowPct=Math.round(p*100);
+      const hi=p>=0.25;
+      const arrow=document.createElement('div');
+      arrow.className='le-trans-arrow';
+      arrow.style.setProperty('--genre-clr',G.color);
+      arrow.innerHTML=`<span class="le-trans-line" style="background:color-mix(in srgb,var(--genre-clr) ${hi?50:20}%,var(--border))"></span>`+
+        `<span class="le-trans-prob" style="color:${hi?'var(--genre-clr)':'var(--text3)'}">→ ${arrowPct}%</span>`;
+      list.appendChild(arrow);
+    }
+
+    const row=document.createElement('div');
+    row.className='ledger-entry ge-hi';
+    row.style.setProperty('--genre-clr',G.color);
+    row.innerHTML=`<span class="le-face" style="color:var(--genre-clr);font-weight:500">${idx+1}</span>`+
+      `<span class="le-key">${keyLabel}</span>`+
+      `<span class="le-chord">${e.roman} · ${transNote} ${qual}</span>`+
+      `<span class="le-semis">${pcs}</span>`;
+    list.appendChild(row);
   });
 }
 
@@ -1438,6 +1729,7 @@ function setPlasmaOffset(delta){
     const targetDelta=(bSemi-0+12)%12;
     b.classList.toggle('on',CHROM[(globalOffset+12)%12]===b.dataset.note);
   });
+  renderChordStrip(curKey);
   updateGrimoire();
   scheduleConstellationRedraw(); // transposition shifts H coordinates
 }
@@ -1489,7 +1781,7 @@ let tonicAnchor=null; // hoisted — {semi, note, qual} — first chord struck, 
 let loopPlaying=false;// hoisted — ledger loop playback
 let metroPlaying=false;// hoisted — metronome active
 let seqMode='tonal'; // hoisted — 'tonal' | 'rhythm'
-let ledgerGated=false;// hoisted — ledger entrained to sequencer grid
+let ledgerGated=true; // hoisted — ledger entrained to sequencer grid
 let ledgerStep=0;    // hoisted — current position in entrained ledger
 let ledgerSpread=4;  // hoisted — steps between ledger chord advances
 let foldMode='manual';// hoisted — 'proximity' | 'manual' | 'discovery'
@@ -1523,13 +1815,26 @@ document.addEventListener('click',e=>{const dr=document.getElementById('drawer')
 // ═══════════════════════════════════════════════════════════
 // GRIMOIRE TOGGLE & TABS
 // ═══════════════════════════════════════════════════════════
-function toggleGrimoire(){
-  grimoireOpen=!grimoireOpen;
-  const g=document.getElementById('grimoire');
-  if(g)g.classList.toggle('open',grimoireOpen);
+// ── PANE NAVIGATION (Miller's Law — 3 full-screen panes) ──
+let currentPane='ladder';
+function showPane(name){
+  currentPane=name;
+  loomOpen=(name==='loom');
+  grimoireOpen=(name==='grimoire');
+  const loom=document.getElementById('loom');
+  const grimoire=document.getElementById('grimoire');
+  if(loom)loom.classList.toggle('open',loomOpen);
+  if(grimoire)grimoire.classList.toggle('open',grimoireOpen);
+  ['ladder','loom','grimoire'].forEach(p=>{
+    const btn=document.getElementById('nav-'+p);
+    if(btn)btn.classList.toggle('nav-on',p===name);
+  });
+  if(loomOpen)requestAnimationFrame(()=>{buildSeqGrid();buildPolySection();buildPatGrid();drawConstellation();});
   if(grimoireOpen)updateGrimoire();
-  syncPanelMargins();
 }
+
+function toggleGrimoire(){ showPane(grimoireOpen?'ladder':'grimoire'); }
+function toggleLoom(){ showPane(loomOpen?'ladder':'loom'); }
 function showGTab(id){
   document.querySelectorAll('.gtab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.gpane').forEach(p=>p.classList.remove('on'));
@@ -1543,6 +1848,7 @@ function showGTab(id){
 // ═══════════════════════════════════════════════════════════
 function playPlanar(roman,note,qual,key,fi){
   playChord(note,qual);lastChord={roman,note,qual,key};
+  updatePLRStrip(note,qual);
   // Set tonic anchor on the very first chord struck — all scores measure against this
   if(!tonicAnchor){
     const semi=(KS[key]??0+D_SEMI[D_ROM.indexOf(roman)])%12;
@@ -1572,6 +1878,7 @@ function placeFace(fi,key){
   activeFace=fi;curKey=key;previewFace=-1;createBubbleSet(fi);createSignifier(fi);rotateTo(FACES[fi].cen);
   const fcn=document.getElementById('fc-n');if(fcn)fcn.textContent=builtSet.size;
   renderChordStrip(key);buildKeySelector();syncKeySelector();updateGrimoire();
+  updateWorldIndicator();
   scheduleConstellationRedraw(); // H changed — safe to redraw now
   if(builtSet.size===12)setTimeout(()=>{const c=document.getElementById('complete');if(c)c.classList.add('show');},900);
 }
@@ -1645,9 +1952,8 @@ function onDn(x,y){drag=true;moved=false;px0=x;py0=y;ix=0;iy=0;rotAnim=false;}
 function onMv(x,y){if(!drag)return;const dx=x-px0,dy=y-py0;if(Math.abs(dx)>3||Math.abs(dy)>3)moved=true;group.rotation.y+=dx*0.007;group.rotation.x+=dy*0.007;ix=dy*0.007;iy=dx*0.007;px0=x;py0=y;}
 function onUp(x,y){
   drag=false;if(moved)return;
-  // Don't raycast if click is inside grimoire or loom panels
-  if(grimoireOpen&&x>innerWidth-370)return;
-  if(loomOpen&&x<325)return;
+  // Don't raycast when a full-screen panel is covering the canvas
+  if(currentPane!=='ladder')return;
   const ndc=new THREE.Vector2((x/innerWidth)*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(ndc,camera);
   // ── Built face tap → navigate, clear pending pivot ──
   const fills=layers.map(l=>l.fill);const fh=ray.intersectObjects(fills,false);
@@ -1685,12 +1991,25 @@ rd.addEventListener('mousemove',e=>onMv(e.clientX,e.clientY));
 rd.addEventListener('mouseup',e=>onUp(e.clientX,e.clientY));
 rd.addEventListener('mouseleave',()=>drag=false);
 
-// ── MOUSE WHEEL ZOOM ──
+// ── MOUSE WHEEL ZOOM (canvas only) ──
 rd.addEventListener('wheel',e=>{
   e.preventDefault();
   const z=camera.position.z+e.deltaY*0.008;
   camera.position.z=Math.max(2.2,Math.min(10,z));
 },{passive:false});
+
+// ── PANEL SCROLL ISOLATION ──
+// Stop wheel events from ever reaching the canvas when the pointer is over
+// a side panel.  passive:true lets the browser scroll the panel natively;
+// stopPropagation ensures the canvas zoom handler never fires.
+['grimoire','grimoire-body','loom','loom-body'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.addEventListener('wheel',e=>{ e.stopPropagation(); },{passive:true});
+  // Touch: allow the panel's own scroll gesture, block nothing
+  el.addEventListener('touchstart',e=>{ e.stopPropagation(); },{passive:true});
+  el.addEventListener('touchmove', e=>{ e.stopPropagation(); },{passive:true});
+});
 
 // ── TOUCH — single finger rotate, two-finger pinch zoom ──
 let pinchDist0=0;
@@ -1805,18 +2124,62 @@ animate();
 // ═══════════════════════════════════════════════════════════
 function renderLedger(){
   const seq=document.getElementById('led-seq');if(!seq)return;seq.innerHTML='';
-  ledger.forEach(e=>{
+  ledger.forEach((e,i)=>{
     const d=document.createElement('div');
-    if(e.type==='chord'){d.className='le';const idx=D_ROM.indexOf(e.roman);d.style.color=D_COL[idx]||'var(--text2)';
+    if(e.type==='chord'){
+      d.className='le removable';
+      const idx=D_ROM.indexOf(e.roman);d.style.color=D_COL[idx]||'var(--text2)';
       const tn=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
-      d.textContent=`${e.roman}·${tn}`;d.title=`${e.roman} in ${transposedKey(e.key||'C')}`;
-    } else if(e.type==='pivot'){d.className='le pivot';
+      d.textContent=`${e.roman}·${tn}`;
+      d.title=`${e.roman} in ${transposedKey(e.key||'C')} · click to remove`;
+      d.onclick=ev=>{ev.stopPropagation();removeLedgerEntry(i,d);};
+    } else if(e.type==='pivot'){
+      d.className='le pivot removable';
       const tn=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
       d.textContent=`${e.roman}${tn}(${e.romanInDest})`;
-      d.title=`${e.roman} in ${transposedKey(e.originKey)} = ${e.romanInDest} in ${transposedKey(e.destKey)}`;
-    } else {d.className='le keymod';d.textContent=`${transposedKey(e.fromKey)}→${transposedKey(e.toKey)}`;}
+      d.title=`${e.roman} in ${transposedKey(e.originKey)} = ${e.romanInDest} in ${transposedKey(e.destKey)} · click to remove`;
+      d.onclick=ev=>{ev.stopPropagation();removeLedgerEntry(i,d);};
+    } else {
+      d.className='le keymod';
+      d.textContent=`${transposedKey(e.fromKey)}→${transposedKey(e.toKey)}`;
+    }
     seq.appendChild(d);
   });
+}
+
+function removeLedgerEntry(idx,el){
+  if(idx<0||idx>=ledger.length)return;
+  // Animate out then commit removal
+  if(el){
+    el.classList.add('removing');
+    setTimeout(()=>_commitRemove(idx),150);
+  } else {
+    _commitRemove(idx);
+  }
+}
+
+function _commitRemove(idx){
+  ledger.splice(idx,1);
+  // Prune orphaned keymod entries:
+  // a keymod is orphaned when it sits at the boundary (start/end) or
+  // is now adjacent to another keymod with no chord between them.
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(let i=0;i<ledger.length;i++){
+      if(ledger[i].type!=='keymod')continue;
+      const prev=i>0?ledger[i-1]:null;
+      const next=i<ledger.length-1?ledger[i+1]:null;
+      if(!prev||!next||prev.type==='keymod'||next.type==='keymod'){
+        ledger.splice(i,1);changed=true;break;
+      }
+    }
+  }
+  renderLedger();
+  updateGrimoire();
+  // Refresh PLR strip from last remaining chord
+  const last=ledger.filter(e=>e.type==='chord'||e.type==='pivot').slice(-1)[0];
+  updatePLRStrip(last?last.note:null, last?last.qual:null);
 }
 // ── LOOP STATE ──
 // loopStep tracks position within ledger for grid-synchronised loop playback
@@ -1918,6 +2281,7 @@ function resetAll(){
   const c=document.getElementById('complete');if(c)c.classList.remove('show');
   renderLedger();renderChordStrip('C');buildKeySelector();syncKeySelector();
   setPlasmaOffset(0);updateGrimoire();
+  updatePLRStrip(null);updateWorldIndicator();
   scheduleConstellationRedraw();
   syncPanelMargins();
   setSt('tap the solid to open your first tonal center');
@@ -1931,13 +2295,7 @@ function resetAll(){
 // We don't move the Three.js renderer (it stays fixed fullscreen)
 // but we push the bottom strip inward so it clears both panels.
 function syncPanelMargins(){
-  const bot=document.getElementById('bot');
-  if(!bot)return;
-  const l=loomOpen?324:0;
-  const r=grimoireOpen?364:0;
-  bot.style.left=l+'px';
-  bot.style.right=r+'px';
-  // Also update the onUp guard dynamically via flags (already uses loomOpen/grimoireOpen)
+  // Panels are now full-screen — no margin adjustment needed
 }
 
 // ── KEY ↔ FACE BIDIRECTIONAL LOCK ──
@@ -2372,20 +2730,7 @@ function buildPatGrid(){
 }
 
 // ── LOOM TOGGLE & TABS ──
-function toggleLoom(){
-  loomOpen=!loomOpen;
-  const l=document.getElementById('loom'); if(l)l.classList.toggle('open',loomOpen);
-  if(loomOpen){
-    // Defer one rAF so the panel transition completes and canvas has layout dimensions
-    requestAnimationFrame(()=>{
-      buildSeqGrid();
-      buildPolySection();
-      buildPatGrid();
-      drawConstellation();
-    });
-  }
-  syncPanelMargins();
-}
+// toggleLoom — now handled by showPane() above
 function showLTab(id){
   document.querySelectorAll('.ltab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.lpane').forEach(p=>p.classList.remove('on'));
@@ -2813,7 +3158,953 @@ function attemptAutoFold(){
   }, 180);
 }
 
+// ═══════════════════════════════════════════════════════════
+// PLR TRANSFORM ENGINE (Neo-Riemannian — Layer 3 Yetzirah)
+// P = Parallel  (toggle 3rd ±1 semitone, same root)
+// L = Leading   (major: root→3rd minor | minor: 5th+1→major)
+// R = Relative  (major: new root at +9 minor | minor: new root at +3 major)
+// ═══════════════════════════════════════════════════════════
+function computePLR(rootNote, qual){
+  const r=KS[rootNote]??0;
+  // P — parallel: same root, toggle quality
+  const P={root:CHROM[r], qual:qual==='maj'?'min':'maj'};
+  // L — leading-tone exchange
+  let Lroot, Lqual;
+  if(qual==='maj'){ Lroot=(r+4)%12; Lqual='min'; }     // {r,r+4,r+7}→{r+4,r+7,r+11}
+  else            { Lroot=(r+8)%12; Lqual='maj'; }     // {r,r+3,r+7}→{r+8,r,r+3}
+  const L={root:CHROM[Lroot], qual:Lqual};
+  // R — relative
+  let Rroot, Rqual;
+  if(qual==='maj'){ Rroot=(r+9)%12; Rqual='min'; }     // {r,r+4,r+7}→{r+9,r,r+4}
+  else            { Rroot=(r+3)%12; Rqual='maj'; }     // {r,r+3,r+7}→{r+3,r+7,r+10}
+  const R={root:CHROM[Rroot], qual:Rqual};
+  return{P,L,R};
+}
+
+function updatePLRStrip(rootNote, qual){
+  const row=document.getElementById('plr-row');
+  if(!row)return;
+  if(!rootNote||!qual){row.style.display='none';return;}
+  const tr=computePLR(rootNote,qual);
+  row.innerHTML='<span class="plr-lbl">PLR</span>';
+  row.style.display='flex';
+  // Source pill (current chord)
+  const src=document.createElement('span');
+  const srcTransRoot=CHROM[(KS[rootNote]??0+globalOffset+120)%12];
+  src.style.cssText='font-family:\'Cormorant Garamond\',serif;font-size:11px;font-style:italic;color:var(--text2);padding:0 6px 0 2px;border-right:1px solid var(--border);margin-right:4px;';
+  src.textContent=`${srcTransRoot} ${qual}`;
+  row.appendChild(src);
+  // Desc label
+  const desc=document.createElement('span');
+  desc.id='plr-desc';
+  desc.style.cssText='font-family:\'Cormorant Garamond\',serif;font-size:10px;font-style:italic;color:var(--text3);flex:0 0 auto;margin-right:6px;';
+  desc.textContent='→';
+  row.appendChild(desc);
+  // PLR buttons
+  ['P','L','R'].forEach(t=>{
+    const info=tr[t];
+    const transRoot=CHROM[(KS[info.root]??0+globalOffset+120)%12];
+    const btn=document.createElement('button');
+    btn.className='plr-btn';
+    const names={P:'Parallel',L:'Leading',R:'Relative'};
+    btn.title=`${names[t]} transform`;
+    btn.innerHTML=`<span class="plr-t">${t}</span>${transRoot}&thinsp;<span class="plr-q">${info.qual}</span>`;
+    btn.onclick=()=>{
+      const fi=activeFace>=0?activeFace:-1;
+      playPlanar(romanInKey(info.root,curKey)||'?', info.root, info.qual, curKey, fi);
+    };
+    row.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// FOUR WORLDS INDICATOR (Kabbalistic cosmology — Layer mapping)
+// Atziluth : 0 faces  — pure potential, ℤ₁₂ uninstantiated
+// Beri'ah  : 1–3      — creation, tzimtzum begins
+// Yetzirah : 4–8      — formation, geometry takes shape
+// Assiah   : 9–12     — action, materialization complete
+// ═══════════════════════════════════════════════════════════
+const WORLDS=[
+  {min:0,  max:0,  name:"Atziluth", sym:"◦", hint:"pure potential"},
+  {min:1,  max:3,  name:"Beri\u02bcah",  sym:"△", hint:"creation"},
+  {min:4,  max:8,  name:"Yetzirah", sym:"⬡", hint:"formation"},
+  {min:9,  max:12, name:"Assiah",   sym:"◼", hint:"materialization"},
+];
+function updateWorldIndicator(){
+  const el=document.getElementById('world-ind');
+  if(!el)return;
+  const n=builtSet.size;
+  const w=WORLDS.find(w=>n>=w.min&&n<=w.max)||WORLDS[0];
+  el.innerHTML=`${w.sym}&thinsp;<b>${w.name}</b>`;
+  el.title=`${w.name} — ${w.hint} (${n}/12 faces)`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// KHA-RU / GEVURAH ENGINE (Layer 2 — Beri'ah constraint)
+// C(p) = Σ penalty(transition_i)
+// Five Laws scored against the chord ledger
+// ═══════════════════════════════════════════════════════════
+function computeGevurah(){
+  const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
+  if(!chords.length) return {score:null,violations:[],rules:Array(5).fill(null)};
+
+  const v=[];
+  let penalty=0;
+
+  // Law 1: Tonic Anchor — first chord must be I
+  const law1=chords[0].roman==='I';
+  if(!law1){v.push({severity:'high',rule:'Tonic Anchor',msg:`Begins on ${chords[0].roman}, not I`});penalty+=30;}
+
+  // Law 2: No ii→IV (subdominant ordering — IV must precede ii)
+  let law2=true;
+  for(let i=0;i<chords.length-1;i++){
+    if(chords[i].roman==='ii'&&chords[i+1].roman==='IV'){
+      law2=false;
+      v.push({severity:'high',rule:'Subdominant Order',msg:`ii→IV at step ${i+1} (reversed)`});
+      penalty+=40;break;
+    }
+  }
+
+  // Law 3: No V→IV retrogression (maximum penalty)
+  let law3=true;
+  for(let i=0;i<chords.length-1;i++){
+    if(chords[i].roman==='V'&&chords[i+1].roman==='IV'){
+      law3=false;
+      v.push({severity:'critical',rule:'Retrogression',msg:`V→IV at step ${i+1} — maximum penalty`});
+      penalty+=80;break;
+    }
+  }
+
+  // Law 4: vii° must precede V (never follow it)
+  let law4=true;
+  for(let i=0;i<chords.length-1;i++){
+    if(chords[i].roman==='V'&&chords[i+1].roman==='vii°'){
+      law4=false;
+      v.push({severity:'medium',rule:'vii° Rule',msg:`V→vii° at step ${i+1} (must precede V)`});
+      penalty+=25;break;
+    }
+  }
+
+  // Law 5: Authentic cadence — V→I at terminus
+  const last2=chords.slice(-2);
+  const law5=last2.length===2&&last2[0].roman==='V'&&last2[1].roman==='I';
+  if(chords.length>=2&&!law5){
+    v.push({severity:'medium',rule:'Authentic Cadence',msg:`Ends ${last2.map(c=>c.roman).join('→')}, not V→I`});
+    penalty+=20;
+  }
+
+  const raw=Math.max(0,100-Math.round(penalty/Math.max(1,Math.ceil(chords.length/3))));
+  const score=Math.min(100,raw);
+  return{score,violations:v,rules:[law1,law2,law3,law4,law5],total:chords.length};
+}
+
+function updateKharuPane(){
+  const res=computeGevurah();
+  const scoreEl=document.getElementById('gev-score');
+  const barEl=document.getElementById('gev-bar');
+  const verdictEl=document.getElementById('gev-verdict');
+  const violEl=document.getElementById('gev-violations');
+
+  if(res.score===null){
+    if(scoreEl)scoreEl.textContent='—';
+    if(barEl)barEl.style.width='0%';
+    if(verdictEl)verdictEl.textContent='Place chords to activate analysis.';
+    if(violEl)violEl.innerHTML='<span style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No violations detected.</span>';
+    ['rd-0','rd-1','rd-2','rd-3','rd-4'].forEach(id=>{const e=document.getElementById(id);if(e){e.className='rule-dot na';}});
+    ['rh-0','rh-1','rh-2','rh-3','rh-4'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+    return;
+  }
+
+  if(scoreEl)scoreEl.textContent=res.score;
+  if(barEl)barEl.style.width=res.score+'%';
+
+  const verdicts=['Chaos reigns','Dissonant','Strained','Acceptable','Coherent','Virtuous','Pure Din'];
+  const vi=Math.floor(res.score/17);
+  if(verdictEl)verdictEl.textContent=`${verdicts[Math.min(vi,6)]} · ${res.total} chord${res.total!==1?'s':''}`;
+
+  // Rule dots
+  const ruleHints=['Must start on I','IV before ii','Never V→IV','vii° before V only','End V→I'];
+  res.rules.forEach((pass,i)=>{
+    const dot=document.getElementById(`rd-${i}`);
+    const hint=document.getElementById(`rh-${i}`);
+    if(dot)dot.className='rule-dot '+(pass===null?'na':pass?'ok':'fail');
+    if(hint)hint.textContent=pass===null?'—':pass?'✓':ruleHints[i];
+  });
+
+  // Violations list
+  if(violEl){
+    if(!res.violations.length){
+      violEl.innerHTML='<span style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No violations detected.</span>';
+    } else {
+      violEl.innerHTML='';
+      res.violations.forEach(viol=>{
+        const row=document.createElement('div');row.className='violation-row';
+        row.innerHTML=`<span class="v-severity ${viol.severity}">${viol.severity}</span><span class="v-rule">${viol.rule}</span><span class="v-msg">${viol.msg}</span>`;
+        violEl.appendChild(row);
+      });
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TONNETZ LATTICE RENDERER
+// 2D Tone Net: horizontal = perfect fifths (+7 st)
+//              vertical   = major thirds  (+4 st)
+//              diagonal   = minor thirds  (+3 st)
+// pc(col,row) = (basePC + col×7 + row×4) mod 12
+// Each rectangular cell contains:
+//   upper-left  △ = major triad {a, b, c}
+//   lower-right ▽ = minor triad {b, c, d}
+// ═══════════════════════════════════════════════════════════
+function drawTonnetz(){
+  const canvas=document.getElementById('tonnetz-canvas');
+  if(!canvas||!canvas.isConnected)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||300;
+  const H=200;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const dark=document.documentElement.dataset.theme==='dark';
+  const goldC  =dark?'#c8a84b':'#7a4e06';
+  const text3C =dark?'rgba(224,230,244,0.28)':'rgba(28,24,8,0.28)';
+  const borderC=dark?'rgba(255,255,255,0.10)':'rgba(48,38,14,0.16)';
+  const diagC  =dark?'rgba(255,255,255,0.05)':'rgba(48,38,14,0.07)';
+  const surfC  =dark?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.55)';
+  const PLR_CLR={P:'#6088e8',L:'#e07028',R:'#88c868'};
+
+  const COLS=6,ROWS=4;
+  const PAD={l:14,r:14,t:12,b:12};
+  const cellW=(W-PAD.l-PAD.r)/COLS;
+  const cellH=(H-PAD.t-PAD.b)/ROWS;
+  const NR=Math.min(cellW,cellH)*0.27;
+
+  // ── Current chord state (sounding pitch, with globalOffset) ──
+  const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
+  const lastC=chords[chords.length-1]||null;
+  const rootPC=lastC?((KS[lastC.note]??0)+globalOffset+120)%12:-1;
+  const isMin =lastC?lastC.qual==='min':false;
+  const chord3=lastC?new Set(chordPCs(rootPC,lastC.qual)):new Set();
+
+  // ── PLR neighbors (computed from sounding rootPC) ──
+  const plrTgts=[];
+  if(lastC){
+    const r=rootPC,m=isMin;
+    [['P',plrP(r,m)],['L',plrL(r,m)],['R',plrR(r,m)]].forEach(([lbl,res])=>{
+      plrTgts.push({lbl,root:(res.root+120)%12,isMinor:res.isMinor,clr:PLR_CLR[lbl]});
+    });
+  }
+
+  // ── Grid base: center on root at approx (col=2, row=1) ──
+  // pc(2,1) = (base + 14 + 4) % 12 = (base + 6) % 12  →  base = root − 6
+  const basePC=rootPC>=0?(rootPC-6+12)%12:0;
+  function pcAt(col,row){return(basePC+col*7+row*4)%12;}
+  function xy(col,row){
+    return{x:PAD.l+(col+0.5)*cellW, y:H-PAD.b-(row+0.5)*cellH};
+  }
+
+  // ── Chord triangle fill (drawn before edges so edges appear on top) ──
+  if(lastC&&chord3.size===3){
+    for(let row=0;row<ROWS-1;row++){
+      for(let col=0;col<COLS-1;col++){
+        const a=pcAt(col,row),b=pcAt(col+1,row),
+              c=pcAt(col,row+1),d=pcAt(col+1,row+1);
+        const {x:ax,y:ay}=xy(col,row),{x:bx,y:by}=xy(col+1,row),
+              {x:cx,y:cy}=xy(col,row+1),{x:dx,y:dy}=xy(col+1,row+1);
+        // Major △: vertices a,b,c
+        if(!isMin&&chord3.has(a)&&chord3.has(b)&&chord3.has(c)){
+          ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(cx,cy);ctx.closePath();
+          ctx.fillStyle=dark?'rgba(200,168,75,0.16)':'rgba(122,78,6,0.10)';ctx.fill();
+          ctx.strokeStyle=goldC;ctx.lineWidth=1.5;ctx.stroke();
+        }
+        // Minor ▽: vertices b,c,d
+        if(isMin&&chord3.has(b)&&chord3.has(c)&&chord3.has(d)){
+          ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(cx,cy);ctx.lineTo(dx,dy);ctx.closePath();
+          ctx.fillStyle=dark?'rgba(200,168,75,0.16)':'rgba(122,78,6,0.10)';ctx.fill();
+          ctx.strokeStyle=goldC;ctx.lineWidth=1.5;ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // ── Edges ──
+  ctx.lineWidth=1;
+  for(let row=0;row<ROWS;row++){
+    for(let col=0;col<COLS;col++){
+      const {x,y}=xy(col,row);
+      if(col<COLS-1){const n=xy(col+1,row);ctx.strokeStyle=borderC;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+      if(row<ROWS-1){const n=xy(col,row+1);ctx.strokeStyle=borderC;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+      if(col<COLS-1&&row<ROWS-1){const n=xy(col+1,row+1);ctx.strokeStyle=diagC;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+    }
+  }
+
+  // ── Nodes ──
+  for(let row=0;row<ROWS;row++){
+    for(let col=0;col<COLS;col++){
+      const pc=pcAt(col,row);
+      const {x,y}=xy(col,row);
+      const isRoot=lastC&&pc===rootPC;
+      const isChord=chord3.has(pc);
+
+      // PLR ring (drawn behind node fill)
+      for(const pt of plrTgts){
+        if(pt.root===pc){
+          ctx.beginPath();ctx.arc(x,y,NR+3,0,Math.PI*2);
+          ctx.strokeStyle=pt.clr;ctx.lineWidth=2;ctx.stroke();
+        }
+      }
+
+      // Node fill + border
+      ctx.beginPath();ctx.arc(x,y,NR,0,Math.PI*2);
+      ctx.fillStyle=isRoot?goldC:isChord?(dark?'rgba(200,168,75,0.28)':'rgba(122,78,6,0.14)'):surfC;
+      ctx.fill();
+      ctx.strokeStyle=isRoot||isChord?goldC:borderC;
+      ctx.lineWidth=isRoot?2:isChord?1.2:0.7;
+      ctx.stroke();
+
+      // Note name
+      const fs=Math.max(8,Math.round(NR*0.88));
+      ctx.font=`${isRoot?'600 ':''}${fs}px 'Fira Code',monospace`;
+      ctx.fillStyle=isRoot?(dark?'#07080e':'#fff'):isChord?goldC:text3C;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(CHROM[pc],x,y);
+    }
+  }
+
+  // ── PLR labels (small badge above-right of target node) ──
+  for(let row=0;row<ROWS;row++){
+    for(let col=0;col<COLS;col++){
+      const pc=pcAt(col,row);
+      const {x,y}=xy(col,row);
+      for(const pt of plrTgts){
+        if(pt.root===pc){
+          const lfs=Math.max(7,Math.round(NR*0.70));
+          ctx.font=`bold ${lfs}px 'Fira Code',monospace`;
+          ctx.fillStyle=pt.clr;ctx.textAlign='left';ctx.textBaseline='bottom';
+          ctx.fillText(pt.lbl,x+NR+2,y-NR+1);
+        }
+      }
+    }
+  }
+
+  // ── Info strip ──
+  const info=document.getElementById('tonnetz-info');
+  if(!info)return;
+  if(!lastC){info.textContent='Play a chord to see its position on the Tonnetz.';return;}
+  const rootName=CHROM[rootPC];
+  const plrStr=plrTgts.map(pt=>`${pt.lbl}→${CHROM[pt.root]} ${pt.isMinor?'min':'maj'}`).join('  ');
+  info.textContent=`${rootName} ${lastC.qual}  ·  ${plrStr}`;
+}
+
+// ── GEVURAH PHRASE FINDER ──
+// Backtracking search for a varied, Gevurah-compliant diatonic phrase.
+// Structure: I → [randomised interior] → V → I
+// Constraints: no ii→IV, no V→IV, no V→vii°, authentic V→I cadence.
+const PHRASE_POOL=[
+  {roman:'I',   semi:0, qual:'maj'},
+  {roman:'ii',  semi:2, qual:'min'},
+  {roman:'iii', semi:4, qual:'min'},
+  {roman:'IV',  semi:5, qual:'maj'},
+  {roman:'V',   semi:7, qual:'maj'},
+  {roman:'vi',  semi:9, qual:'min'},
+  {roman:'vii°',semi:11,qual:'dim'},
+];
+function gevTransCost(a,b){
+  if(a==='ii' &&b==='IV')  return 40;
+  if(a==='V'  &&b==='IV')  return 80;
+  if(a==='V'  &&b==='vii°')return 25;
+  return 0;
+}
+function findGevurahPhrase(targetLen){
+  targetLen=targetLen||6;
+  const I=PHRASE_POOL[0],V=PHRASE_POOL[4];
+  // Interior pool: exclude I (bookend) and V (fixed penultimate)
+  const pool=PHRASE_POOL.filter(c=>c.roman!=='I'&&c.roman!=='V');
+  // Shuffle for variety on each call
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  const interiorLen=Math.max(1,targetLen-3); // full path = I + interior + V + I
+  const interior=[],used=new Set();
+  function bt(prev){
+    if(interior.length===interiorLen){
+      // Ensure last interior chord doesn't violate the following V
+      return gevTransCost(interior[interior.length-1].roman,'V')===0;
+    }
+    for(const c of pool){
+      if(used.has(c.roman))continue;
+      if(gevTransCost(prev,c.roman)>0)continue;
+      used.add(c.roman);interior.push(c);
+      if(bt(c.roman))return true;
+      interior.pop();used.delete(c.roman);
+    }
+    return false;
+  }
+  if(!bt('I')){
+    // Fallback: canonical safe path
+    return[I,{roman:'vi',semi:9,qual:'min'},{roman:'ii',semi:2,qual:'min'},{roman:'IV',semi:5,qual:'maj'},V,I];
+  }
+  return[I,...interior,V,I];
+}
+
+// Generate a Kha-Ru compliant progression and play it
+function generateGevurahPath(){
+  if(!activeFace&&builtSet.size===0){setSt('open a tonal center first');return;}
+  const key=curKey;
+  const path=findGevurahPhrase(6);
+  path.forEach((step,i)=>{
+    const note=noteFrom(key,step.semi);
+    setTimeout(()=>{
+      playChord(note,step.qual);
+      ledger.push({type:'chord',roman:step.roman,note,qual:step.qual,key,fi:activeFace>=0?activeFace:-1});
+      renderLedger();
+      if(!tonicAnchor&&step.roman==='I'){
+        const semi=(KS[key]??0);
+        tonicAnchor={semi,note,qual:step.qual,roman:step.roman,key};
+        if(pedagogyLevel===3)renderChordStrip(key);
+      }
+      triggerFlash(activeFace>=0?activeFace:0);
+      updateGrimoire();
+    },i*820);
+  });
+  setSt(`Kha-Ru path: ${path.map(s=>s.roman).join('–')} in ${key} · authentic cadence`);
+}
+
+// ── FULL LADDER — Hamiltonian traversal through all built tonal centers ──
+// Walks the dodecahedron adjacency graph (ADJ), playing I at each built face.
+// Prefers topologically adjacent faces (dodecahedron edges = CoF neighbors).
+// Backtracking guarantees all built faces are visited exactly once.
+function generateFullLadder(){
+  if(builtSet.size===0){setSt('open a tonal center first — the ladder needs a ground');return;}
+  if(builtSet.size<3){setSt('build at least 3 tonal centers before traversing the full ladder');return;}
+  const allFaces=[...builtSet];
+  const startFi=(activeFace>=0&&builtSet.has(activeFace))?activeFace:allFaces[0];
+  const visited=new Set([startFi]),pathFaces=[startFi];
+  function bt(){
+    if(visited.size===allFaces.length)return true;
+    const last=pathFaces[pathFaces.length-1];
+    // Prefer dodecahedron-adjacent built faces (harmonically proximate steps)
+    let nexts=ADJ[last].map(a=>a.face).filter(f=>builtSet.has(f)&&!visited.has(f));
+    // If no adjacent unvisited built face, allow any (maintains completeness)
+    if(!nexts.length)nexts=allFaces.filter(f=>!visited.has(f));
+    // Shuffle for variety on repeated calls
+    for(let i=nexts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[nexts[i],nexts[j]]=[nexts[j],nexts[i]];}
+    for(const f of nexts){
+      visited.add(f);pathFaces.push(f);
+      if(bt())return true;
+      pathFaces.pop();visited.delete(f);
+    }
+    return false;
+  }
+  bt();
+  // Play I chord at each face in topological sequence, rotating the solid to each center
+  const STEP_MS=1400;
+  pathFaces.forEach((fi,i)=>{
+    const key=FKEY[fi],note=noteFrom(key,0);
+    setTimeout(()=>{
+      activeFace=fi;curKey=key;
+      rotateTo(FACES[fi].cen);
+      playChord(note,'maj');
+      ledger.push({type:'chord',roman:'I',note,qual:'maj',key,fi});
+      if(!tonicAnchor&&i===0){tonicAnchor={semi:(KS[key]??0),note,qual:'maj',roman:'I',key};if(pedagogyLevel===3)renderChordStrip(key);}
+      renderLedger();renderChordStrip(key);syncKeySelector();triggerFlash(fi);updateGrimoire();
+    },i*STEP_MS);
+  });
+  setSt(`Full Ladder: ${pathFaces.length}/12 tonal centers · Hamiltonian traversal begins`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TESHUVAH — CONTEXTUAL RESOLUTION ENGINE
+// Modules A–E from the Kha-Ru research framework.
+// Replaces the static I–IV–V terminus with a tonally-matched
+// substitute path derived from the actual harmonic context.
+// ═══════════════════════════════════════════════════════════
+
+// Krumhansl–Kessler tonal hierarchy profiles
+const KK_MAJ=[6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+const KK_MIN=[6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+
+// PLR operations → {root, isMinor}
+function plrP(r,m){return{root:r,isMinor:!m};}
+function plrL(r,m){return m?{root:(r+8)%12,isMinor:false}:{root:(r+4)%12,isMinor:true};}
+function plrR(r,m){return m?{root:(r+3)%12,isMinor:false}:{root:(r+9)%12,isMinor:true};}
+
+// PLR distance via BFS on Tonnetz (max diameter = 6)
+function plrDist(r1,m1,r2,m2){
+  if(r1===r2&&m1===m2)return 0;
+  const vis=new Set(),q=[{r:r1,m:m1,d:0}];
+  while(q.length){
+    const{r,m,d}=q.shift(),k=`${r}:${m?1:0}`;
+    if(vis.has(k))continue;vis.add(k);
+    if(r===r2&&m===m2)return d;
+    if(d<6)[plrP(r,m),plrL(r,m),plrR(r,m)].forEach(n=>q.push({r:n.root,m:n.isMinor,d:d+1}));
+  }
+  return 6;
+}
+
+// Semitone interval → roman numeral string (relative to tonic)
+function romanFromSemi(semi,qual){
+  const d=DIA.find(x=>x.semi===semi&&x.qual===qual);if(d)return d.roman;
+  const ext={1:'♭II',3:'♭III',8:'♭VI',10:'♭VII'};
+  return ext[semi]||(qual==='min'?CHROM[semi]+'m':CHROM[semi]);
+}
+
+// Render the analysis panel in #kharu-ctx-display
+function renderContextualDisplay(mode,H,path,pattern,impliedKeyName){
+  const el=document.getElementById('kharu-ctx-display');if(!el)return;
+  const modeColour={DIATONIC:'var(--c-I)',MODAL:'var(--c-IV)',CHROMATIC:'var(--gold)',CHAOS:'var(--c-V)'};
+  const patternNote=pattern?`<span style="color:var(--text3);font-size:10px;">Pattern: ${pattern.type==='p1'?pattern.op+'-chain':pattern.ops.join('')+'-cycle'} detected</span><br>`:'';
+  const pathStr=path.map(s=>{
+    const col=s.roman==='I'?'var(--c-I)':s.roman==='V'||s.roman==='♭II'?'var(--c-V)':s.roman.startsWith('♭')?'var(--gold)':'var(--text2)';
+    return `<span style="color:${col};font-family:'Cormorant Garamond',serif;font-style:italic;">${s.roman}</span><span style="color:var(--text3);font-size:9px;"> ·${s.label}· </span>`;
+  }).join('<span style="color:var(--text3);">→</span>');
+  el.style.display='block';
+  el.innerHTML=`
+    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">
+      <span style="font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.3em;color:${modeColour[mode]||'var(--gold)'};">${mode}</span>
+      <span style="font-family:'Fira Code',monospace;font-size:8px;color:var(--text3);">H=${H.toFixed(2)}</span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);">→ ${impliedKeyName}</span>
+    </div>
+    ${patternNote}
+    <div style="margin-top:4px;">${pathStr}</div>`;
+}
+
+// Main contextual resolution function
+function resolveContextually(){
+  const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
+  if(!chords.length){setSt('place chords first — the engine needs context to read');return;}
+
+  const tonicSemi=(KS[curKey]??0+globalOffset+120)%12;
+  const PHI_INV=1/PHI;
+
+  // ── Module A: Context Vector (φ-decay weighted pitch history) ──
+  // Use sounding pitches (stored note + globalOffset) so K-K analysis
+  // reflects the actual transposed key, not the raw storage key.
+  const ctx=new Float32Array(12);
+  [...chords].reverse().forEach((c,i)=>{
+    const w=Math.pow(PHI_INV,i+1);
+    const rootSemi=(KS[c.note]??0+globalOffset+120)%12;
+    chordPCs(rootSemi,c.qual).forEach(pc=>{ctx[pc]+=w;});
+  });
+  const tot=ctx.reduce((a,b)=>a+b,0)||1;
+  for(let p=0;p<12;p++)ctx[p]/=tot;
+
+  // ── Module D: Tonal entropy H → strategy mode ──
+  let H=0;
+  for(let p=0;p<12;p++){const v=ctx[p];if(v>0)H-=v*Math.log2(v);}
+  const mode=H<1.0?'DIATONIC':H<1.8?'MODAL':H<2.5?'CHROMATIC':'CHAOS';
+
+  // ── Module B: Krumhansl–Kessler key probability ──
+  const kp=new Float32Array(24);
+  for(let k=0;k<12;k++){
+    let dM=0,dm=0;
+    for(let p=0;p<12;p++){dM+=ctx[p]*KK_MAJ[(p-k+12)%12];dm+=ctx[p]*KK_MIN[(p-k+12)%12];}
+    kp[k]=dM;kp[k+12]=dm;
+  }
+  const maxKP=Math.max(...kp);let sumKP=0;
+  for(let k=0;k<24;k++){kp[k]=Math.exp(kp[k]-maxKP);sumKP+=kp[k];}
+  for(let k=0;k<24;k++)kp[k]/=sumKP;
+  let pkIdx=0;for(let k=1;k<24;k++)if(kp[k]>kp[pkIdx])pkIdx=k;
+  const impliedRoot=pkIdx%12;
+  const impliedKeyName=CHROM[impliedRoot]+(pkIdx>=12?' min':' maj');
+
+  // ── Module E: PLR pattern detection in recent chords ──
+  const recent=chords.slice(-6);
+  const ops=[];
+  for(let i=0;i<recent.length-1;i++){
+    const a=recent[i],b=recent[i+1];
+    const ar=(KS[a.note]??0+globalOffset+120)%12,br=(KS[b.note]??0+globalOffset+120)%12;
+    const am=a.qual==='min'||a.qual==='dim',bm=b.qual==='min'||b.qual==='dim';
+    const pp=plrP(ar,am),lp=plrL(ar,am),rp=plrR(ar,am);
+    if(pp.root===br&&pp.isMinor===bm)ops.push('P');
+    else if(lp.root===br&&lp.isMinor===bm)ops.push('L');
+    else if(rp.root===br&&rp.isMinor===bm)ops.push('R');
+    else ops.push('?');
+  }
+  let pattern=null;
+  if(ops.length>=3&&ops.every(o=>o===ops[0]&&o!=='?'))pattern={type:'p1',op:ops[0]};
+  else if(ops.length>=4&&ops[0]===ops[2]&&ops[1]===ops[3]&&ops[0]!=='?')pattern={type:'p2',ops:[ops[0],ops[1]]};
+
+  // ── Module C: Gravity score W(S) for each candidate chord ──
+  // Extended palette: diatonic + chromatic/borrowed
+  const CANDS=[
+    {roman:'ii',  semi:2, qual:'min'},{roman:'iii',semi:4, qual:'min'},
+    {roman:'IV',  semi:5, qual:'maj'},{roman:'V',  semi:7, qual:'maj'},
+    {roman:'vi',  semi:9, qual:'min'},{roman:'vii°',semi:11,qual:'dim'},
+    {roman:'♭II', semi:1, qual:'maj'},{roman:'♭VII',semi:10,qual:'maj'},
+    {roman:'♭VI', semi:8, qual:'maj'},{roman:'♭III',semi:3, qual:'maj'},
+    {roman:'iv',  semi:5, qual:'min'},
+  ];
+  const last=chords[chords.length-1];
+  const lastRoot=(KS[last.note]??0+globalOffset+120)%12,lastMin=last.qual==='min'||last.qual==='dim';
+
+  function scoreW(cand){
+    const cr=(tonicSemi+cand.semi)%12,cm=cand.qual==='min'||cand.qual==='dim';
+    let W=0;
+    for(let k=0;k<24;k++){
+      const p=kp[k];if(p<0.01)continue;
+      const kr=k%12,dom=(kr+7)%12;
+      let fh=0;
+      if(cr===dom&&!cm)fh=1.0;
+      else if(cr===(kr+1)%12)fh=0.8;
+      else if(cr===(kr+11)%12)fh=0.7;
+      else if(cr===(kr+5)%12)fh=0.6;
+      else if(cr===(kr+2)%12)fh=0.5;
+      else if(cr===(kr+3)%12)fh=0.35;
+      else if(cr===(kr+8)%12)fh=0.3;
+      W+=p*fh;
+    }
+    W*=Math.exp(-0.4*plrDist(lastRoot,lastMin,cr,cm));
+    return W;
+  }
+
+  // ── Build resolution path ──
+  let resPath=[];
+
+  // Try pattern extrapolation first (non-diatonic modes)
+  if(mode!=='DIATONIC'&&pattern){
+    const applyOp=(r,m,op)=>op==='P'?plrP(r,m):op==='L'?plrL(r,m):plrR(r,m);
+    const op=pattern.type==='p1'?pattern.op:pattern.ops[0];
+    const nx=applyOp(lastRoot,lastMin,op);
+    if(plrDist(nx.root,nx.isMinor,tonicSemi,false)<=2){
+      // nx.root is in sounding pitch space; un-apply globalOffset so playChord
+      // re-applies it correctly — storing the raw note, not the sounding note.
+      const nNote=CHROM[(nx.root-globalOffset+120)%12],nQual=nx.isMinor?'min':'maj';
+      const nRoman=romanFromSemi((nx.root-tonicSemi+12)%12,nQual);
+      if(nRoman!=='I')resPath.push({roman:nRoman,note:nNote,qual:nQual,label:'pattern'});
+    }
+  }
+
+  // Gravity bridge if path still empty or needs a pre-dominant
+  if(!resPath.length&&mode!=='DIATONIC'){
+    let bestW=-1,bridge=null;
+    CANDS.forEach(c=>{const w=scoreW(c);if(w>bestW){bestW=w;bridge=c;}});
+    if(bridge)resPath.push({roman:bridge.roman,note:noteFrom(curKey,bridge.semi),qual:bridge.qual,label:'substitute'});
+  }
+
+  // Cadential close — tritone sub in CHAOS/CHROMATIC, standard V→I otherwise
+  if(mode==='CHAOS'||mode==='CHROMATIC'){
+    resPath.push({roman:'♭II',note:noteFrom(curKey,1),qual:'maj',label:'tritone sub'});
+  } else if(last.roman!=='V'){
+    resPath.push({roman:'V',note:noteFrom(curKey,7),qual:'maj',label:'dominant'});
+  }
+  resPath.push({roman:'I',note:noteFrom(curKey,0),qual:'maj',label:'tonic'});
+
+  // ── Render display and play ──
+  renderContextualDisplay(mode,H,resPath,pattern,impliedKeyName);
+
+  resPath.forEach((step,i)=>{
+    setTimeout(()=>{
+      playChord(step.note,step.qual);
+      ledger.push({type:'chord',roman:step.roman,note:step.note,qual:step.qual,key:curKey,fi:activeFace>=0?activeFace:-1});
+      renderLedger();updateGrimoire();
+    },i*820);
+  });
+
+  const pathStr=resPath.map(s=>s.roman).join('→');
+  setSt(`Teshuvah · ${mode} · H=${H.toFixed(2)} · ${pathStr}`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// GENRE COHERENCE ENGINE — Seven Harmonic Idioms
+// Classifies the ledger progression against harmonic genres,
+// annotates the Chord Matrix, and transmutes the Temporal Loom.
+// ═══════════════════════════════════════════════════════════
+
+const GENRES = {
+  DIA: {
+    name:'Diatonic', color:'var(--c-I)',
+    transitions:{
+      'I' :{'IV':0.28,'V':0.28,'vi':0.25,'ii':0.12,'I':0.07},
+      'IV':{'V':0.40,'ii':0.25,'I':0.20,'IV':0.08,'vi':0.07},
+      'V' :{'I':0.70,'vi':0.15,'IV':0.05,'V':0.05,'ii':0.05},
+      'ii':{'V':0.55,'IV':0.25,'I':0.10,'ii':0.05,'vi':0.05},
+      'vi':{'IV':0.30,'ii':0.30,'V':0.20,'I':0.10,'vi':0.10},
+    }, epsilon:0.01,
+    modes:[{pcs:[0,2,4,5,7,9,11]},{pcs:[0,2,3,5,7,8,10]}],
+    tensionMean:0.35,
+    loomDensity:[{roman:'IV',steps:4,phase:0},{roman:'I',steps:6,phase:0},{roman:'V',steps:4,phase:2},{roman:'ii',steps:2,phase:1},{roman:'vi',steps:0,phase:0}],
+    rowLengths:[16,16,16,8,8],
+  },
+  MOD: {
+    name:'Modal', color:'var(--c-vi)',
+    transitions:{
+      'I' :{'IV':0.35,'vi':0.30,'I':0.20,'ii':0.10,'V':0.05},
+      'IV':{'I':0.40,'vi':0.30,'IV':0.15,'ii':0.10,'V':0.05},
+      'vi':{'IV':0.35,'I':0.30,'ii':0.20,'vi':0.10,'V':0.05},
+      'ii':{'I':0.35,'IV':0.30,'vi':0.20,'ii':0.10,'V':0.05},
+      'V' :{'I':0.20,'IV':0.30,'vi':0.30,'V':0.10,'ii':0.10},
+    }, epsilon:0.02,
+    modes:[{pcs:[0,2,3,5,7,9,11]},{pcs:[0,2,4,5,7,9,10]},{pcs:[0,2,3,5,7,8,10]}],
+    tensionMean:0.25,
+    loomDensity:[{roman:'IV',steps:5,phase:0},{roman:'I',steps:6,phase:0},{roman:'V',steps:0,phase:0},{roman:'ii',steps:0,phase:0},{roman:'vi',steps:5,phase:1}],
+    rowLengths:[13,16,8,5,13],
+  },
+  JAZ: {
+    name:'Jazz', color:'var(--c-ii)',
+    transitions:{
+      'ii':{'V':0.55,'I':0.15,'vi':0.15,'ii':0.08,'IV':0.07},
+      'V' :{'I':0.55,'ii':0.20,'vi':0.12,'V':0.07,'IV':0.06},
+      'I' :{'vi':0.30,'ii':0.30,'IV':0.15,'I':0.15,'V':0.10},
+      'vi':{'ii':0.45,'V':0.25,'I':0.15,'vi':0.10,'IV':0.05},
+      'IV':{'I':0.30,'V':0.25,'ii':0.25,'IV':0.12,'vi':0.08},
+    }, epsilon:0.02,
+    modes:[{pcs:[0,2,4,6,7,9,10]},{pcs:[0,2,3,5,7,9,11]},{pcs:[0,2,4,5,7,9,10]}],
+    tensionMean:0.55,
+    loomDensity:[{roman:'IV',steps:1,phase:3},{roman:'I',steps:4,phase:0},{roman:'V',steps:5,phase:1},{roman:'ii',steps:5,phase:2},{roman:'vi',steps:1,phase:7}],
+    rowLengths:[8,16,13,13,5],
+  },
+  BLU: {
+    name:'Blues', color:'var(--c-IV)',
+    transitions:{
+      'I' :{'IV':0.45,'I':0.25,'V':0.20,'vi':0.07,'ii':0.03},
+      'IV':{'I':0.55,'IV':0.20,'V':0.15,'vi':0.07,'ii':0.03},
+      'V' :{'IV':0.35,'I':0.45,'V':0.10,'vi':0.07,'ii':0.03},
+      'vi':{'I':0.30,'IV':0.30,'V':0.20,'vi':0.12,'ii':0.08},
+      'ii':{'V':0.40,'I':0.25,'IV':0.20,'ii':0.10,'vi':0.05},
+    }, epsilon:0.03,
+    modes:[{pcs:[0,2,4,5,7,9,10]},{pcs:[0,3,5,6,7,10]}],
+    tensionMean:0.50,
+    loomDensity:[{roman:'IV',steps:5,phase:0},{roman:'I',steps:7,phase:0},{roman:'V',steps:2,phase:6},{roman:'ii',steps:0,phase:0},{roman:'vi',steps:2,phase:4}],
+    rowLengths:[12,12,12,8,8],
+  },
+  AMB: {
+    name:'Ambient', color:'var(--text3)',
+    transitions:{
+      'I' :{'vi':0.40,'I':0.30,'IV':0.15,'ii':0.10,'V':0.05},
+      'vi':{'I':0.50,'vi':0.25,'IV':0.15,'ii':0.07,'V':0.03},
+      'IV':{'I':0.50,'vi':0.25,'IV':0.15,'ii':0.07,'V':0.03},
+      'ii':{'I':0.35,'vi':0.35,'IV':0.20,'ii':0.07,'V':0.03},
+      'V' :{'I':0.35,'vi':0.25,'IV':0.25,'ii':0.10,'V':0.05},
+    }, epsilon:0.02,
+    modes:[{pcs:[0,2,4,6,7,9,11]},{pcs:[0,2,3,5,7,8,10]}],
+    tensionMean:0.15,
+    loomDensity:[{roman:'IV',steps:1,phase:0},{roman:'I',steps:6,phase:0},{roman:'V',steps:0,phase:0},{roman:'ii',steps:0,phase:0},{roman:'vi',steps:3,phase:3}],
+    rowLengths:[16,16,8,5,8],
+  },
+  GOS: {
+    name:'Gospel', color:'#b8860b',
+    transitions:{
+      'IV':{'I':0.45,'IV':0.20,'vi':0.20,'V':0.10,'ii':0.05},
+      'I' :{'IV':0.40,'vi':0.25,'I':0.20,'V':0.10,'ii':0.05},
+      'vi':{'IV':0.40,'I':0.30,'ii':0.15,'vi':0.10,'V':0.05},
+      'V' :{'I':0.35,'IV':0.35,'vi':0.15,'V':0.10,'ii':0.05},
+      'ii':{'IV':0.35,'I':0.25,'V':0.20,'vi':0.15,'ii':0.05},
+    }, epsilon:0.02,
+    modes:[{pcs:[0,2,4,5,7,9,10]},{pcs:[0,2,3,5,7,8,10]}],
+    tensionMean:0.30,
+    loomDensity:[{roman:'IV',steps:6,phase:0},{roman:'I',steps:6,phase:0},{roman:'V',steps:1,phase:8},{roman:'ii',steps:0,phase:0},{roman:'vi',steps:3,phase:2}],
+    rowLengths:[16,16,8,5,13],
+  },
+  CHR: {
+    name:'Chromatic', color:'var(--c-V)',
+    transitions:{
+      'I' :{'vi':0.30,'ii':0.25,'IV':0.20,'I':0.15,'V':0.10},
+      'vi':{'ii':0.30,'I':0.25,'IV':0.20,'vi':0.15,'V':0.10},
+      'ii':{'vi':0.30,'I':0.25,'IV':0.20,'ii':0.15,'V':0.10},
+      'IV':{'I':0.25,'vi':0.25,'ii':0.25,'IV':0.15,'V':0.10},
+      'V' :{'vi':0.30,'I':0.25,'ii':0.25,'IV':0.12,'V':0.08},
+    }, epsilon:0.05,
+    modes:[{pcs:[0,1,2,3,4,5,6,7,8,9,10,11]}],
+    tensionMean:0.70,
+    loomDensity:[{roman:'IV',steps:2,phase:1},{roman:'I',steps:4,phase:0},{roman:'V',steps:0,phase:0},{roman:'ii',steps:2,phase:3},{roman:'vi',steps:4,phase:2}],
+    rowLengths:[13,8,5,8,13],
+  },
+};
+
+let selectedGenre = null;
+
+// Loom row index by Roman numeral
+const GENRE_ROW = {IV:0, I:1, V:2, ii:3, vi:4};
+
+function scoreGenre(genreKey){
+  const G = GENRES[genreKey];
+  const chords = ledger.filter(e=>e.type==='chord');
+  if(chords.length < 2) return 0;
+
+  // 1. Markov log-likelihood (normalized)
+  let markovSum = 0, mCount = 0;
+  for(let i=0; i<chords.length-1; i++){
+    const a=chords[i].roman, b=chords[i+1].roman;
+    const p=(G.transitions[a]&&G.transitions[a][b])||G.epsilon;
+    markovSum += Math.log2(Math.max(p, G.epsilon));
+    mCount++;
+  }
+  const markovRaw = mCount>0 ? markovSum/mCount : -10;
+  const markovNorm = Math.max(0, Math.min(1, (markovRaw+6)/5));
+
+  // 2. Jaccard modal fit (best over all modes × 12 transpositions)
+  const cloud = computeHarmonicCloud();
+  let bestJ = 0;
+  if(cloud.size > 0){
+    G.modes.forEach(mode=>{
+      for(let root=0; root<12; root++){
+        const mSet = new Set(mode.pcs.map(p=>(p+root)%12));
+        const inter = [...cloud].filter(p=>mSet.has(p)).length;
+        const union = new Set([...cloud,...mSet]).size;
+        const j = inter/union;
+        if(j>bestJ) bestJ=j;
+      }
+    });
+  }
+
+  // 3. Tension match (avg dissonance of consecutive roots vs genre expected)
+  let tensionSum=0, tCount=0;
+  for(let i=0; i<chords.length-1; i++){
+    const rA=(CHROM.indexOf(chords[i].note)+globalOffset+120)%12;
+    const rB=(CHROM.indexOf(chords[i+1].note)+globalOffset+120)%12;
+    const cons=intervalConsScore(rA,rB)/100;
+    tensionSum+=(1-cons);
+    tCount++;
+  }
+  const actualTension = tCount>0 ? tensionSum/tCount : 0.5;
+  const tensionScore = Math.max(0, 1 - Math.abs(actualTension - G.tensionMean)*2);
+
+  return 0.50*markovNorm + 0.30*bestJ + 0.20*tensionScore;
+}
+
+function detectAndGetBest(){
+  const keys=Object.keys(GENRES);
+  const scores=keys.map(k=>({key:k,score:scoreGenre(k)}));
+  scores.sort((a,b)=>b.score-a.score);
+  return scores[0].key;
+}
+
+function detectGenre(){
+  const badge=document.getElementById('genre-badge');
+  if(!badge)return;
+  const chords=ledger.filter(e=>e.type==='chord');
+  if(chords.length<2){badge.textContent='';return;}
+  const keys=Object.keys(GENRES);
+  const scores=keys.map(k=>({key:k,score:scoreGenre(k)}));
+  scores.sort((a,b)=>b.score-a.score);
+  const best=scores[0], second=scores[1];
+  const pct=v=>Math.max(0,Math.round(v*100));
+  badge.textContent=`AUTO · ${best.key} · ${pct(best.score)}%  (${second.key} · ${pct(second.score)}%)`;
+  // Highlight best genre button when nothing manually selected
+  if(!selectedGenre){
+    document.querySelectorAll('.genre-btn').forEach(b=>{
+      b.classList.toggle('on', b.dataset.genre===best.key);
+    });
+  }
+}
+
+function selectGenre(key){
+  selectedGenre = selectedGenre===key ? null : key;
+  if(!selectedGenre) genreViewMode='chrono';
+  document.querySelectorAll('.genre-btn').forEach(b=>{
+    b.classList.toggle('on', b.dataset.genre===selectedGenre);
+  });
+  // Propagate genre colour to view toggle buttons
+  const tog=document.getElementById('genre-view-toggle');
+  if(tog&&selectedGenre){
+    const clr=GENRES[selectedGenre].color;
+    tog.style.setProperty('--genre-clr',clr);
+  }
+  document.getElementById('gv-chrono')?.classList.toggle('on',genreViewMode==='chrono');
+  document.getElementById('gv-optimal')?.classList.toggle('on',genreViewMode==='optimal');
+  updateLedgerPane();
+}
+
+// Greedy Markov reordering: take unique chord types from the ledger,
+// sequence them so each transition maximises P_genre(a→b).
+function computeGenreOptimalOrder(genreKey){
+  const G=GENRES[genreKey];
+  const chords=ledger.filter(e=>e.type==='chord');
+  if(chords.length<1)return[];
+
+  // Deduplicate by roman numeral — keep first occurrence of each
+  const seen=new Map();
+  chords.forEach(e=>{if(!seen.has(e.roman))seen.set(e.roman,e);});
+  let remaining=[...seen.values()];
+  if(remaining.length===1)return remaining;
+
+  // Score a chord as the starting position: sum of outgoing Markov probs
+  const outScore=r=>remaining
+    .filter(e=>e.roman!==r)
+    .reduce((s,e)=>s+((G.transitions[r]&&G.transitions[r][e.roman])||G.epsilon),0);
+
+  // Pick best start
+  remaining.sort((a,b)=>outScore(b.roman)-outScore(a.roman));
+  const ordered=[remaining.shift()];
+
+  // Greedily pick next with highest P(cur→next)
+  while(remaining.length>0){
+    const cur=ordered[ordered.length-1];
+    remaining.sort((a,b)=>{
+      const pa=(G.transitions[cur.roman]&&G.transitions[cur.roman][a.roman])||G.epsilon;
+      const pb=(G.transitions[cur.roman]&&G.transitions[cur.roman][b.roman])||G.epsilon;
+      return pb-pa;
+    });
+    ordered.push(remaining.shift());
+  }
+  return ordered;
+}
+
+function playGenreOptimalSequence(genreKey){
+  const ordered=computeGenreOptimalOrder(genreKey);
+  if(!ordered.length)return;
+  ordered.forEach((e,i)=>setTimeout(()=>playChord(e.note,e.qual),i*820));
+  setSt(`▶ ${GENRES[genreKey].name} optimal: ${ordered.map(e=>e.roman).join(' → ')}`);
+}
+
+function transmuteLoomToGenre(genreKey){
+  if(!genreKey||!GENRES[genreKey])return;
+  const G=GENRES[genreKey];
+  const GF=1-1/PHI; // Golden Fraction ≈ 0.382
+
+  // Clear grid
+  clearSeq();
+
+  // Distribute steps per row using phyllotactic spacing + genre phase offset
+  G.loomDensity.forEach(({roman,steps,phase})=>{
+    const r=GENRE_ROW[roman];
+    if(r===undefined||steps===0)return;
+    for(let i=0;i<steps;i++){
+      const pos=(i*GF*16 + phase)%16;
+      const step=Math.floor(pos)%SEQ_STEPS;
+      seqPat[r][step]=true;
+    }
+  });
+
+  // Apply genre row lengths
+  G.rowLengths.forEach((len,r)=>{ rowLen[r]=len; });
+
+  // Open loom to show result
+  showPane('loom');
+  setSt(`⟳ Transmuted → ${G.name} · ${G.loomDensity.filter(d=>d.steps>0).map(d=>d.roman+'×'+d.steps).join(' ')}`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHYLLOTACTIC GOLDEN ANGLE PATTERN (Layer 4 — Assiah)
+// Note onsets distributed by Golden Angle 137.508° across 16 steps
+// φ² = 2.618…  →  Golden Angle = 360°/φ² ≈ 137.508°
+// Mapped to step grid: step_i = floor(i × (137.508/360) × 16) % 16
+// ═══════════════════════════════════════════════════════════
+function loadPhyllotacticPattern(){
+  clearSeq();
+  const GOLDEN_FRAC=1-1/PHI; // ≈ 0.3820 = 137.508°/360°
+  // Per-row density follows Fibonacci: 5,8,5,3,5
+  const density=[5,8,5,3,5];
+  ROW_DEF.forEach((_,r)=>{
+    for(let i=0;i<density[r];i++){
+      // Phase-offset each row by r×2.4 to avoid all rows firing at step 0
+      const pos=(i*GOLDEN_FRAC*16 + r*2.4)%16;
+      const step=Math.floor(pos)%SEQ_STEPS;
+      seqPat[r][step]=true;
+      const cell=document.getElementById(`sc-${r}-${step}`);
+      if(cell)cell.classList.add('on');
+    }
+  });
+  // Set polyrhythm lengths to Fibonacci numbers
+  [13,8,13,5,8].forEach((len,r)=>{ rowLen[r]=len; });
+  if(loomOpen)buildPolySection();
+  // Rebuild grid display
+  if(loomOpen)buildSeqGrid();
+  setSt('φ Golden Angle Spiral — 137.508° phyllotactic onset pattern');
+}
+
 syncSceneBg();buildKeySelector();syncKeySelector();renderChordStrip('C');renderLedger();syncLevelUI();buildPlasmaKeys();setPlasmaOffset(0);syncPanelMargins();
+loadFibonacciPattern();
+const _ebt=document.getElementById('entrain-btn');if(_ebt){_ebt.textContent='Entrain: On';_ebt.classList.add('on');}
 </script>
 </body>
 </html>
