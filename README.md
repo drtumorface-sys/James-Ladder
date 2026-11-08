@@ -42,6 +42,24 @@ committed to the audio clock stops immediately.
 > Pitched material never rides the Drums bus, and Soft Tone no longer mutes it: it rounds the
 > drums off with a lowpass instead, so a gentle session still has a beat.
 
+## Sketches — your work is saved as you go
+
+- Everything on Play and Rhythm is a **sketch**: the chords, key changes, keys opened on the
+  solid, capo, tempo, chord length and the drum beat. It saves itself every second it changes,
+  and again when the app is put away, so closing or reloading never loses an idea.
+- **▤ Sketches** (end of the ledger buttons, or ⚙ Settings) lists them, newest first. Tap one to
+  reopen it; name it; **＋ New sketch** starts fresh (keeping the beat and tempo);
+  **⧉ Duplicate** branches a variation; ✕ twice deletes.
+- Sketches live on this device only (browser / app storage). Nothing is uploaded.
+
+## Offline and privacy
+
+- Three.js (`vendor/`) and the fonts (`fonts/`, SIL OFL) ship with the app, so it starts with no
+  connection and contacts no other server. The service worker precaches every file.
+- `viewport-fit=cover` plus safe-area insets keep the bars clear of the notch and home bar, so the
+  same files work inside an App Store / Play Store wrapper.
+- [privacy.html](privacy.html) is the privacy policy and support page the stores ask for.
+
 ## Rhythm — drum machine
 
 - **Tap a step** to cycle it: on → accent → off. On phones, pick a drum from the overview and

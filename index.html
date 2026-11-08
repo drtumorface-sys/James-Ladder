@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>James' Ladder</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -18,8 +18,8 @@
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   }
 </script>
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Fira+Code:wght@300;400&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
 :root,[data-theme="light"]{
@@ -182,7 +182,7 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 
 /* ═══ MODE GRID OVERLAY ═══ */
 #mode-overlay{
-  position:fixed;inset:0;bottom:56px;z-index:350;
+  position:fixed;inset:0;bottom:var(--nav-h);z-index:350;
   display:none;flex-direction:column;
   background:var(--glass-bg);
   backdrop-filter:blur(32px) saturate(1.6);
@@ -218,7 +218,7 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 
 /* ═══ LEARN PANE ═══ */
 #learn{
-  position:fixed;inset:0;bottom:56px;z-index:250;
+  position:fixed;inset:0;bottom:var(--nav-h);z-index:250;
   display:none;flex-direction:column;
   background:var(--glass-bg);
   backdrop-filter:blur(28px) saturate(1.5);
@@ -357,13 +357,13 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 #fc b{color:var(--gold);font-weight:400;}
 
 /* ═══ BOTTOM NAV ═══ */
-#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:300;display:flex;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);z-index:300;display:flex;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
 .nav-btn{flex:1;background:transparent;border:none;border-top:2px solid transparent;color:var(--text3);font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;letter-spacing:0.04em;cursor:pointer;transition:all 0.14s;display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:0 4px;}
 .nav-btn:hover{color:var(--gold);}
 .nav-btn.nav-on{color:var(--gold);border-top-color:var(--gold);background:var(--glo);}
 
 /* ═══ BOTTOM CHORD STRIP ═══ */
-#bot{position:fixed;bottom:56px;left:0;right:0;z-index:200;padding:9px 16px 10px;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
+#bot{position:fixed;bottom:var(--nav-h);left:0;right:0;z-index:200;padding:9px 16px 10px;background:var(--bg2);border-top:1px solid var(--border);backdrop-filter:blur(14px);}
 #key-row{display:flex;align-items:center;gap:4px;margin-bottom:6px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-width:0;}
 #key-row::-webkit-scrollbar{display:none;}
 #key-row .ks{flex-shrink:0;}
@@ -439,21 +439,21 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .rg-desc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;
   color:var(--text3);line-height:1.45;}
 /* ══ PARALLEL TRANSPOSE ══ */
-#xpose,#modsheet{display:none;position:fixed;inset:0;z-index:886;background:rgba(0,0,0,0.40);}
-#xpose.open,#modsheet.open{display:block;}
-#xpose .rg-sheet,#modsheet .rg-sheet{position:absolute;left:0;right:0;bottom:0;max-height:86vh;
+#xpose,#modsheet,#sketches{display:none;position:fixed;inset:0;z-index:886;background:rgba(0,0,0,0.40);}
+#xpose.open,#modsheet.open,#sketches.open{display:block;}
+#xpose .rg-sheet,#modsheet .rg-sheet,#sketches .rg-sheet{position:absolute;left:0;right:0;bottom:0;max-height:86vh;
   display:flex;flex-direction:column;background:var(--bg2);
   border-top:1px solid var(--border2);border-radius:14px 14px 0 0;
   box-shadow:0 -10px 44px rgba(0,0,0,0.26);}
-#xpose .cc-grip,#modsheet .cc-grip{width:36px;height:4px;border-radius:2px;background:var(--border2);
+#xpose .cc-grip,#modsheet .cc-grip,#sketches .cc-grip{width:36px;height:4px;border-radius:2px;background:var(--border2);
   margin:9px auto 2px;flex-shrink:0;}
-#xpose .rg-head,#modsheet .rg-head{display:flex;align-items:center;justify-content:space-between;
+#xpose .rg-head,#modsheet .rg-head,#sketches .rg-head{display:flex;align-items:center;justify-content:space-between;
   padding:4px 16px 10px;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
-#xpose .set-title,#modsheet .set-title{font-family:'Cormorant Garamond',serif;font-size:18px;
+#xpose .set-title,#modsheet .set-title,#sketches .set-title{font-family:'Cormorant Garamond',serif;font-size:18px;
   font-style:italic;color:var(--gold);}
-#xpose .rg-body,#modsheet .rg-body{flex:1;overflow-y:auto;padding:12px 16px 26px;
+#xpose .rg-body,#modsheet .rg-body,#sketches .rg-body{flex:1;overflow-y:auto;padding:12px 16px 26px;
   -webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
-#xpose .cc-close,#modsheet .cc-close{background:none;border:none;color:var(--text3);font-size:24px;
+#xpose .cc-close,#modsheet .cc-close,#sketches .cc-close{background:none;border:none;color:var(--text3);font-size:24px;
   cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;}
 #xp-shape{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;margin:0 0 14px;}
 .xp-src{font-family:'Fira Code',monospace;font-size:13px;color:var(--text);}
@@ -477,6 +477,31 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
   border:1px solid var(--glm);background:var(--glo);border-radius:2px;}
 .xp-stats{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;
   font-family:'Fira Code',monospace;font-size:9px;color:var(--text2);letter-spacing:0.03em;}
+/* ══ SKETCHES ══ */
+.sk-name{width:100%;min-height:44px;padding:8px 12px;background:var(--surface);border:1px solid var(--border2);
+  border-radius:6px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;
+  user-select:text;-webkit-user-select:text;}
+.sk-name:focus{outline:none;border-color:var(--gold);}
+.sk-name::placeholder{color:var(--text3);}
+.sk-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 6px;}
+.sk-acts .pa{min-height:44px;font-size:10px;letter-spacing:0.12em;}
+#sk-list{display:flex;flex-direction:column;gap:6px;}
+.sk-row{display:flex;align-items:stretch;gap:6px;}
+.sk-open{flex:1;min-width:0;min-height:56px;text-align:left;padding:8px 12px;cursor:pointer;
+  background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);}
+.sk-open:hover{border-color:var(--gold);}
+.sk-row.cur .sk-open{border-color:var(--gold);background:var(--glo);}
+.sk-t{display:block;font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sk-m{display:block;margin-top:3px;font-family:'Fira Code',monospace;font-size:10px;color:var(--text3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sk-del{flex:0 0 auto;min-width:48px;min-height:56px;cursor:pointer;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border2);color:var(--text3);font-family:'Fira Code',monospace;font-size:11px;}
+.sk-del.arm{min-width:84px;border-color:rgba(160,40,20,0.6);color:rgba(175,45,20,0.95);}
+[data-theme="dark"] .sk-del.arm{color:rgba(240,110,80,0.95);}
+.sk-empty{font-size:11px;color:var(--text3);line-height:1.5;padding:6px 0;}
+.set-link{display:block;margin-top:14px;font-size:11px;color:var(--text3);text-align:center;padding:10px;}
+.set-link:hover{color:var(--gold);}
 #xp-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
 /* ══ MODULATE ══ */
 .md-from{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--text2);margin:0 0 12px;}
@@ -791,7 +816,7 @@ body.lvl-1 #fold-chip{display:none;}
    GRIMOIRE PANE — full-screen, shown via .open class
 ═══════════════════════════════════════════════════════════ */
 #grimoire{
-  position:fixed;inset:0;bottom:56px;
+  position:fixed;inset:0;bottom:var(--nav-h);
   z-index:250;
   display:none;
   flex-direction:column;
@@ -1075,7 +1100,7 @@ body.lvl-1 #fold-chip{display:none;}
    LOOM PANE — full-screen, shown via .open class
 ════════════════════════════════════════════════════════ */
 #loom{
-  position:fixed;inset:0;bottom:56px;
+  position:fixed;inset:0;bottom:var(--nav-h);
   z-index:250;
   display:none;
   flex-direction:column;
@@ -1110,7 +1135,7 @@ body.lvl-1 #fold-chip{display:none;}
 
 /* ══ SOUND PANE — all audio controls in one place ══ */
 #sound{
-  position:fixed;inset:0;bottom:56px;
+  position:fixed;inset:0;bottom:var(--nav-h);
   z-index:250;display:none;flex-direction:column;
   background:var(--glass-bg);
   backdrop-filter:blur(28px) saturate(1.5);
@@ -1476,7 +1501,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 :root,[data-theme="light"]{--panel-soft:rgba(234,229,212,0.84);}
 [data-theme="dark"]{--panel-soft:rgba(9,10,19,0.80);}
 @media (max-width:700px), (max-height:500px){
-  #bot{max-height:calc(100dvh - var(--bar-h,76px) - 56px);overflow-y:auto;overflow-x:hidden;
+  #bot{max-height:calc(100dvh - var(--bar-h,76px) - var(--nav-h));overflow-y:auto;overflow-x:hidden;
     overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;
     padding:8px 12px 10px;}
   /* Light blur only, so the solid behind still reads as a drawing. */
@@ -1513,10 +1538,29 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
    scrolling column and the solid gets the left half. Both are always visible, so
    the ◈ toggle isn't needed here. */
 @media (max-height:500px) and (orientation:landscape){
-  #bot,body.solid-front #bot{top:var(--bar-h,76px);bottom:56px;left:50%;right:0;max-height:none;
+  #bot,body.solid-front #bot{top:var(--bar-h,76px);bottom:var(--nav-h);left:50%;right:0;max-height:none;
     border-top:none;border-left:1px solid var(--border);}
   #solid-btn{display:none;}
 }
+
+/* ══ SAFE AREAS — notch, rounded corners and home bar ══
+   viewport-fit=cover lets the app fill the whole screen on notched phones (and
+   inside an App Store wrapper). These insets keep controls clear of the notch
+   and the home bar. On screens without them every inset is 0, so nothing moves. */
+:root{
+  --sa-t:env(safe-area-inset-top,0px);   --sa-b:env(safe-area-inset-bottom,0px);
+  --sa-l:env(safe-area-inset-left,0px);  --sa-r:env(safe-area-inset-right,0px);
+  --nav-h:calc(56px + var(--sa-b));
+}
+#bar{padding-top:calc(9px + var(--sa-t));padding-left:calc(16px + var(--sa-l));padding-right:calc(16px + var(--sa-r));}
+#bottom-nav{padding:0 var(--sa-r) var(--sa-b) var(--sa-l);}
+#mode-overlay,#learn,#grimoire,#loom,#sound{padding-top:var(--sa-t);padding-left:var(--sa-l);padding-right:var(--sa-r);}
+#bot{padding-left:calc(16px + var(--sa-l));padding-right:calc(16px + var(--sa-r));}
+@media (max-width:700px), (max-height:500px){
+  #bot{padding-left:calc(12px + var(--sa-l));padding-right:calc(12px + var(--sa-r));}
+}
+#settings .set-sheet,#rgen .rg-sheet,#chord-card .cc-sheet,
+#xpose .rg-sheet,#modsheet .rg-sheet,#sketches .rg-sheet{padding-bottom:var(--sa-b);}
 </style>
 </head>
 <body>
@@ -1582,9 +1626,37 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
         <button class="tb" id="theme-btn" onclick="toggleTheme()">☀ Theme</button>
       </div>
 
-      <div class="cc-section">Session</div>
-      <button class="set-wide set-danger" id="reset-btn" onclick="resetAll();closeSettings()">↺ Clear everything</button>
+      <div class="cc-section">Sketches</div>
+      <p class="cc-hint">Everything you make is saved on this device as you go.</p>
+      <div class="set-row">
+        <button class="tb set-wide" onclick="closeSettings();openSketches()">▤ My sketches</button>
+        <button class="tb set-wide" id="reset-btn" onclick="closeSettings();newSketch()">＋ New sketch</button>
+      </div>
+      <a class="set-link" href="privacy.html" target="_blank" rel="noopener">Privacy &amp; support</a>
 
+    </div>
+  </div>
+</div>
+
+<!-- Sketches — every progression is saved on this device as you go -->
+<div id="sketches" onclick="if(event.target===this)closeSketches()">
+  <div class="rg-sheet">
+    <div class="cc-grip" aria-hidden="true"></div>
+    <div class="rg-head">
+      <div class="set-title">Sketches</div>
+      <button class="cc-close" onclick="closeSketches()" aria-label="Close">×</button>
+    </div>
+    <div class="rg-body">
+      <div class="cc-section" style="margin-top:0;">This sketch</div>
+      <input id="sk-name" class="sk-name" type="text" maxlength="60" autocomplete="off"
+             placeholder="Name it" aria-label="Sketch name">
+      <div class="sk-acts">
+        <button class="pa pa-copy" onclick="newSketch()">＋ New sketch</button>
+        <button class="pa" id="sk-dup" onclick="duplicateSketch()">⧉ Duplicate</button>
+      </div>
+      <p class="cc-hint">Saved automatically, on this device only. Duplicate to try a variation without losing the original.</p>
+      <div class="cc-section">All sketches</div>
+      <div id="sk-list"></div>
     </div>
   </div>
 </div>
@@ -2014,6 +2086,8 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
               title="Copy a readable chord chart — paste into any notes app">⎘ Chart</button>
       <button class="pa pa-copy" onclick="exportLine()"
               title="Copy the progression as one line">⎘ Line</button>
+      <button class="pa pa-copy" onclick="openSketches()"
+              title="Your saved progressions — start a new one, duplicate, or reopen an old one">▤ Sketches</button>
     </div>
   </div>
 </section>
@@ -2343,7 +2417,8 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   <button id="nav-learn"    class="nav-btn"        onclick="showPane('learn')">♭ Learn</button>
 </nav>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Three.js r128 ships with the app (vendor/) so it starts offline and contacts no other server. -->
+<script src="vendor/three.min.js"></script>
 <script>
 'use strict';
 
@@ -3804,7 +3879,7 @@ function placeFace(fi,key){
   renderChordStrip(key);buildKeySelector();syncKeySelector();updateGrimoire();
   updateWorldIndicator();
   scheduleConstellationRedraw(); // H changed — safe to redraw now
-  if(builtSet.size===12)setTimeout(()=>{const c=document.getElementById('complete');if(c)c.classList.add('show');},900);
+  if(builtSet.size===12&&!_skRestoring)setTimeout(()=>{const c=document.getElementById('complete');if(c)c.classList.add('show');},900);
 }
 function plantFirst(fi){placeFace(fi,FKEY[fi]);setSt(`${FKEY[fi]} · tap bubble nodes to play`);}
 function modulate(destFi){
@@ -6938,19 +7013,22 @@ function applyDrumPattern(name,opts){
 // ── Saving — the beat survives closing the page (this device only) ──
 const DM_KEY='jl-drums-v1';
 let _dmSaveTimer=null;
+function _drumState(){
+  return {v:1, tracks:JSON.parse(JSON.stringify(dm.tracks)), meter:seqCycle, linkChords:dm.linkChords,
+          pattern:dm.pattern, sel:dm.sel, swing:Math.round(swing*100)};
+}
 function saveDrums(){
   clearTimeout(_dmSaveTimer);
   _dmSaveTimer=setTimeout(()=>{
-    try{
-      localStorage.setItem(DM_KEY,JSON.stringify({
-        v:1, tracks:dm.tracks, meter:seqCycle, linkChords:dm.linkChords,
-        pattern:dm.pattern, sel:dm.sel, swing:Math.round(swing*100)}));
-    }catch(e){}
+    try{ localStorage.setItem(DM_KEY,JSON.stringify(_drumState())); }catch(e){}
   },250);
 }
 function loadDrums(){
   let s=null;
   try{ s=JSON.parse(localStorage.getItem(DM_KEY)||'null'); }catch(e){ return false; }
+  return _applyDrumState(s);
+}
+function _applyDrumState(s){
   if(!s||s.v!==1||!s.tracks) return false;
   const meter=METERS.some(m=>m.steps===s.meter)?s.meter:16;
   setMeter(meter,{silent:true});
@@ -10336,6 +10414,251 @@ function toggleIcos(){
     setSt('Icosahedron overlay off');
   }
 }
+
+// ═══════════════════════════════════════════════════════════
+// SKETCHES — the progression is saved on this device as you work
+//
+// A sketch is everything on Play and Rhythm: the ledger, the keys opened on the
+// solid, capo, tempo, chord length and the drum beat. A light check runs every
+// second and writes only when something changed, so no edit path has to
+// remember to save. Nothing leaves the device.
+// ═══════════════════════════════════════════════════════════
+const SK_KEY='jl-sketches-v1';
+let sk={v:1, cur:null, list:[]};   // list: {id, name, created, updated, state}
+let _skLastJSON='';                 // what the current sketch last saved as
+var _skRestoring=false;             // var: placeFace() reads it before this line runs
+let _skDelArmed=null, _skDelTimer=null;
+
+function _skRead(){
+  try{
+    const d=JSON.parse(localStorage.getItem(SK_KEY)||'null');
+    if(d&&d.v===1&&Array.isArray(d.list)) sk={v:1, cur:d.cur||null, list:d.list.filter(x=>x&&x.id&&x.state)};
+  }catch(e){}
+}
+function _skWrite(){
+  try{ localStorage.setItem(SK_KEY,JSON.stringify(sk)); return true; }
+  catch(e){ setSt('could not save · this device’s storage is full or blocked'); return false; }
+}
+function _skFind(id){ return sk.list.find(x=>x.id===id)||null; }
+function _skNewId(){ return 's'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+function _sketchState(){
+  return {
+    ledger:JSON.parse(JSON.stringify(ledger)),
+    faces:builtFaces.map(f=>({fi:f.fi, key:f.key})),
+    active:activeFace, key:curKey, capo:globalOffset,
+    anchor:tonicAnchor?{...tonicAnchor}:null,
+    bpm:seqBpm, beats:chordBeats, drums:_drumState(),
+  };
+}
+function _skIsEmpty(st){ return !st.ledger.length&&!st.faces.length; }
+
+// Save the current work if it changed. A blank screen isn't saved as a sketch
+// until it has at least one chord or open key.
+function _skSave(){
+  if(_skRestoring) return;
+  const st=_sketchState();
+  const json=JSON.stringify(st);
+  if(json===_skLastJSON) return;
+  let item=_skFind(sk.cur);
+  if(!item){
+    if(_skIsEmpty(st)){ _skLastJSON=json; return; }
+    item={id:_skNewId(), name:'', created:Date.now(), updated:Date.now(), state:st};
+    sk.list.unshift(item); sk.cur=item.id;
+  }
+  item.state=st; item.updated=Date.now();
+  if(_skWrite()) _skLastJSON=json;
+  if(document.getElementById('sketches')?.classList.contains('open')) renderSketchList();
+}
+
+// Put a saved sketch back on screen: open its keys, refill the ledger, restore
+// capo, tempo and beat. Built on resetAll(), so nothing from the last one lingers.
+function _applySketchState(st){
+  _skRestoring=true;
+  try{
+    resetAll();
+    ledgerUndo=null;
+    const seen=new Set();
+    (st.faces||[]).forEach(f=>{
+      if(!(f.fi>=0&&f.fi<12)||seen.has(f.fi)||!FKEY.includes(f.key)) return;
+      seen.add(f.fi); placeFace(f.fi,f.key);
+    });
+    ledger=Array.isArray(st.ledger)?JSON.parse(JSON.stringify(st.ledger)):[];
+    tonicAnchor=st.anchor||null;
+    if(st.active>=0&&builtSet.has(st.active)){
+      activeFace=st.active; curKey=st.key||FKEY[activeFace];
+      if(FACES[activeFace]) rotateTo(FACES[activeFace].cen);
+    }
+    setPlasmaOffset(typeof st.capo==='number'?st.capo:0);
+    if(typeof st.bpm==='number'&&st.bpm>=30&&st.bpm<=300) setBpm(st.bpm);
+    if([1,2,4,8].includes(st.beats)) setChordBeats(st.beats);
+    if(st.drums&&_applyDrumState(st.drums)){ renderDrums(); saveDrums(); }
+    _afterLedgerRewrite();
+    renderChordStrip(curKey); buildKeySelector(); syncKeySelector(); updateWorldIndicator();
+    if(typeof renderRhythmTrack==='function') renderRhythmTrack();
+  } finally { _skRestoring=false; }
+  _skLastJSON=JSON.stringify(_sketchState());
+}
+
+// ── Names and descriptions ──
+function _skSym(e,capo){
+  const i=CHROM.indexOf(e.note);
+  const n=i<0?e.note:CHROM[(i+(capo||0)+120)%12];
+  return chordSymbol(n,e.qual||'maj');
+}
+function _skChords(st){ return (st.ledger||[]).filter(_isChordEntry); }
+// The key the music is in at the end — the last chord's, else the open face's.
+function _skKeyName(st){
+  const last=_skChords(st).slice(-1)[0];
+  const k=(last&&(last.type==='pivot'?last.destKey:last.key))||st.key||(st.faces&&st.faces[0]&&st.faces[0].key)||'C';
+  const i=CHROM.indexOf(k);
+  return i<0?k:CHROM[(i+(st.capo||0)+120)%12];
+}
+function _skAutoName(st){
+  const ch=_skChords(st);
+  if(!ch.length) return st.faces&&st.faces.length?'Key of '+_skKeyName(st):'Empty sketch';
+  return ch.slice(0,4).map(e=>_skSym(e,st.capo)).join(' · ')+(ch.length>4?' …':'');
+}
+function _skTitle(item){ return item.name||_skAutoName(item.state); }
+function _skAgo(t){
+  const d=(Date.now()-t)/1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+' min ago';
+  if(d<86400) return Math.floor(d/3600)+' h ago';
+  return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+}
+function _skMeta(item){
+  const st=item.state, n=_skChords(st).length;
+  const kc=(st.ledger||[]).filter(e=>e.type==='keymod').length;
+  return [_skKeyName(st), `${n} chord${n===1?'':'s'}`, kc?`${kc} key change${kc===1?'':'s'}`:null,
+          `${st.bpm||seqBpm} bpm`, _skAgo(item.updated)].filter(Boolean).join(' · ');
+}
+function _skEsc(t){
+  return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ── The sheet ──
+function openSketches(){
+  _skSave();
+  const el=document.getElementById('sketches'); if(!el) return;
+  el.classList.add('open');
+  renderSketchList();
+}
+function closeSketches(){
+  document.getElementById('sketches')?.classList.remove('open');
+  _skDisarm();
+}
+function renderSketchList(){
+  const cur=_skFind(sk.cur);
+  const name=document.getElementById('sk-name');
+  if(name&&document.activeElement!==name){
+    name.value=cur?cur.name:'';
+    name.placeholder=cur?_skAutoName(cur.state):'Play a chord to start a sketch';
+    name.disabled=!cur;
+  }
+  const dup=document.getElementById('sk-dup'); if(dup) dup.disabled=!cur;
+  const list=document.getElementById('sk-list'); if(!list) return;
+  if(!sk.list.length){
+    list.innerHTML='<p class="sk-empty">No sketches yet. Play a chord on the Play screen and it starts saving here.</p>';
+    return;
+  }
+  const rows=[...sk.list].sort((a,b)=>b.updated-a.updated);
+  list.innerHTML=rows.map(it=>{
+    const isCur=it.id===sk.cur, armed=_skDelArmed===it.id, t=_skEsc(_skTitle(it));
+    return `<div class="sk-row${isCur?' cur':''}">
+      <button class="sk-open" data-open="${it.id}"${isCur?' aria-current="true"':''}>
+        <span class="sk-t">${t}</span>
+        <span class="sk-m">${isCur?'open now · ':''}${_skEsc(_skMeta(it))}</span>
+      </button>
+      <button class="sk-del${armed?' arm':''}" data-del="${it.id}" aria-label="Delete ${t}">${armed?'Delete?':'✕'}</button>
+    </div>`;
+  }).join('');
+}
+function _skDisarm(){ _skDelArmed=null; clearTimeout(_skDelTimer); }
+
+function openSketch(id){
+  const item=_skFind(id); if(!item) return;
+  if(id===sk.cur){ closeSketches(); return; }
+  _skSave();
+  stopAll();
+  sk.cur=id; _skWrite();
+  _applySketchState(item.state);
+  closeSketches();
+  setSt(`opened “${_skTitle(item)}”`);
+}
+function _skBlank(){
+  _skRestoring=true;
+  try{ resetAll(); ledgerUndo=null; } finally { _skRestoring=false; }
+  _skLastJSON=JSON.stringify(_sketchState());
+}
+// Starts a clean slate. The beat and tempo carry over, since a new idea often
+// starts over the same groove; the old sketch stays in the list.
+function newSketch(){
+  _skSave();
+  const had=!!_skFind(sk.cur);
+  sk.cur=null; _skWrite();
+  _skBlank();
+  closeSketches();
+  setSt(had?'new sketch · the last one is saved in ▤ Sketches':'new sketch · tap the solid to open your first key');
+}
+function duplicateSketch(){
+  _skSave();
+  const cur=_skFind(sk.cur); if(!cur) return;
+  const copy={id:_skNewId(), name:(_skTitle(cur)+' (copy)').slice(0,60), created:Date.now(), updated:Date.now(),
+              state:JSON.parse(JSON.stringify(cur.state))};
+  sk.list.unshift(copy); sk.cur=copy.id; _skWrite();
+  _skLastJSON=JSON.stringify(_sketchState());
+  renderSketchList();
+  setSt(`now working on “${copy.name}” · the original is unchanged`);
+}
+function deleteSketch(id){
+  const item=_skFind(id); if(!item) return;
+  sk.list=sk.list.filter(x=>x.id!==id);
+  if(id===sk.cur){ sk.cur=null; _skBlank(); }
+  _skWrite();
+  _skDisarm();
+  renderSketchList();
+  setSt(`deleted “${_skTitle(item)}”`);
+}
+
+(function initSketches(){
+  const el=document.getElementById('sketches');
+  if(el) el.addEventListener('click',ev=>{
+    const o=ev.target.closest('[data-open]');
+    if(o){ openSketch(o.dataset.open); return; }
+    const d=ev.target.closest('[data-del]');
+    if(d){
+      // Two taps to delete: the first arms the button for four seconds.
+      const id=d.dataset.del;
+      if(_skDelArmed===id){ deleteSketch(id); return; }
+      _skDisarm(); _skDelArmed=id; renderSketchList();
+      _skDelTimer=setTimeout(()=>{ _skDelArmed=null; renderSketchList(); },4000);
+    }
+  });
+  const name=document.getElementById('sk-name');
+  if(name){
+    name.addEventListener('input',()=>{
+      const cur=_skFind(sk.cur); if(!cur) return;
+      cur.name=name.value.trim().slice(0,60); cur.updated=Date.now(); _skWrite();
+    });
+    name.addEventListener('keydown',ev=>{ if(ev.key==='Enter') name.blur(); });
+    name.addEventListener('blur',renderSketchList);
+  }
+
+  _skRead();
+  const cur=_skFind(sk.cur);
+  if(cur&&!_skIsEmpty(cur.state)){
+    _applySketchState(cur.state);
+    setSt(`welcome back · “${_skTitle(cur)}” · ▤ Sketches for the others`);
+  } else {
+    if(sk.cur&&!cur){ sk.cur=null; _skWrite(); }
+    _skLastJSON=JSON.stringify(_sketchState());
+  }
+  setInterval(_skSave,1000);
+  // Save straight away when the app is put away — phones may close it without warning.
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') _skSave(); });
+  window.addEventListener('pagehide',_skSave);
+})();
 </script>
 </body>
 </html>
