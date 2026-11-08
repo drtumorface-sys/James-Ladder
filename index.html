@@ -1154,6 +1154,123 @@ input[type=range].loom-range::-moz-range-thumb{width:20px;height:20px;border:non
 .pbtn2:hover{border-color:var(--glm);color:var(--gold);}
 .pbtn2.active-pat{border-color:var(--gold);color:var(--gold);background:var(--glo);}
 
+/* ══ DRUM MACHINE (Rhythm screen) ══ */
+#dm-transport{position:sticky;top:0;z-index:10;background:var(--glass-bg);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--glass-border);padding:10px 18px;margin:-16px -18px 4px;
+  display:flex;flex-direction:column;gap:8px;}
+.dm-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.dm-row .lbtn{min-height:44px;}
+.dm-play{min-width:92px;font-size:9px;}
+.dm-play.on{background:var(--gold);color:var(--bg2);border-color:var(--gold);}
+.dm-tempo{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.dm-adj{width:40px;min-height:44px;background:var(--surface);border:1px solid var(--border2);
+  color:var(--text2);font-size:18px;cursor:pointer;border-radius:2px;
+  display:inline-flex;align-items:center;justify-content:center;}
+.dm-adj:hover{border-color:var(--gold);color:var(--gold);}
+.dm-bpm{display:inline-flex;align-items:baseline;gap:3px;min-width:58px;justify-content:center;}
+.dm-bpm b{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;font-weight:400;
+  color:var(--gold);line-height:1;}
+.dm-bpm small{font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.2em;color:var(--text3);text-transform:uppercase;}
+.dm-segs{display:flex;border:1px solid var(--border2);border-radius:2px;overflow:hidden;}
+.dm-seg{background:var(--surface);border:none;border-right:1px solid var(--border);color:var(--text3);
+  font-family:'Fira Code',monospace;font-size:10px;min-width:44px;min-height:44px;cursor:pointer;}
+.dm-seg:last-child{border-right:none;}
+.dm-seg:hover{color:var(--gold);}
+.dm-seg.on{background:var(--glo);color:var(--gold);}
+.dm-swing{display:flex;align-items:center;gap:6px;flex:1;min-width:150px;font-size:8px;
+  letter-spacing:0.26em;color:var(--text3);text-transform:uppercase;}
+.dm-swing input{flex:1;min-width:60px;}
+#dm-swing-val{font-family:'Fira Code',monospace;font-size:9px;color:var(--gold);min-width:30px;
+  text-align:right;letter-spacing:0;}
+
+/* Wide screens: drum names | 16 steps | mute */
+#dm-grid{display:grid;grid-template-columns:minmax(84px,auto) repeat(16,minmax(24px,1fr)) 40px;gap:3px;}
+.dmg-num{font-family:'Fira Code',monospace;font-size:8px;color:var(--text3);text-align:center;align-self:end;}
+.dmg-num.beat{color:var(--gold);font-size:10px;}
+.dmg-num.past{opacity:0.35;}
+.dmg-name{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--surface);
+  border:1px solid var(--border);border-radius:2px;color:var(--text2);font-family:'Fira Code',monospace;
+  font-size:9px;letter-spacing:0.08em;padding:0 8px;min-height:36px;cursor:pointer;text-align:left;white-space:nowrap;}
+.dmg-name:hover{border-color:var(--glm);color:var(--gold);}
+.dmg-name.sel{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+.dmg-name.muted{opacity:0.45;text-decoration:line-through;}
+.dmg-len{font-size:8px;color:var(--gold);border:1px solid var(--glm);border-radius:8px;padding:0 5px;text-decoration:none;}
+.dmg-cell{min-height:36px;background:var(--surface);border:1px solid var(--border);border-radius:3px;
+  cursor:pointer;padding:0;transition:background 0.08s,border-color 0.08s;}
+.dmg-cell.beat{border-color:var(--border2);}
+.dmg-cell:hover{border-color:var(--glm);}
+.dmg-cell.on{background:var(--glm);border-color:var(--gold);}
+.dmg-cell.acc{background:var(--gold);border-color:var(--gold);}
+.dmg-cell.out{opacity:0.18;cursor:default;}
+.dmg-cell.now{box-shadow:inset 0 0 0 2px var(--text2);}
+.dmg-mute{min-height:36px;background:var(--surface);border:1px solid var(--border);border-radius:2px;
+  color:var(--text3);font-family:'Fira Code',monospace;font-size:9px;cursor:pointer;}
+.dmg-mute.on{background:rgba(160,40,20,0.12);border-color:rgba(160,40,20,0.5);color:rgba(170,45,20,0.95);}
+
+/* Phones: an overview of every drum (tap a row to pick it) + 4×4 pads for one */
+#dm-phone{display:none;}
+#dm-overview{display:flex;flex-direction:column;gap:2px;margin-bottom:12px;}
+.dmo-row{display:flex;align-items:center;gap:6px;background:none;border:1px solid transparent;
+  border-radius:3px;padding:4px;min-height:30px;cursor:pointer;width:100%;}
+.dmo-row.sel{border-color:var(--gold);background:var(--glo);}
+.dmo-row.muted{opacity:0.45;}
+.dmo-lbl{font-family:'Fira Code',monospace;font-size:9px;color:var(--text2);width:22px;flex-shrink:0;text-align:left;}
+.dmo-row.sel .dmo-lbl{color:var(--gold);}
+.dmo-cells{flex:1;display:grid;grid-template-columns:repeat(16,1fr);gap:2px;}
+.dmo-cell{height:14px;background:var(--surface);border:1px solid var(--border);border-radius:2px;}
+.dmo-cell.beat{border-color:var(--border2);}
+.dmo-cell.on{background:var(--glm);border-color:var(--gold);}
+.dmo-cell.acc{background:var(--gold);border-color:var(--gold);}
+.dmo-cell.out{opacity:0.15;}
+.dmo-cell.now{outline:2px solid var(--text2);outline-offset:-1px;}
+.dmp-head{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text3);margin-bottom:6px;}
+.dmp-head b{font-style:normal;font-family:'Fira Code',monospace;font-size:11px;color:var(--gold);font-weight:400;}
+.dmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.dmp{aspect-ratio:1.25;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;
+  display:flex;align-items:flex-start;justify-content:flex-start;padding:6px 8px;
+  font-family:'Fira Code',monospace;font-size:10px;color:var(--text3);transition:background 0.08s;}
+.dmp.beat{border-color:var(--border2);}
+.dmp.beat span{color:var(--gold);}
+.dmp.on{background:var(--glm);border-color:var(--gold);}
+.dmp.acc{background:var(--gold);border-color:var(--gold);}
+.dmp.acc span{color:var(--bg2);}
+.dmp.out{opacity:0.15;cursor:default;}
+.dmp.now{box-shadow:inset 0 0 0 2px var(--text2);}
+
+/* Selected-drum controls */
+.dmt-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.dmt-row .lbtn{min-height:44px;}
+.dmt-vol{flex:1;min-width:160px;margin-top:0;}
+.dmt-lbl{font-size:8px;letter-spacing:0.3em;color:var(--text3);text-transform:uppercase;min-width:34px;}
+.dmt-len{font-family:'Fira Code',monospace;font-size:9px;color:var(--text3);min-width:62px;text-align:center;}
+.dmt-len b{font-size:14px;color:var(--gold);font-weight:400;}
+.dmt-note{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);}
+.dmt-fills{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.dm-hint{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);
+  line-height:1.6;margin:12px 0 4px;}
+
+@media (max-width:700px){
+  #dm-grid{display:none;}
+  #dm-phone{display:block;}
+  /* Two compact rows, so the overview and all 16 pads fit on one screen. */
+  #dm-transport{padding:8px 12px;gap:6px;}
+  .dm-row{gap:4px;flex-wrap:nowrap;}
+  .dm-row .lbtn{padding:4px 8px;letter-spacing:0.12em;min-width:0;}
+  .dm-play{min-width:66px;}
+  .dm-tempo{gap:3px;}
+  .dm-adj{width:36px;}
+  .dm-bpm{min-width:42px;}
+  .dm-bpm small{display:none;}
+  .dm-seg{min-width:38px;font-size:9px;}
+  .dm-swing{min-width:0;letter-spacing:0.12em;}
+  .dm-clear-lbl{display:none;}
+  .dmo-row{min-height:26px;padding:3px 4px;}
+  .dmo-cell{height:12px;}
+}
+/* Very narrow phones: let the transport rows wrap rather than overflow. */
+@media (max-width:359px){ .dm-row{flex-wrap:wrap;} }
+
 
 /* ── PITCH CONSTELLATION ── */
 #constellation-wrap{position:relative;margin:0 auto 12px;width:100%;max-width:260px;}
@@ -1337,69 +1454,49 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 <div id="loom">
   <div id="loom-header">
     <div id="loom-title">Rhythm</div>
-    <div id="loom-sub">step sequencer · pitch wheel</div>
-    <button id="loom-close" onclick="showPane('ladder')">×</button>
-  </div>
-  <div id="loom-tabs">
-    <button class="ltab on" id="lt-seq"   onclick="showLTab('seq')">Sequencer</button>
-    <button class="ltab"    id="lt-const" onclick="showLTab('const')">Pitch Wheel</button>
+    <div id="loom-sub">drum machine</div>
+    <button id="loom-close" onclick="showPane('ladder')" aria-label="Back to Play">×</button>
   </div>
   <div id="loom-body">
 
-    <!-- SEQUENCER PANE -->
-    <div class="lpane on" id="lpane-seq">
-
-      <!-- ── STICKY TRANSPORT — always visible ── -->
-      <div id="loom-transport">
-        <div id="play-row">
-          <button class="lbtn" id="seq-play-btn" onclick="toggleSeq()">▶ Play</button>
-          <button class="lbtn" id="loop-btn"     onclick="toggleLoop()">⟳ Loop</button>
-          <button class="lbtn" id="sig-mode-btn" onclick="toggleSeqMode()" title="Tonal plays chords; Percussion plays a click">Mode: Tonal</button>
-          <button class="lbtn" id="entrain-btn"  onclick="toggleEntrain()">Follow Ledger: Off</button>
-          <button class="lbtn" onclick="clearSeq()" title="Clear every step in the grid">✕ Clear</button>
-        </div>
-        <div class="spread-row">
-          <label>Chord every</label>
-          <input type="range" class="loom-range" id="spread-sl" min="1" max="16" value="4"
-                 oninput="setSpread(+this.value)" style="flex:1;">
-          <span id="spread-disp">4</span>
-          <label style="margin-left:6px;">steps</label>
-        </div>
-        <div class="transport-note">
-          Tempo and levels live in <button class="inline-link" onclick="showPane('sound')">Sound</button>
+    <!-- ── TRANSPORT — stays at the top while you scroll ── -->
+    <div id="dm-transport">
+      <div class="dm-row">
+        <button class="lbtn dm-play" id="dm-play" onclick="toggleDrums()">▶ Play</button>
+        <button class="lbtn dm-link on" id="dm-link" onclick="toggleDrumLink()" aria-pressed="true"
+                title="When on, ▶ also plays your ledger progression in time with the beat">＋ Chords</button>
+        <div class="dm-tempo" title="Tempo — also on the Sound screen">
+          <button class="dm-adj" onclick="adjustBpm(-1)" aria-label="Slower">−</button>
+          <span class="dm-bpm"><b id="dm-bpm">120</b><small>bpm</small></span>
+          <button class="dm-adj" onclick="adjustBpm(1)" aria-label="Faster">+</button>
+          <button class="lbtn dm-tap" onclick="tapTempo()">Tap</button>
         </div>
       </div>
-
-      <!-- ── SEQUENCER GRID ── -->
-      <div class="l-section" style="margin-top:14px;">Grid — 5 rows × 16 steps</div>
-      <div id="seq-grid"></div>
-      <p id="seq-hint">Swipe the grid sideways to reach later steps. Gold numbers mark each beat.</p>
-
-      <!-- ── POLYRHYTHM ── -->
-      <div class="l-section">Polyrhythm — per-row cycle length</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:10px;">
-        Each row can loop at a different length (3–16 steps), creating independent rhythmic cycles that drift in and out of phase.
-      </p>
-      <div id="poly-section"></div>
-
-      <!-- ── PATTERNS ── -->
-      <div class="l-section">Pattern Library</div>
-      <div class="pat-grid" id="pat-grid"></div>
-
-    </div>
-
-    <!-- CONSTELLATION PANE -->
-    <div class="lpane" id="lpane-const">
-      <div class="l-section">Pitch Wheel</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
-        The chromatic circle, divided into 12 equidistant nodes. The top-scoring scale from the Consonance Matrix is projected as a geometric polygon — intervals become spatial distances.
-      </p>
-      <div id="constellation-wrap">
-        <canvas id="constellation-canvas" width="260" height="260"></canvas>
+      <div class="dm-row">
+        <div class="dm-segs" id="dm-meter" role="group" aria-label="Time signature"></div>
+        <label class="dm-swing" title="Delays every second sixteenth — 33% is a triplet feel">Swing
+          <input type="range" class="loom-range" id="dm-swing" min="0" max="50" step="1" value="0"
+                 oninput="setSwing(+this.value)">
+          <span id="dm-swing-val">0%</span></label>
+        <button class="lbtn dm-clear" onclick="clearDrums()" title="Clear every drum" aria-label="Clear every drum">✕<span class="dm-clear-lbl"> Clear</span></button>
       </div>
-      <div id="constellation-label">—</div>
-      <div id="constellation-sub">place chords to generate</div>
     </div>
+
+    <!-- ── BEAT — full grid on wide screens, overview + pads on phones ── -->
+    <div class="l-section">Beat</div>
+    <div id="dm-grid"></div>
+    <div id="dm-phone">
+      <div id="dm-overview"></div>
+      <div id="dm-pads"></div>
+    </div>
+
+    <div class="l-section">Selected drum</div>
+    <div id="dm-track"></div>
+
+    <div class="l-section">Patterns</div>
+    <div class="pat-grid" id="dm-patterns"></div>
+    <p class="dm-hint">Tap a step: on → accent → off. Give a drum a loop shorter than the bar and it
+      drifts against the others — a true polyrhythm. Your beat is saved on this device.</p>
 
   </div>
 </div><!-- /loom -->
@@ -1419,6 +1516,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <button class="gtab"    id="gt-sensory"  onclick="showGTab('sensory')">Presets</button>
     <button class="gtab"    id="gt-kharu"   onclick="showGTab('kharu')">Harmony Check</button>
     <button class="gtab"    id="gt-tonnetz" onclick="showGTab('tonnetz')">Tonnetz</button>
+    <button class="gtab"    id="gt-wheel"   onclick="showGTab('wheel')">Pitch Wheel</button>
   </div>
   <div id="grimoire-body">
 
@@ -1513,11 +1611,10 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
       <!-- Rhythm preset info -->
       <div class="g-section">Rhythm Presets</div>
       <div id="fib-info" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2.2;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:12px;">
-        Step 1 &nbsp;· Downbeat<br>
-        Step 2 &nbsp;· Echo<br>
-        Step 3 &nbsp;· Subdivision<br>
-        Step 5 &nbsp;· Syncopation<br>
-        Step 8 &nbsp;· Cross-rhythm
+        Sparse Offbeat · kick 16 · rim 13 · hat 8 · tom 5 steps<br>
+        Even Spread &nbsp;· golden-angle hits, Fibonacci loops<br>
+        Loops of different lengths drift against each other<br>
+        Both load into the drum machine on the Rhythm screen
       </div>
       <button class="exp-btn" onclick="loadFibonacciPattern()">Sparse Offbeat Pattern →</button>
       <button class="exp-btn" onclick="loadPhyllotacticPattern()" style="margin-top:5px;">Even Spread Pattern →</button>
@@ -1647,6 +1744,19 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
         <button class="fib-btn"        id="fib-4" onclick="setFibExt(4)">13th</button>
       </div>
       <div id="fib-status" style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);">Triads — no added sevenths or extensions.</div>
+    </div>
+
+    <!-- PITCH WHEEL (moved here from Rhythm — it is a harmony view) -->
+    <div class="gpane" id="gpane-wheel">
+      <div class="g-section">Pitch Wheel</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
+        The chromatic circle, divided into 12 equidistant nodes. The top-scoring scale from the Consonance Matrix is projected as a geometric polygon — intervals become spatial distances.
+      </p>
+      <div id="constellation-wrap">
+        <canvas id="constellation-canvas" width="260" height="260"></canvas>
+      </div>
+      <div id="constellation-label">—</div>
+      <div id="constellation-sub">place chords to generate</div>
     </div>
 
     <!-- TONNETZ LATTICE -->
@@ -1874,10 +1984,10 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
       <span class="gain-val" id="gainH-val">70%</span>
     </div>
     <div class="gain-row">
-      <label title="Percussive click used by the sequencer's Percussion mode">Percussion</label>
-      <input type="range" class="loom-range" id="gainR-sl" min="0" max="1" step="0.01" value="0"
+      <label title="The drum machine on the Rhythm screen">Drums</label>
+      <input type="range" class="loom-range" id="gainR-sl" min="0" max="1" step="0.01" value="0.7"
              oninput="setGainR(+this.value);document.getElementById('gainR-val').textContent=Math.round(this.value*100)+'%'" style="flex:1;">
-      <span class="gain-val" id="gainR-val">0%</span>
+      <span class="gain-val" id="gainR-val">70%</span>
     </div>
     <div class="gain-row">
       <label title="Metronome click — independent reference level">Metronome</label>
@@ -1897,7 +2007,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <div class="snd-btn-row">
       <button class="lbtn" id="soft-mode-btn" onclick="toggleSoftMode()">Soft Tone: Off</button>
     </div>
-    <p class="snd-hint">Softens the filter and mutes percussive transients — gentler for long sessions.</p>
+    <p class="snd-hint">Softens the chord filter and rounds off the drums' bright edges — gentler for long sessions.</p>
 
     <!-- ── DRONE ── -->
     <div class="s-section">Drone</div>
@@ -2337,10 +2447,16 @@ function transposedKey(key){
 //  Harmonic Chain (γH): LP 1800Hz Q1.0 · 15ms attack · scales with dur
 // ═══════════════════════════════════════════════════════════
 let _ac=null;
-let _rhythmGain=null;   // γR master — percussive click voice only (rhythmVoice)
+let _rhythmGain=null;   // γR master — the drum machine (Drums level in Sound)
+let _drumTone=null;     // lowpass on the drum bus — opened wide, closed down by Soft Tone
+let _drumComp=null;     // gentle limiter so a busy beat doesn't distort
 let _harmonicGain=null; // γH master — all pitched material: chords, loop, grid, ledger
 let _metroGain=null;    // γM master — metronome click, independent utility level
-let gainR=0.00;  // percussive transients silent by default — user opts in
+// The drum machine is the point of the Rhythm screen, so its bus is audible by
+// default. (It used to default to 0 when it only carried a percussive tick.)
+let gainR=0.70;
+const DRUM_OPEN_FC=18000;   // drum bus lowpass, normal
+const DRUM_SOFT_FC=3500;    // with Soft Tone on — rounds off clicks and hats
 let gainH=0.70;
 let gainM=0.55;  // metronome audible by default; it is a reference, not part of the mix
 
@@ -2350,7 +2466,14 @@ function getAC(){
     _rhythmGain   = _ac.createGain(); _rhythmGain.gain.value=gainR;
     _harmonicGain = _ac.createGain(); _harmonicGain.gain.value=gainH;
     _metroGain    = _ac.createGain(); _metroGain.gain.value=gainM;
-    _rhythmGain.connect(_ac.destination);
+    // Drums: level → tone (lowpass) → limiter → out
+    _drumTone=_ac.createBiquadFilter(); _drumTone.type='lowpass';
+    _drumTone.frequency.value=(typeof softMode!=='undefined'&&softMode)?DRUM_SOFT_FC:DRUM_OPEN_FC;
+    _drumComp=_ac.createDynamicsCompressor();
+    _drumComp.threshold.value=-10; _drumComp.knee.value=6; _drumComp.ratio.value=4;
+    _drumComp.attack.value=0.003;  _drumComp.release.value=0.15;
+    _rhythmGain.connect(_drumTone); _drumTone.connect(_drumComp);
+    _drumComp.connect(_ac.destination);
     _harmonicGain.connect(_ac.destination);
     _metroGain.connect(_ac.destination);
   }
@@ -2443,11 +2566,8 @@ function stopAll(){
   if(typeof metroPlaying !=='undefined' && metroPlaying) stopMetro();
   if(typeof droneActive  !=='undefined' && droneActive)  stopDrone();
   if(typeof macroTimerActive !=='undefined' && macroTimerActive) stopMacroTimer();
-  if(typeof ledgerGated  !=='undefined' && ledgerGated){
-    ledgerGated=false;ledgerStep=0;
-    const b=document.getElementById('entrain-btn');
-    if(b){b.textContent='Follow Ledger: Off';b.classList.remove('on');}
-  }
+  if(typeof drumsPlaying !=='undefined') drumsPlaying=false;
+  if(typeof syncDrumTransport==='function') syncDrumTransport();
   // 3. Cut every voice already started or scheduled on the audio clock
   const ac=_ac;
   _liveVoices.forEach(({osc,gain})=>{
@@ -2485,20 +2605,74 @@ function syncStopButton(){
 }
 setInterval(syncStopButton,320);
 
-// ── RHYTHMIC VOICE → _rhythmGain ──
-// HP 1200Hz strips the fundamental, preserves percussive transient
-// 2ms attack, 80ms exponential decay
-function rhythmVoice(freq, vol, delay=0){
-  const a=getAC(), t=voiceTime(delay);
-  const o=a.createOscillator(), f=a.createBiquadFilter(), g=a.createGain();
-  f.type='highpass'; f.frequency.value=1200; f.Q.value=0.8;
-  o.connect(f); f.connect(g); g.connect(_rhythmGain);
-  o.type='triangle'; o.frequency.value=freq;
-  g.gain.setValueAtTime(0,t);
-  g.gain.linearRampToValueAtTime(vol,t+0.002);
-  g.gain.exponentialRampToValueAtTime(0.0001,t+0.080);
+// ── DRUM VOICES → _rhythmGain (the Drums level) ──
+// The whole kit is synthesised, so it works offline with no sample files. Each
+// voice takes an exact start time and a velocity (about 0.5–1.25), and every
+// source registers with trackVoice() so ■ Stop cuts drums like everything else.
+let _noiseBuf=null;
+function noiseBuffer(){
+  const a=getAC();
+  if(!_noiseBuf){
+    const n=a.sampleRate;   // one second of white noise, reused by every hit
+    _noiseBuf=a.createBuffer(1,n,a.sampleRate);
+    const d=_noiseBuf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+  }
+  return _noiseBuf;
+}
+function _drumEnv(g,t,peak,decay){
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(Math.max(0.0002,peak),t+0.0015);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.0015+decay);
+}
+// Filtered noise burst. Returns its gain so an open hat can be choked.
+function _drumNoise(t,type,freq,q,peak,decay){
+  const a=getAC();
+  const src=a.createBufferSource(); src.buffer=noiseBuffer();
+  const f=a.createBiquadFilter(); f.type=type; f.frequency.value=freq; f.Q.value=q;
+  const g=a.createGain();
+  src.connect(f); f.connect(g); g.connect(_rhythmGain);
+  _drumEnv(g,t,peak,decay);
+  trackVoice(src,g);
+  // Start somewhere random in the buffer so repeated hits don't sound identical.
+  src.start(t, Math.random()*0.5); src.stop(t+decay+0.03);
+  return g;
+}
+// Pitched body with an optional downward sweep (kick, toms, snare body, rim).
+function _drumBody(t,type,f0,f1,sweep,peak,decay){
+  const a=getAC();
+  const o=a.createOscillator(), g=a.createGain();
+  o.type=type; o.frequency.setValueAtTime(f0,t);
+  if(f1&&f1!==f0) o.frequency.exponentialRampToValueAtTime(f1,t+sweep);
+  o.connect(g); g.connect(_rhythmGain);
+  _drumEnv(g,t,peak,decay);
   trackVoice(o,g);
-  o.start(t); o.stop(t+0.095);
+  o.start(t); o.stop(t+decay+0.03);
+}
+let _openHatGain=null;   // the ringing open hat, so a closed hat can cut it short
+const DRUM_VOICE={
+  kick: (t,v)=>{ _drumBody(t,'sine',150,42,0.13,1.0*v,0.42);
+                 _drumNoise(t,'highpass',3000,0.7,0.10*v,0.012); },          // beater click
+  snare:(t,v)=>{ _drumBody(t,'triangle',190,150,0.06,0.40*v,0.11);
+                 _drumNoise(t,'highpass',1400,0.6,0.55*v,0.17); },
+  clap: (t,v)=>{ [0,0.011,0.022].forEach(o=>_drumNoise(t+o,'bandpass',1250,1.1,0.50*v,0.02));
+                 _drumNoise(t+0.03,'bandpass',1250,1.1,0.42*v,0.15); },      // three slaps + tail
+  chh:  (t,v)=>{ if(_openHatGain){                                            // hi-hat choke
+                   try{ _openHatGain.gain.cancelScheduledValues(t);
+                        _openHatGain.gain.setTargetAtTime(0.0001,t,0.008); }catch(e){}
+                   _openHatGain=null; }
+                 _drumNoise(t,'highpass',7500,0.8,0.30*v,0.045); },
+  ohh:  (t,v)=>{ _openHatGain=_drumNoise(t,'highpass',7000,0.8,0.26*v,0.32); },
+  rim:  (t,v)=>{ _drumBody(t,'triangle',1650,1650,0,0.28*v,0.035);
+                 _drumNoise(t,'bandpass',3200,2,0.16*v,0.02); },
+  ltom: (t,v)=>{ _drumBody(t,'sine',120,78,0.18,0.75*v,0.34); },
+  htom: (t,v)=>{ _drumBody(t,'sine',200,135,0.15,0.65*v,0.27); },
+};
+function playDrum(id,vel=1,when){
+  const fn=DRUM_VOICE[id];
+  if(!fn) return;
+  getAC();
+  fn(when!=null?when:voiceTime(0.01), vel);
 }
 
 // ── HARMONIC VOICE → _harmonicGain ──
@@ -2558,10 +2732,6 @@ function playChordStaccato(root, qual, dur){
   const iv=qual==='maj'?[0,4,7]:qual==='min'?[0,3,7]:[0,3,6];
   staccatoVoice(f*0.5, dur*1.1, 0.08, 1400, 0);
   iv.forEach((s,i)=>staccatoVoice(f*Math.pow(2,s/12), dur, 0.065, 2200, i*0.014));
-}
-// clickPercussive → rhythmic chain (Mode B)
-function clickPercussive(){
-  rhythmVoice(1200, 0.18);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3012,6 +3182,7 @@ function updateGrimoire(){
   if(activeTab==='ledger')updateLedgerPane();
   if(activeTab==='kharu')updateKharuPane();
   if(activeTab==='tonnetz')drawTonnetz();
+  if(activeTab==='wheel')drawConstellation();
   // sensory pane is static — no recalculation needed
   updatePlasmaEffect();
 }
@@ -3430,10 +3601,6 @@ let pendingPivot=null;// hoisted — primed chord awaiting ghost-face fold
 let tonicAnchor=null; // hoisted — {semi, note, qual} — first chord struck, anchor for consonance
 let loopPlaying=false;// hoisted — ledger loop playback
 let metroPlaying=false;// hoisted — metronome active
-let seqMode='tonal'; // hoisted — 'tonal' | 'rhythm'
-let ledgerGated=true; // hoisted — ledger entrained to sequencer grid
-let ledgerStep=0;    // hoisted — current position in entrained ledger
-let ledgerSpread=4;  // hoisted — steps between ledger chord advances
 let foldMode='manual';// hoisted — 'proximity' | 'manual' | 'discovery'
 const FOLD_MODES =['manual','proximity','discovery']; // hoisted alongside foldMode
 const FOLD_LABELS={manual:'Manual',proximity:'Proximity',discovery:'Discovery'};
@@ -3512,9 +3679,8 @@ function showPane(name){
 
   // Build directly rather than inside requestAnimationFrame. rAF is starved
   // whenever the document is hidden, so a pane switched to while backgrounded
-  // used to come back empty. buildSeqGrid() already re-queues itself if the
-  // container has no width yet, so calling it synchronously is safe.
-  if(name==='rhythm'){ buildSeqGrid();buildPolySection();buildPatGrid();drawConstellation(); }
+  // used to come back empty.
+  if(name==='rhythm'){ renderDrums(); }
   if(name==='analysis') updateGrimoire();
   if(name==='learn'){ renderVoiceLeading();buildEarGrid();buildCadGrid();buildInstControls();instUpdate(); }
   if(name==='sound')    renderDroneUI();
@@ -4722,25 +4888,22 @@ const RHYTHM_GENERATORS=[
     desc:'Long–short alternation near the golden ratio, opening out at the end.',
     fn:cs=>cs.map((e,i)=> i===cs.length-1?5 : (i%2===0?3:2)) },
 
-  { id:'clave', name:'Clave-locked',
-    desc:'Chord changes snap to the onsets in the sequencer grid.',
+  { id:'clave', name:'Drum-locked',
+    desc:'Chord changes land on the kick drum hits from the Rhythm screen.',
     fn:cs=>{
-      // Read the top row only. Combining all five rows gave an onset almost every
-      // step, and the resulting quarter-beat gaps were far too short to be chord
-      // durations. Row 0 carries the clave itself.
-      //
-      // Clave patterns are two-bar figures written across these 16 steps, so one
-      // grid step is an eighth rather than a sixteenth: beats = gap / 2. This is
-      // what finally couples the 19-pattern library to the harmony instead of to
-      // five phantom scale degrees.
+      // Follow the kick; if it has fewer than two hits, follow the rim (where the
+      // clave patterns live). Drum steps are sixteenths, so beats = gap / 4, which
+      // makes the chords change exactly on the hits when the drums play along.
+      const tr=dm.tracks.kick.steps.slice(0,dm.tracks.kick.len).filter(Boolean).length>=2
+        ? dm.tracks.kick : dm.tracks.rim;
       const onsets=[];
-      for(let st=0;st<seqCycle;st++) if(seqPat[0][st]) onsets.push(st);
+      for(let st=0;st<tr.len;st++) if(tr.steps[st]) onsets.push(st);
       if(onsets.length<2) return cs.map(()=>chordBeats);
       const gaps=onsets.map((v,i)=>{
-        const nxt=(i+1<onsets.length)?onsets[i+1]:onsets[0]+seqCycle;
+        const nxt=(i+1<onsets.length)?onsets[i+1]:onsets[0]+tr.len;
         return Math.max(1, nxt-v);
       });
-      return cs.map((e,i)=>Math.max(0.5, gaps[i%gaps.length]/2));
+      return cs.map((e,i)=>gaps[i%gaps.length]/4);
     } },
 ];
 
@@ -5116,9 +5279,9 @@ function startLoop(){
     const b=document.getElementById(id);
     if(b){b.textContent='◼ Loop';b.classList.add('on');}
   });
-  // If sequencer is not running, start it — the grid IS the loop clock
+  // Start the shared clock if the drums haven't already — drums and loop share it
   if(!seqPlaying) startSeq();
-  setSt('loop running — grid is the clock');
+  setSt(drumsPlaying?'loop running · in time with the drums':'loop running');
 }
 function stopLoop(){
   loopPlaying=false;loopStep=0;loopHold=0;
@@ -5128,6 +5291,8 @@ function stopLoop(){
     const b=document.getElementById(id);
     if(b){b.textContent='⟳ Loop';b.classList.remove('on');}
   });
+  // The clock only needs to keep running if the drums are still playing.
+  if(seqPlaying && !drumsPlaying) stopSeq();
 }
 
 // ── METRONOME CLICK ──
@@ -5250,14 +5415,8 @@ function resetAll(){
   loopHold=0;
   if(loopPlaying)stopLoop();
   if(metroPlaying)stopMetro();
+  if(drumsPlaying)stopDrums();
   if(seqPlaying)stopSeq();
-  ledgerGated=false;ledgerStep=0;ledgerSpread=4;
-  rowLen.fill(16);rowOffset.fill(0);setSeqCycle(SEQ_STEPS);
-  const ebtn=document.getElementById('entrain-btn');
-  if(ebtn){ebtn.textContent='Follow Ledger: Off';ebtn.classList.remove('on');}
-  seqMode='tonal';
-  const sbtn=document.getElementById('sig-mode-btn');
-  if(sbtn)sbtn.textContent='Mode: Tonal';
   const fcn=document.getElementById('fc-n');if(fcn)fcn.textContent='0';
   const c=document.getElementById('complete');if(c)c.classList.remove('show');
   renderLedger();renderChordStrip('C');buildKeySelector();syncKeySelector();
@@ -5591,67 +5750,50 @@ function playBestPath(){
 // INIT
 // ═══════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════
-// TEMPORAL LOOM ENGINE
-// 5 rows (IV I V ii vi) × 16 steps
+// TRANSPORT + DRUM MACHINE STATE
+//
+// The Rhythm screen used to be a grid of five chord degrees (IV I V ii vi) that
+// played chord stabs, with a "Percussion" mode that turned every row into the same
+// tick. It is now a small drum machine: eight synthesised drums × 16 steps, each
+// step off / on / accent, each drum with its own mute, level and loop length.
+// It shares one clock with ⟳ Loop, so the beat and the progression line up.
+//
 // Δt = (60 / BPM) / 4  (sixteenth notes)
 // ═══════════════════════════════════════════════════════════
-let seqPlaying= false;
-let seqStep   = 0;
-let seqCycle  = 16;  // steps per loop — 16 = 4/4, 12 = 3/4, 14 = 7/8, 10 = 5/8
+let seqPlaying= false;  // the shared clock is running (drums and/or ⟳ Loop)
+let seqStep   = 0;      // position in the bar, 0 … seqCycle-1
+let seqCycle  = 16;     // steps per bar — 16 = 4/4, 12 = 3/4, 10 = 5/8, 14 = 7/8
 let seqBpm    = 120;
 let seqTimer  = null;
 
-// pattern[row][step] = boolean
-const SEQ_ROWS = 5;   // maps to DV[0..4]: IV, I, V, ii, vi
-const SEQ_STEPS= 16;
-const seqPat   = Array.from({length:SEQ_ROWS}, ()=>new Array(SEQ_STEPS).fill(false));
-
-// Row labels + css class for colour coding
-const ROW_DEF = [
-  {roman:'IV', cls:'row-IV'},
-  {roman:'I',  cls:'row-I' },
-  {roman:'V',  cls:'row-V' },
-  {roman:'ii', cls:'row-ii'},
-  {roman:'vi', cls:'row-vi'},
+const DM_STEPS=16;
+const DRUMS=[
+  {id:'kick',  name:'Kick',       short:'BD'},
+  {id:'snare', name:'Snare',      short:'SD'},
+  {id:'clap',  name:'Clap',       short:'CP'},
+  {id:'chh',   name:'Closed hat', short:'CH'},
+  {id:'ohh',   name:'Open hat',   short:'OH'},
+  {id:'rim',   name:'Rim',        short:'RM'},
+  {id:'ltom',  name:'Low tom',    short:'LT'},
+  {id:'htom',  name:'High tom',   short:'HT'},
 ];
+const DRUM_IDS=DRUMS.map(d=>d.id);
+const METERS=[{steps:16,label:'4/4'},{steps:12,label:'3/4'},{steps:10,label:'5/8'},{steps:14,label:'7/8'}];
 
-// ── BUILD GRID ──
-function buildSeqGrid(){
-  const grid = document.getElementById('seq-grid');
-  if(!grid) return;
-  if(grid.clientWidth===0){ requestAnimationFrame(buildSeqGrid); return; }
-  grid.innerHTML = '';
-  // Step-number header row. Beat 1 of each group of four is called out, because at
-  // 34px per step the row is wider than the screen and you need a landmark.
-  const blank = document.createElement('div');
-  blank.className='seq-grid-corner';
-  grid.appendChild(blank);
-  for(let s=0;s<SEQ_STEPS;s++){
-    const n=document.createElement('div');
-    n.className='seq-step-num'+(s%4===0?' beat':'');
-    n.textContent = s%4===0 ? String(s/4+1) : '·';
-    grid.appendChild(n);
-  }
-  // Data rows
-  ROW_DEF.forEach((rd,r)=>{
-    const lbl=document.createElement('div'); lbl.className='seq-row-label';
-    lbl.textContent=rd.roman; grid.appendChild(lbl);
-    for(let s=0;s<SEQ_STEPS;s++){
-      const cell=document.createElement('div');
-      cell.className=`seq-cell ${rd.cls}`+(s%4===0?' beat':''); cell.id=`sc-${r}-${s}`;
-      if(seqPat[r][s]) cell.classList.add('on');
-      cell.onclick=()=>toggleCell(r,s);
-      grid.appendChild(cell);
-    }
-  });
-  setSeqCycle(seqCycle);   // re-apply out-of-cycle shading to the fresh cells
-}
-
-function toggleCell(r,s){
-  seqPat[r][s]=!seqPat[r][s];
-  const cell=document.getElementById(`sc-${r}-${s}`);
-  if(cell) cell.classList.toggle('on', seqPat[r][s]);
-}
+// steps[s]: 0 off · 1 on · 2 accent.  len: the drum's own loop length (3–16).
+function _blankTrack(len){ return {steps:new Array(DM_STEPS).fill(0), len:len||16, mute:false, vol:0.8}; }
+const dm={
+  tracks:Object.fromEntries(DRUM_IDS.map(id=>[id,_blankTrack(16)])),
+  linkChords:true,   // ▶ on the Rhythm screen also starts ⟳ Loop
+  pattern:'',        // name of the preset last loaded, '' once edited
+  sel:'kick',        // drum shown in the phone pads and the track controls
+};
+let drumsPlaying=false;
+// Steps since the clock started. It never wraps, so a drum looping every 3 steps
+// keeps counting across bar lines and genuinely drifts against a 16-step kick.
+// (The old per-row lengths were measured from the bar position, so every row
+// restarted together each bar and never drifted.)
+let _drumTick=0;
 
 // ── PLAYBACK ──
 function setBpm(val){
@@ -5659,14 +5801,12 @@ function setBpm(val){
   const el=document.getElementById('bpm-disp'); if(el)el.textContent=val;
   const md=document.getElementById('metro-bpm-disp'); if(md)md.textContent=val;
   const sb=document.getElementById('snd-bpm');      if(sb)sb.textContent=val;
+  const db=document.getElementById('dm-bpm');       if(db)db.textContent=val;
   const sl=document.getElementById('bpm-sl');       if(sl&&+sl.value!==val)sl.value=val;
   // No restart needed: the scheduler reads stepDurationSec() fresh every wake-up,
   // so a tempo change takes effect on the next step instead of resetting the loop.
 }
 
-function toggleSeq(){
-  if(seqPlaying) stopSeq(); else startSeq();
-}
 // ═══════════════════════════════════════════════════════════
 // TRANSPORT CLOCK — lookahead scheduling on the audio clock
 //
@@ -5701,6 +5841,12 @@ function setSwing(pct){
   if(d) d.textContent=Math.round(swing*100)+'%';
   const sl=document.getElementById('swing-sl');
   if(sl && Math.round(+sl.value)!==Math.round(pct)) sl.value=Math.round(pct);
+  // The drum machine has its own swing slider; keep both in step.
+  const ds=document.getElementById('dm-swing');
+  if(ds && Math.round(+ds.value)!==Math.round(pct)) ds.value=Math.round(pct);
+  const dv=document.getElementById('dm-swing-val');
+  if(dv) dv.textContent=Math.round(swing*100)+'%';
+  if(typeof saveDrums==='function' && typeof dm!=='undefined') saveDrums();
 }
 
 function transportRunning(){ return seqPlaying||metroPlaying; }
@@ -5728,7 +5874,7 @@ function schedulerTick(){
     _schedOrigin=when;
     try{ scheduleStep(seqStep, when); }
     finally{ _schedOrigin=null; }
-    _visualQueue.push({step:seqStep, when});
+    _visualQueue.push({step:seqStep, tick:_drumTick, when});
     _nextStepTime+=stepDurationSec();
     advanceStep();
   }
@@ -5743,34 +5889,29 @@ function drainVisuals(){
   const ac=_ac;
   if(ac){
     while(_visualQueue.length && _visualQueue[0].when<=ac.currentTime){
-      paintStep(_visualQueue.shift().step);
+      const it=_visualQueue.shift();
+      paintStep(it.step, it.tick);
     }
   }
   if(transportRunning()){ _rafPending=true; requestAnimationFrame(drainVisuals); }
 }
 
+// The shared clock. The drums and ⟳ Loop both run on it; it stops when neither does.
 function startSeq(){
   seqPlaying=true;
-  const btn=document.getElementById('seq-play-btn'); if(btn){btn.textContent='◼ Stop';btn.classList.add('on');}
-  seqStep=0;
+  seqStep=0; _drumTick=0;
   startClock();
 }
 function stopSeq(){
   seqPlaying=false;
-  document.querySelectorAll('.seq-cell.playing').forEach(c=>c.classList.remove('playing'));
-  const btn=document.getElementById('seq-play-btn'); if(btn){btn.textContent='▶ Play';btn.classList.remove('on');}
+  clearDrumHeads();
   stopClockIfIdle();
 }
 
-// Paint one column. Runs off the visual queue, in step with the audio clock.
-function paintStep(step){
-  const prev=(step+seqCycle-1)%seqCycle;
-  for(let r=0;r<SEQ_ROWS;r++){
-    const cp=document.getElementById(`sc-${r}-${prev}`);
-    if(cp) cp.classList.remove('playing');
-    const cell=document.getElementById(`sc-${r}-${step}`);
-    if(cell) cell.classList.add('playing');
-  }
+// Paint the drum playheads and metronome dots. Runs off the visual queue, in step
+// with the audio clock.
+function paintStep(step, tick){
+  paintDrumHeads(tick);
   if(metroPlaying && step%4===0){
     const di=Math.floor(step/4)%4;
     for(let i=0;i<4;i++){
@@ -5782,14 +5923,10 @@ function paintStep(step){
   }
 }
 
-// Advance the step counter and any per-loop cursors that follow it.
+// Advance the bar position and the never-wrapping drum tick.
 function advanceStep(){
-  const wasLast=seqStep===seqCycle-1;
   seqStep=(seqStep+1)%seqCycle;
-  if(ledgerGated && seqStep%ledgerSpread===0){
-    const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
-    if(chords.length) ledgerStep=(ledgerStep+1)%chords.length;
-  }
+  _drumTick++;
 }
 
 // Schedule the audio for one step at an exact absolute time. _schedOrigin is already
@@ -5798,8 +5935,7 @@ function scheduleStep(seqStep, when){
   if(metroPlaying && seqStep%4===0) clickBeat();
   if(!seqPlaying) return;
 
-  let anyActive=false;
-  for(let r=0;r<SEQ_ROWS;r++){ if(seqPat[r][seqStep]){ anyActive=true; break; } }
+  if(drumsPlaying) scheduleDrums(_drumTick, when);
 
   // ── LOOP — the rhythm track is the score ──
   // Two things used to make this messy. It was gated on `anyActive`, so a chord
@@ -5819,295 +5955,428 @@ function scheduleStep(seqStep, when){
         loopHold=steps;
         const ac=getAC();
         releaseVoices(_loopVoices, ac.currentTime);
-        if(seqMode==='rhythm'){ clickPercussive(); }
-        else{
-          // 0.98 leaves a hair of gap so consecutive chords articulate separately
-          playEntry(e, 0, (60/seqBpm/4)*steps*0.98, _loopVoices);
-          if(e.fi>=0) triggerFlash(e.fi);
-        }
+        // 0.98 leaves a hair of gap so consecutive chords articulate separately
+        playEntry(e, 0, (60/seqBpm/4)*steps*0.98, _loopVoices);
+        if(e.fi>=0) triggerFlash(e.fi);
         setPlayingChord(idx);
         loopStep=(loopStep+1)%chords.length;
       }
     }
     loopHold--;
   }
-
-  // ── Ledger Entrainment: L(t) = Cn · G(t) with ledgerSpread ──
-  if(ledgerGated && seqStep%ledgerSpread===0){
-    const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
-    if(chords.length){
-      const e=chords[ledgerStep%chords.length];
-      if(seqMode==='rhythm'){clickPercussive();}
-      else{
-        playChord(e.note,e.qual||'maj');
-        if(e.fi>=0){triggerFlash(e.fi);flashLedgerRow(ledgerStep%chords.length);}
-      }
-    }
-  } else if(!ledgerGated){
-    // Standard mode: per-row polyrhythm via rowFires()
-    for(let r=0;r<SEQ_ROWS;r++){
-      if(rowFires(r,seqStep) && activeFace>=0){
-        const key=FKEY[activeFace],dv=DV[r],note=noteFrom(key,dv.semi);
-        const dur=(60/seqBpm/4)*0.78;
-        if(seqMode==='rhythm'){clickPercussive();}
-        else{playChordStaccato(note,dv.qual,dur);flashBubble(activeFace,r);}
-      }
-    }
-  }
-
 }
 
+// ═══════════════════════════════════════════════════════════
+// DRUM MACHINE — playback
+// ═══════════════════════════════════════════════════════════
+// Velocity: a normal hit sits a little under full, an accent a little over.
+function _drumVel(tr,v){ return tr.vol*(v===2?1.25:0.9); }
 
-// Highlight the nth ledger entry briefly
-function flashLedgerRow(idx){
-  const seq=document.getElementById('led-seq');if(!seq)return;
-  const items=seq.querySelectorAll('.le');
-  if(!items[idx])return;
-  items[idx].style.background='var(--glo)';
-  items[idx].style.borderColor='var(--gold)';
-  setTimeout(()=>{
-    if(items[idx]){items[idx].style.background='';items[idx].style.borderColor='';}
-  },200);
-}
-
-// ── SIGNAL MODE TOGGLE (Tonal ↔ Rhythm) ──
-function toggleSeqMode(){
-  seqMode=seqMode==='tonal'?'rhythm':'tonal';
-  const btn=document.getElementById('sig-mode-btn');
-  if(btn) btn.textContent=seqMode==='tonal'?'Mode: Tonal':'Mode: Percussion';
-  // Rhythm mode routes everything through clickPercussive → γR, which defaults to 0.
-  // Switching into it with γR parked at zero produces total silence, which reads as
-  // a broken button. Lift γR to an audible floor on entry; the user can still pull
-  // it down afterwards, and Tonal mode leaves it wherever they left it.
-  if(seqMode==='rhythm' && gainR<0.05){
-    setGainR(0.45);
-    const sl=document.getElementById('gainR-sl'); if(sl) sl.value=0.45;
-    const vl=document.getElementById('gainR-val'); if(vl) vl.textContent='45%';
-    setSt('Mode: Percussion — level raised to 45% so the click is audible');
+function scheduleDrums(tick, when){
+  for(const id of DRUM_IDS){
+    const tr=dm.tracks[id];
+    if(tr.mute) continue;
+    const v=tr.steps[tick%tr.len];
+    if(v) DRUM_VOICE[id](when,_drumVel(tr,v));
   }
 }
 
-// ── LEDGER ENTRAINMENT TOGGLE ──
-function toggleEntrain(){
-  ledgerGated=!ledgerGated;ledgerStep=0;
-  const btn=document.getElementById('entrain-btn');
-  if(btn){btn.textContent=ledgerGated?'Follow Ledger: On':'Follow Ledger: Off';btn.classList.toggle('on',ledgerGated);}
-}
-
-// Flash a bubble sphere with the struck class
-function flashBubble(fi,v){
-  const set=bubbleSets[fi];
-  if(!set||!set[v]) return;
-  const sphere=set[v].sphere;
-  if(sphere&&sphere.isConnected){
-    sphere.classList.add('struck');
-    setTimeout(()=>{ if(sphere.isConnected) sphere.classList.remove('struck'); },180);
+// One playhead per drum, because drums with their own loop length are at
+// different positions. Only the cells that actually move are touched.
+const _dmHead={};
+function paintDrumHeads(tick){
+  if(tick==null) return;
+  for(const id of DRUM_IDS){
+    const pos=tick%dm.tracks[id].len, old=_dmHead[id];
+    if(old===pos) continue;
+    if(old!=null) _setHead(id,old,false);
+    _dmHead[id]=pos;
+    _setHead(id,pos,true);
   }
-  // Also flash the 3D face briefly
-  triggerFlash(fi);
+}
+function _setHead(id,s,on){
+  const a=document.getElementById(`dmc-${id}-${s}`); if(a) a.classList.toggle('now',on);
+  const b=document.getElementById(`dmo-${id}-${s}`); if(b) b.classList.toggle('now',on);
+  if(id===dm.sel){ const c=document.getElementById(`dmp-${s}`); if(c) c.classList.toggle('now',on); }
+}
+function clearDrumHeads(){
+  for(const id in _dmHead){ _setHead(id,_dmHead[id],false); delete _dmHead[id]; }
+}
+function _reapplyHeads(){
+  for(const id in _dmHead) _setHead(id,_dmHead[id],true);
 }
 
-// ── POLYRHYTHM STATE ──
-// Each row has an independent cycle length (default 16)
-// and a phase offset. When seqStep % rowLen[r] === rowOffset[r], that row fires.
-const rowLen    = new Array(SEQ_ROWS).fill(16);  // cycle length per row
-const rowOffset = new Array(SEQ_ROWS).fill(0);   // phase offset per row
-
-function setSpread(v){
-  ledgerSpread=v;
-  const el=document.getElementById('spread-disp');if(el)el.textContent=v;
+// ── Transport ──
+function toggleDrums(){ if(drumsPlaying) stopDrums(); else startDrums(); }
+function startDrums(){
+  getAC();
+  drumsPlaying=true;
+  const hasChords=ledger.some(_isChordEntry);
+  // Start ⟳ Loop before the clock so the first chord lands on the first beat:
+  // the scheduler queues step 1 the moment the clock starts.
+  if(dm.linkChords && hasChords && !loopPlaying) startLoop();
+  else if(!seqPlaying) startSeq();
+  syncDrumTransport();
+  const name=dm.pattern||'your beat';
+  setSt(`▶ ${name} · ♩=${seqBpm}`+(loopPlaying?' · with your chords':
+        (dm.linkChords&&!hasChords?' · add chords on Play to hear them with it':'')));
+}
+function stopDrums(){
+  drumsPlaying=false;
+  if(dm.linkChords && loopPlaying) stopLoop();
+  if(!loopPlaying && seqPlaying) stopSeq();
+  clearDrumHeads();
+  syncDrumTransport();
+}
+function toggleDrumLink(){
+  dm.linkChords=!dm.linkChords;
+  // Applies straight away while playing, so the button does what it says.
+  if(drumsPlaying){
+    const hasChords=ledger.some(_isChordEntry);
+    if(dm.linkChords && hasChords && !loopPlaying) startLoop();
+    if(!dm.linkChords && loopPlaying) stopLoop();
+  }
+  syncDrumTransport(); saveDrums();
+  setSt(dm.linkChords?'＋ Chords on — ▶ plays your progression with the beat':'drums only');
+}
+function syncDrumTransport(){
+  const p=document.getElementById('dm-play');
+  if(p){ p.textContent=drumsPlaying?'■ Stop':'▶ Play'; p.classList.toggle('on',drumsPlaying); }
+  const l=document.getElementById('dm-link');
+  if(l){ l.classList.toggle('on',dm.linkChords); l.setAttribute('aria-pressed',String(dm.linkChords)); }
 }
 
-// ── BUILD POLYRHYTHM CONTROLS ──
-function buildPolySection(){
-  const sec=document.getElementById('poly-section');if(!sec)return;
-  sec.innerHTML='';
-  const lengths=[3,4,5,6,7,8,10,12,14,16];
-  ROW_DEF.forEach((rd,r)=>{
-    const row=document.createElement('div');row.className='poly-row';
-    const lbl=document.createElement('span');lbl.className='poly-label';lbl.textContent=rd.roman;
-    row.appendChild(lbl);
-    const btns=document.createElement('div');btns.className='poly-len-btns';
-    lengths.forEach(len=>{
-      const b=document.createElement('button');b.className='plb'+(rowLen[r]===len?' on':'');
-      b.textContent=len;
-      b.onclick=()=>{
-        rowLen[r]=len;
-        btns.querySelectorAll('.plb').forEach(x=>x.classList.remove('on'));
-        b.classList.add('on');
-      };
-      btns.appendChild(b);
+// ── Meter ──
+// Sets the bar length, and resets every drum's loop to it.
+function setMeter(steps,opts){
+  const m=METERS.find(x=>x.steps===steps)||METERS[0];
+  seqCycle=m.steps;
+  DRUM_IDS.forEach(id=>{ dm.tracks[id].len=m.steps; });
+  // Restart the bar so drums and the bar count stay together.
+  if(seqStep>=seqCycle||seqPlaying){ seqStep=0; _drumTick=0; }
+  clearDrumHeads();
+  if(!(opts&&opts.silent)){
+    dm.pattern=''; renderDrums(); saveDrums();
+    setSt(`${m.label} · ${m.steps} steps a bar`);
+  }
+}
+
+// ── Editing ──
+function _edited(){ dm.pattern=''; renderDrums(); saveDrums(); }
+function cycleStep(id,s){
+  const tr=dm.tracks[id];
+  if(!tr||s>=tr.len) return;
+  tr.steps[s]=(tr.steps[s]+1)%3;
+  // Audition the hit when the beat isn't running, so you hear what you placed.
+  if(tr.steps[s]&&!drumsPlaying) playDrum(id,_drumVel(tr,tr.steps[s]));
+  _edited();
+}
+function selectDrum(id,hear){
+  if(!dm.tracks[id]) return;
+  dm.sel=id;
+  if(hear) playDrum(id,_drumVel(dm.tracks[id],1));
+  renderDrums(); saveDrums();
+}
+function toggleDrumMute(id){
+  const tr=dm.tracks[id]; if(!tr) return;
+  tr.mute=!tr.mute;
+  renderDrums(); saveDrums();
+}
+function setDrumVol(id,v){
+  const tr=dm.tracks[id]; if(!tr) return;
+  tr.vol=Math.max(0,Math.min(1,v));
+  const out=document.getElementById('dmt-vol-val'); if(out) out.textContent=Math.round(tr.vol*100)+'%';
+  saveDrums();
+}
+function nudgeDrumLen(id,d){
+  const tr=dm.tracks[id]; if(!tr) return;
+  tr.len=Math.max(3,Math.min(DM_STEPS,tr.len+d));
+  _edited();
+}
+// Evenly spread k hits over n steps (Bjorklund), rotated by rot.
+function euclid(k,n,rot=0){
+  const out=new Array(n).fill(0);
+  if(k<=0) return out;
+  for(let i=0;i<n;i++) out[(i+rot)%n]=((i*k)%n)<k?1:0;
+  return out;
+}
+function fillDrum(id,kind){
+  const tr=dm.tracks[id]; if(!tr) return;
+  const n=tr.len, st=tr.steps;
+  const set=fn=>{ for(let s=0;s<DM_STEPS;s++) st[s]=s<n?fn(s):0; };
+  if(kind==='clear')  set(()=>0);
+  if(kind==='beats')  set(s=>s%4===0?1:0);
+  if(kind==='8ths')   set(s=>s%2===0?1:0);
+  if(kind==='16ths')  set(()=>1);
+  if(kind==='random') set(()=>Math.random()<0.3?(Math.random()<0.2?2:1):0);
+  if(kind==='euclid'){
+    // Each press adds one more hit, spread as evenly as possible.
+    const k=(st.slice(0,n).filter(Boolean).length%n)+1;
+    const e=euclid(k,n); set(s=>e[s]);
+  }
+  if(kind==='left'||kind==='right'){
+    const cur=st.slice(0,n), d=kind==='left'?1:n-1;
+    set(s=>cur[(s+d)%n]);
+  }
+  _edited();
+}
+function clearDrums(){
+  DRUM_IDS.forEach(id=>{ dm.tracks[id].steps.fill(0); dm.tracks[id].len=seqCycle; });
+  _edited();
+  setSt('beat cleared');
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRUM MACHINE — patterns
+//
+// x = hit, X = accent, . = rest. A string shorter than the drum's loop is padded
+// with rests. `lens` gives a drum its own loop length (polyrhythm); `swing` is in
+// percent; `meter` is steps per bar.
+// ═══════════════════════════════════════════════════════════
+const DRUM_PATTERNS=[
+  {name:'Rock',       t:{kick:'x.......x.x.....', snare:'....X.......X...', chh:'x.x.x.x.x.x.x.x.'}},
+  {name:'Pop',        t:{kick:'x.....x.x.......', snare:'....X.......X...', chh:'x.x.x.x.x.x.x...', ohh:'..............x.'}},
+  {name:'Funk',       t:{kick:'x.x.......x..x..', snare:'....X..x.x..X..x', chh:'xxxxxxxxxxxxxxxx'}},
+  {name:'Hip-hop',    swing:14, t:{kick:'x......x..x.....', snare:'....X.......X...', chh:'x.x.x.x.x.x.x.x.'}},
+  {name:'Trap',       t:{kick:'x.....x...x.....', snare:'........X.......', chh:'x.x.x.x.x.xxx.x.', ohh:'...............x'}},
+  {name:'House',      t:{kick:'X...X...X...X...', clap:'....x.......x...', ohh:'..x...x...x...x.'}},
+  {name:'Disco',      t:{kick:'x...x...x...x...', snare:'....X.......X...', chh:'x...x...x...x...', ohh:'..x...x...x...x.'}},
+  {name:'Reggae',     swing:10, t:{kick:'........X.......', rim:'........X.......', chh:'x.x.x.x.x.x.x.x.'}},
+  {name:'Bossa nova', t:{kick:'x..xx..xx..xx..x', rim:'x..x..x...x..x..', chh:'x.x.x.x.x.x.x.x.'}},
+  {name:'Son clave',  t:{rim:'X..X..X...X.X...', kick:'x.......x.......', ltom:'......x.......x.', chh:'..x...x...x...x.'}},
+  {name:'Waltz 3/4',  meter:12, t:{kick:'X...........', snare:'....x...x...', chh:'x.x.x.x.x.x.'}},
+  {name:'5/8',        meter:10, t:{kick:'X.....x...', snare:'......X...', chh:'x.x.x.x.x.'}},
+  {name:'7/8 Balkan', meter:14, t:{kick:'X.......x.....', snare:'....X.......x.', chh:'x.x.x.x.x.x.x.'}},
+  // A rim every 3 sixteenths against a 16-step bar: it lines up again every 3 bars.
+  {name:'Cross-rhythm', lens:{rim:3}, t:{kick:'X...x...x...x...', rim:'x..', chh:'x.x.x.x.x.x.x.x.'}},
+  {name:'Fibonacci',  lens:{rim:13,chh:8,ltom:5},
+                      t:{kick:'x......x....x...', rim:'x...x', chh:'..x...x.', ltom:'x'}},
+  {name:'Euclidean',  gen:'euclid'},
+  {name:'Random',     gen:'random'},
+  // Used by the Analysis presets rather than shown in the library.
+  {name:'Golden spread', gen:'golden', hidden:true},
+  {name:'Whole-tone',  meter:12, hidden:true, lens:{rim:6},
+                       t:{kick:'x.....x.....', chh:'x.x.x.x.x.x.', rim:'..x...', ltom:'...x.....x..'}},
+];
+
+function _genPattern(kind){
+  const T={};
+  if(kind==='euclid'){
+    T.kick=euclid(4,16); T.snare=euclid(2,16,4); T.chh=euclid(7,16,0);
+    T.rim=euclid(5,16,2);
+  }
+  if(kind==='random'){
+    const dens={kick:0.22,snare:0.1,clap:0.05,chh:0.45,ohh:0.06,rim:0.12,ltom:0.06,htom:0.06};
+    DRUM_IDS.forEach(id=>{ T[id]=Array.from({length:16},()=>Math.random()<dens[id]?(Math.random()<0.2?2:1):0); });
+    T.kick[0]=2;                       // always land the downbeat
+    if(!T.snare.some(Boolean)) T.snare[4]=T.snare[12]=1;
+  }
+  if(kind==='golden'){
+    // Golden-angle onsets (137.5° of the circle apart) with Fibonacci loop lengths.
+    const GF=1-1/PHI;
+    const spec=[['kick',5,13],['snare',3,8],['chh',8,16],['rim',5,13],['ltom',3,5]];
+    const lens={};
+    spec.forEach(([id,k,len],r)=>{
+      const a=new Array(16).fill(0);
+      for(let i=0;i<k;i++) a[Math.floor((i*GF*len+r*2.4)%len)]=1;
+      T[id]=a; lens[id]=len;
     });
-    row.appendChild(btns);
-    // Phase offset nudge
-    const offWrap=document.createElement('div');offWrap.className='poly-offset';
-    const offLbl=document.createElement('label');offLbl.textContent='off';
-    const offInp=document.createElement('input');
-    offInp.type='number';offInp.min=0;offInp.max=15;offInp.value=rowOffset[r];
-    offInp.oninput=()=>{rowOffset[r]=((parseInt(offInp.value)||0)+16)%16;};
-    offWrap.appendChild(offLbl);offWrap.appendChild(offInp);
-    row.appendChild(offWrap);
-    sec.appendChild(row);
-  });
+    return {T,lens};
+  }
+  return {T,lens:{}};
 }
 
-// Per-row cycle lengths are honoured by rowFires(), called from scheduleStep()
-function rowFires(r,step){
-  // Does row r fire at this global step?
-  const len=rowLen[r]||16;
-  const off=rowOffset[r]||0;
-  const localStep=step%len;
-  const patStep=((localStep-off)+len)%len;
-  // Only use steps within the defined 16-step pattern
-  if(patStep>=SEQ_STEPS)return false;
-  return seqPat[r][patStep];
-}
-
-// ── EXPANDED PATTERN LIBRARY ──
-const PATTERNS={
-  // ─ Afro-Cuban ─
-  'Son Clave':  [[1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0],[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
-  'Rumba Clave':[[1,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0],[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
-  'Tresillo':   [[1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0],[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
-  // ─ Brazilian ─
-  'Bossa Nova': [[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],[1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0],[0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]],
-  'Baião':      [[1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0],[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]],
-  // ─ African ─
-  'Fanga':      [[1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0],[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0],[0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]],
-  'Kpanlogo':   [[1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,0],[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],[0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],[0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1]],
-  // ─ Funk / Rock ─
-  'Funk 16':    [[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],[1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0],[0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],[0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0],[0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0]],
-  'Bo Diddley': [[1,0,0,1,0,0,1,0,0,1,0,1,0,0,0,0],[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
-  // ─ Time signatures ─
-  'Waltz 3/4':  [[1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0],[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
-  '5/8 Odd':    [[1,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],[0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]],
-  '7/8 Balkan': [[1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0],[1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],[0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],[0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]],
-  // ─ Harmonic ─
-  'Harmonic':   [[1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],[0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]],
-  'I-IV-V':     [[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0]],
-  'Cadence':    [[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0],[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]],
-  // ─ Procedural ─
-  'Euclidean':  null, // generated on load
-  'Random':     null, // generated on load
-  'Sparse':     null, // generated on load
-  'Dense':      null, // generated on load
-};
-
-// Set the loop length and mark the steps that fall outside it, so the grid shows
-// which of its 16 columns are actually in play.
-function setSeqCycle(n){
-  seqCycle=Math.max(2,Math.min(SEQ_STEPS,n|0));
-  if(seqStep>=seqCycle) seqStep=0;
-  for(let r=0;r<SEQ_ROWS;r++){
-    for(let st=0;st<SEQ_STEPS;st++){
-      const c=document.getElementById(`sc-${r}-${st}`);
-      if(c) c.classList.toggle('outside', st>=seqCycle);
+function applyDrumPattern(name,opts){
+  const p=DRUM_PATTERNS.find(x=>x.name===name);
+  if(!p) return;
+  const meter=p.meter||16;
+  setMeter(meter,{silent:true});
+  let T=p.t||{}, lens=p.lens||{};
+  if(p.gen){ const g=_genPattern(p.gen); T=g.T; lens=Object.assign({},lens,g.lens); }
+  DRUM_IDS.forEach(id=>{
+    const tr=dm.tracks[id];
+    const src=T[id]||'';   // a pattern string, or an array from a generator
+    tr.len=Math.max(3,Math.min(DM_STEPS,lens[id]||meter));
+    tr.mute=false;         // a fresh pattern should be heard whole; levels are kept
+    for(let s=0;s<DM_STEPS;s++){
+      const c=src[s];
+      tr.steps[s]=s>=tr.len?0:(c==='X'||c===2?2:(c==='x'||c===1?1:0));
     }
-  }
-  // The corner cell carries its own class, so this list is exactly the 16 step
-  // numbers and the index is the step — no offset for the leading label column.
-  document.querySelectorAll('#seq-grid .seq-step-num').forEach((n2,i)=>{
-    n2.classList.toggle('outside', i>=seqCycle);
   });
-  const d=document.getElementById('seq-cycle-disp');
-  if(d) d.textContent=seqCycle;
-}
-
-// ── PATTERN CYCLE LENGTHS ──
-// Sixteenths per bar. Anything absent stays at the default 16 (4/4).
-// loadPat() applies these to rowLen, which is what actually makes the meter real:
-// without it 'Waltz 3/4' just looped as 4/4 with a silent fourth beat.
-const PATTERN_METER={
-  'Waltz 3/4':12,     // 3 beats x 4 sixteenths
-  '5/8 Odd':10,       // 5 eighths
-  '7/8 Balkan':14,    // 7 eighths
-};
-
-// Procedural generators
-function genEuclidean(){
-  // Classic Euclidean rhythm — distribute k onsets over n steps as evenly as possible
-  function euclid(k,n){
-    const pat=new Array(n).fill(0);if(k===0)return pat;
-    let r=[], s=[];for(let i=0;i<k;i++)r.push([1]);for(let i=0;i<n-k;i++)s.push([0]);
-    while(s.length>1){const len=Math.min(r.length,s.length);for(let i=0;i<len;i++)r[i]=r[i].concat(s[i]);s=s.slice(len);if(r.length<s.length){const t=r;r=s;s=t;}}
-    const seq=[...r,...s].flat();return seq.slice(0,n).concat(new Array(Math.max(0,n-seq.length)).fill(0));
+  setSwing(p.swing||0);
+  dm.pattern=name;
+  renderDrums(); saveDrums();
+  if(!(opts&&opts.quiet)){
+    const m=METERS.find(x=>x.steps===meter);
+    setSt(`${name} · ${m?m.label:meter+' steps'}`+(p.swing?` · swing ${p.swing}%`:'')+
+          (Object.keys(lens).length?' · polyrhythm':''));
   }
-  const ks=[5,3,7,4,6]; // different densities per row
-  return ks.map((k,r)=>euclid(k,16));
 }
-function genRandom(density){
-  const d=density||0.25;
-  return Array.from({length:SEQ_ROWS},(_,r)=>Array.from({length:SEQ_STEPS},()=>Math.random()<(r===1?d*1.3:d)?1:0));
-}
-function genSparse(){ return genRandom(0.12); }
-function genDense(){  return genRandom(0.45); }
 
-let activePat='';
-function loadPat(name){
-  let p=PATTERNS[name];
-  // Procedural patterns
-  if(name==='Euclidean') p=genEuclidean();
-  if(name==='Random')    p=genRandom(0.25);
-  if(name==='Sparse')    p=genSparse();
-  if(name==='Dense')     p=genDense();
-  if(!p)return;
-  activePat=name;
-  p.forEach((row,r)=>row.forEach((v,s)=>{
-    if(s<SEQ_STEPS){
-      seqPat[r][s]=!!v;
-      const cell=document.getElementById(`sc-${r}-${s}`);
-      if(cell)cell.classList.toggle('on',!!v);
+// ── Saving — the beat survives closing the page (this device only) ──
+const DM_KEY='jl-drums-v1';
+let _dmSaveTimer=null;
+function saveDrums(){
+  clearTimeout(_dmSaveTimer);
+  _dmSaveTimer=setTimeout(()=>{
+    try{
+      localStorage.setItem(DM_KEY,JSON.stringify({
+        v:1, tracks:dm.tracks, meter:seqCycle, linkChords:dm.linkChords,
+        pattern:dm.pattern, sel:dm.sel, swing:Math.round(swing*100)}));
+    }catch(e){}
+  },250);
+}
+function loadDrums(){
+  let s=null;
+  try{ s=JSON.parse(localStorage.getItem(DM_KEY)||'null'); }catch(e){ return false; }
+  if(!s||s.v!==1||!s.tracks) return false;
+  const meter=METERS.some(m=>m.steps===s.meter)?s.meter:16;
+  setMeter(meter,{silent:true});
+  DRUM_IDS.forEach(id=>{
+    const t=s.tracks[id], tr=dm.tracks[id];
+    if(!t) return;
+    if(Array.isArray(t.steps)) for(let i=0;i<DM_STEPS;i++){ const v=t.steps[i]|0; tr.steps[i]=(v>=0&&v<=2)?v:0; }
+    tr.len=Math.max(3,Math.min(DM_STEPS,(t.len|0)||meter));
+    tr.mute=!!t.mute;
+    tr.vol=(typeof t.vol==='number')?Math.max(0,Math.min(1,t.vol)):0.8;
+  });
+  dm.linkChords=s.linkChords!==false;
+  dm.pattern=typeof s.pattern==='string'?s.pattern:'';
+  if(DRUM_IDS.includes(s.sel)) dm.sel=s.sel;
+  setSwing(typeof s.swing==='number'?s.swing:0);
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRUM MACHINE — screen
+//
+// Desktop and tablets get the full grid (drums down, 16 steps across). A phone
+// can't fit 16 tappable steps across, so it shows a small overview of every drum
+// (tap a row to pick it) and the chosen drum's 16 steps as a 4×4 pad grid — one
+// row per beat. Both are drawn every time and CSS shows the one that fits.
+// ═══════════════════════════════════════════════════════════
+const PAD_SUB=['','e','&','a'];   // how drummers count sixteenths: 1 e & a
+function _cellCls(v){ return v===2?' acc':v===1?' on':''; }
+
+function renderDrums(){
+  renderDrumTransport();
+  renderDrumGrid();
+  renderDrumPhone();
+  renderDrumTrack();
+  renderDrumPatterns();
+  _reapplyHeads();
+}
+function renderDrumTransport(){
+  syncDrumTransport();
+  const b=document.getElementById('dm-bpm'); if(b) b.textContent=seqBpm;
+  const m=document.getElementById('dm-meter');
+  if(m) m.innerHTML=METERS.map(x=>
+    `<button class="dm-seg${x.steps===seqCycle?' on':''}" data-meter="${x.steps}" aria-pressed="${x.steps===seqCycle}">${x.label}</button>`).join('');
+  const sw=document.getElementById('dm-swing'); if(sw) sw.value=Math.round(swing*100);
+  const sv=document.getElementById('dm-swing-val'); if(sv) sv.textContent=Math.round(swing*100)+'%';
+}
+function renderDrumGrid(){
+  const g=document.getElementById('dm-grid'); if(!g) return;
+  let h='<div class="dmg-corner"></div>';
+  for(let s=0;s<DM_STEPS;s++)
+    h+=`<div class="dmg-num${s%4===0?' beat':''}${s>=seqCycle?' past':''}">${s%4===0?s/4+1:PAD_SUB[s%4]}</div>`;
+  h+='<div class="dmg-corner"></div>';
+  DRUMS.forEach(d=>{
+    const tr=dm.tracks[d.id];
+    h+=`<button class="dmg-name${dm.sel===d.id?' sel':''}${tr.mute?' muted':''}" data-pick="${d.id}" title="${d.name} — tap to hear and edit">`+
+       `${d.name}${tr.len!==seqCycle?`<span class="dmg-len">${tr.len}</span>`:''}</button>`;
+    for(let s=0;s<DM_STEPS;s++){
+      const v=tr.steps[s];
+      h+=`<button class="dmg-cell${_cellCls(v)}${s%4===0?' beat':''}${s>=tr.len?' out':''}" id="dmc-${d.id}-${s}" `+
+         `data-drum="${d.id}" data-s="${s}" aria-label="${d.name} step ${s+1}${v===2?' accent':v?' on':''}"${s>=tr.len?' disabled':''}></button>`;
     }
-  }));
-  // Apply the pattern's own cycle length so odd meters actually loop odd —
-  // both the per-row lengths and the master clock.
-  const meter=PATTERN_METER[name]||SEQ_STEPS;
-  rowLen.fill(meter);
-  setSeqCycle(meter);
-  if(loomOpen) buildPolySection();
-
-  // Update button highlight
-  document.querySelectorAll('.pbtn2').forEach(b=>{
-    b.classList.toggle('active-pat',b.dataset.pat===name);
+    h+=`<button class="dmg-mute${tr.mute?' on':''}" data-mute="${d.id}" aria-pressed="${tr.mute}" title="Mute ${d.name}">M</button>`;
   });
-  const beats=meter/4;
-  setSt(`${name} · ${meter} steps`+(meter!==SEQ_STEPS?` · ${Number.isInteger(beats)?beats:meter/2}/${Number.isInteger(beats)?4:8} feel`:' · 4/4'));
+  g.innerHTML=h;
 }
-
-function clearSeq(){
-  for(let r=0;r<SEQ_ROWS;r++)for(let s=0;s<SEQ_STEPS;s++){
-    seqPat[r][s]=false;
-    const cell=document.getElementById(`sc-${r}-${s}`);
-    if(cell){cell.classList.remove('on');cell.classList.remove('playing');}
+function renderDrumPhone(){
+  const o=document.getElementById('dm-overview');
+  if(o){
+    o.innerHTML=DRUMS.map(d=>{
+      const tr=dm.tracks[d.id];
+      let cells='';
+      for(let s=0;s<DM_STEPS;s++)
+        cells+=`<span class="dmo-cell${_cellCls(tr.steps[s])}${s%4===0?' beat':''}${s>=tr.len?' out':''}" id="dmo-${d.id}-${s}"></span>`;
+      return `<button class="dmo-row${dm.sel===d.id?' sel':''}${tr.mute?' muted':''}" data-pick="${d.id}" aria-label="Edit ${d.name}">`+
+             `<span class="dmo-lbl">${d.short}</span><span class="dmo-cells">${cells}</span></button>`;
+    }).join('');
   }
-  activePat='';
-  setSeqCycle(SEQ_STEPS);
-  document.querySelectorAll('.pbtn2').forEach(b=>b.classList.remove('active-pat'));
+  const p=document.getElementById('dm-pads');
+  if(p){
+    const d=DRUMS.find(x=>x.id===dm.sel), tr=dm.tracks[dm.sel];
+    let pads='';
+    for(let s=0;s<DM_STEPS;s++){
+      const out=s>=tr.len;
+      pads+=`<button class="dmp${_cellCls(tr.steps[s])}${s%4===0?' beat':''}${out?' out':''}" id="dmp-${s}" data-pad="${s}"`+
+            `${out?' disabled':''} aria-label="${d.name} step ${s+1}">`+
+            `<span>${s%4===0?s/4+1:PAD_SUB[s%4]}</span></button>`;
+    }
+    p.innerHTML=`<div class="dmp-head"><b>${d.name}</b> — tap a pad: on → accent → off</div><div class="dmp-grid">${pads}</div>`;
+  }
+}
+function renderDrumTrack(){
+  const w=document.getElementById('dm-track'); if(!w) return;
+  const d=DRUMS.find(x=>x.id===dm.sel), tr=dm.tracks[dm.sel];
+  const drift=tr.len!==seqCycle;
+  w.innerHTML=
+    `<div class="dmt-row">`+
+      `<button class="lbtn dmt-hear" data-hear="${d.id}">▶ ${d.name}</button>`+
+      `<button class="lbtn${tr.mute?' on':''}" data-mute="${d.id}" aria-pressed="${tr.mute}">${tr.mute?'Muted':'Mute'}</button>`+
+      `<div class="gain-row dmt-vol"><label for="dmt-vol">Level</label>`+
+        `<input type="range" class="loom-range" id="dmt-vol" min="0" max="1" step="0.01" value="${tr.vol}" style="flex:1;">`+
+        `<span class="gain-val" id="dmt-vol-val">${Math.round(tr.vol*100)}%</span></div>`+
+    `</div>`+
+    `<div class="dmt-row">`+
+      `<span class="dmt-lbl">Loop</span>`+
+      `<button class="dm-adj" data-len="-1" aria-label="Shorter loop">−</button>`+
+      `<span class="dmt-len"><b>${tr.len}</b> steps</span>`+
+      `<button class="dm-adj" data-len="1" aria-label="Longer loop">+</button>`+
+      `<span class="dmt-note">${drift?'drifts against the bar':'same as the bar'}</span>`+
+    `</div>`+
+    `<div class="dmt-fills">`+
+      [['clear','Clear'],['beats','Beats'],['8ths','8ths'],['16ths','16ths'],
+       ['euclid','Spread +1'],['random','Random'],['left','◀ Shift'],['right','Shift ▶']]
+        .map(([k,l])=>`<button class="pbtn2" data-fill="${k}">${l}</button>`).join('')+
+    `</div>`;
+}
+function renderDrumPatterns(){
+  const g=document.getElementById('dm-patterns'); if(!g) return;
+  g.innerHTML=DRUM_PATTERNS.filter(p=>!p.hidden).map(p=>
+    `<button class="pbtn2${dm.pattern===p.name?' active-pat':''}" data-pat="${p.name}">${p.name}</button>`).join('');
 }
 
-function randSeq(){ loadPat('Random'); }
-
-function buildPatGrid(){
-  const grid=document.getElementById('pat-grid');if(!grid)return;
-  grid.innerHTML='';
-  Object.keys(PATTERNS).forEach(name=>{
-    const b=document.createElement('button');
-    b.className='pbtn2'+(activePat===name?' active-pat':'');
-    b.dataset.pat=name;b.textContent=name;
-    b.onclick=()=>loadPat(name);
-    grid.appendChild(b);
-  });
+// One click handler for the whole screen.
+function onDrumClick(ev){
+  const t=ev.target.closest('button'); if(!t||t.disabled) return;
+  const ds=t.dataset;
+  if(ds.s!=null && ds.drum)      cycleStep(ds.drum,+ds.s);
+  else if(ds.pad!=null)          cycleStep(dm.sel,+ds.pad);
+  else if(ds.pick)               selectDrum(ds.pick,true);
+  else if(ds.mute)               toggleDrumMute(ds.mute);
+  else if(ds.hear)               playDrum(ds.hear,_drumVel(dm.tracks[ds.hear],1));
+  else if(ds.len)                nudgeDrumLen(dm.sel,+ds.len);
+  else if(ds.fill)               fillDrum(dm.sel,ds.fill);
+  else if(ds.pat)                applyDrumPattern(ds.pat);
+  else if(ds.meter)              setMeter(+ds.meter);
+}
+function onDrumInput(ev){
+  if(ev.target.id==='dmt-vol') setDrumVol(dm.sel,+ev.target.value);
 }
 
-// ── LOOM TOGGLE & TABS ──
-// toggleLoom — now handled by showPane() above
-function showLTab(id){
-  document.querySelectorAll('.ltab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.lpane').forEach(p=>p.classList.remove('on'));
-  const tb=document.getElementById('lt-'+id); if(tb)tb.classList.add('on');
-  const pn=document.getElementById('lpane-'+id); if(pn)pn.classList.add('on');
-  if(id==='const') scheduleConstellationRedraw();
-}
+(function initDrums(){
+  if(!loadDrums()) applyDrumPattern('Rock',{quiet:true});
+  const body=document.getElementById('loom-body');
+  if(body){
+    body.addEventListener('click',onDrumClick);
+    body.addEventListener('input',onDrumInput);
+  }
+  renderDrums();
+})();
 
 // ═══════════════════════════════════════════════════════════
 // PITCH CONSTELLATION
@@ -6298,9 +6567,8 @@ function drawConstellation(){
 // no constellation paint occurs until the sequence pauses or H changes.
 let _constellationTimer=null;
 function scheduleConstellationRedraw(){
-  if(!loomOpen) return;
-  const activeTab=document.querySelector('.ltab.on')?.id;
-  if(activeTab!=='lt-const') return;
+  if(!grimoireOpen) return;
+  if(document.querySelector('.gtab.on')?.id!=='gt-wheel') return;
   // Cancel any pending redraw — only the final call in a burst fires
   clearTimeout(_constellationTimer);
   _constellationTimer=setTimeout(()=>{
@@ -6325,10 +6593,9 @@ function toggleSoftMode(){
   _buildHarmonicVoice(); // rebuild harmonicVoice with new fc and Q
   const btn=document.getElementById('soft-mode-btn');
   if(btn)btn.textContent=softMode?'Soft Tone: On':'Soft Tone: Off';
-  if(softMode){
-    setGainR(0);
-    const sl=document.getElementById('gainR-sl');if(sl)sl.value=0;
-  }
+  // Soft Tone used to mute the percussion bus outright. Now that the bus carries a
+  // drum machine, it rounds the drums off instead of silencing them.
+  if(_drumTone) _drumTone.frequency.setTargetAtTime(softMode?DRUM_SOFT_FC:DRUM_OPEN_FC,_ac.currentTime,0.02);
 }
 
 // Soft Mode overrides harmonicVoice — reassignment is safe because it was declared as let
@@ -6350,37 +6617,9 @@ function _buildHarmonicVoice(){
   };
 }
 
-// Fibonacci pattern: F(n) = 1,1,2,3,5 → step indices 0,1,3,6,11 in a 16-step grid
-// Each row uses the Fibonacci position for its primary onset
-function loadFibonacciPattern(){
-  clearSeq();
-  // Fibonacci onsets within 16 steps: 1,2,3,5,8,13 (0-indexed: 0,1,2,4,7,12)
-  const fibSteps=[0,1,2,4,7,12];
-  // Row assignments: each row gets a different Fibonacci sub-pattern
-  const rowPats=[
-    [0,7],        // IV — downbeat + 5th Fibonacci
-    [0,4,12],     // I  — downbeat, 3rd, 6th Fibonacci (tonic anchor)
-    [2,7],        // V  — 2nd + 5th Fibonacci (dominant tension)
-    [1,4],        // ii — echo + 3rd (pre-dominant)
-    [4,12],       // vi — 3rd + 6th (resolution)
-  ];
-  rowPats.forEach((steps,r)=>{
-    steps.forEach(s=>{
-      if(s<SEQ_STEPS){
-        seqPat[r][s]=true;
-        const cell=document.getElementById(`sc-${r}-${s}`);
-        if(cell)cell.classList.add('on');
-      }
-    });
-  });
-  // Set polyrhythm to Fibonacci lengths: 8, 13, 5, 8, 13
-  const fibLens=[8,13,5,8,13];
-  fibLens.forEach((len,r)=>{
-    rowLen[r]=len;
-  });
-  // Rebuild poly section to reflect new lengths
-  if(loomOpen)buildPolySection();
-}
+// Sparse polyrhythmic preset used by "First Session": Fibonacci loop lengths
+// (16, 13, 8, 5) so the drums drift slowly against each other.
+function loadFibonacciPattern(){ applyDrumPattern('Fibonacci'); }
 
 // Presets
 function applySensoryPreset(name){
@@ -6394,35 +6633,21 @@ function applySensoryPreset(name){
     const hsl=document.getElementById('gainH-sl');if(hsl)hsl.value=0.70;
     curKey='C';renderChordStrip('C');buildKeySelector();
     loadFibonacciPattern();
-    setSpread(8); // slow harmonic movement
-    const ssl=document.getElementById('spread-sl');if(ssl)ssl.value=8;
-    const sdi=document.getElementById('spread-disp');if(sdi)sdi.textContent=8;
     setSt('First Session — C Major · sparse offbeat rhythm · Soft Tone on');
   } else if(name==='explore'){
     if(softMode)toggleSoftMode();
     setBpm(100);
     const bsl=document.getElementById('bpm-sl');if(bsl)bsl.value=100;
     const bdi=document.getElementById('bpm-disp');if(bdi)bdi.textContent=100;
-    setGainR(0);setGainH(0.70);
+    setGainH(0.70);
     setSt('Free Exploration — play any bubble or chord pill');
   } else if(name==='shape'){
     if(!softMode)toggleSoftMode();
     setBpm(80);
     const bsl=document.getElementById('bpm-sl');if(bsl)bsl.value=80;
     const bdi=document.getElementById('bpm-disp');if(bdi)bdi.textContent=80;
-    // Load Whole Tone — pure hexagon constellation
-    // Clear pattern and load a symmetric whole-tone friendly grid
-    clearSeq();
-    // All rows on even steps — whole-tone feel
-    for(let r=0;r<SEQ_ROWS;r++){
-      for(let s=0;s<SEQ_STEPS;s+=2+(r%2)){
-        seqPat[r][s]=true;
-        const cell=document.getElementById(`sc-${r}-${s}`);
-        if(cell)cell.classList.add('on');
-      }
-      rowLen[r]=[6,12,6,12,6][r]; // symmetric lengths
-    }
-    if(loomOpen)buildPolySection();
+    // Symmetric beat to sit under the whole-tone hexagon
+    applyDrumPattern('Whole-tone',{quiet:true});
     setSt('Shape Focus — Whole Tone hexagon · symmetric polyrhythm');
   }
   // Land the user on Analysis → Presets so they can see what was applied
@@ -7757,26 +7982,34 @@ function transmuteLoomToGenre(genreKey){
   const G=GENRES[genreKey];
   const GF=1-1/PHI; // Golden Fraction ≈ 0.382
 
-  // Clear grid
-  clearSeq();
+  // The genre tables were written for the old five chord-degree rows (IV I V ii
+  // vi). Each row now drives a drum instead, so a genre's density and loop
+  // lengths become a drum groove.
+  const GENRE_DRUM=['snare','kick','chh','rim','ltom'];   // indexed by GENRE_ROW
+  setMeter(16,{silent:true});
+  DRUM_IDS.forEach(id=>dm.tracks[id].steps.fill(0));
 
-  // Distribute steps per row using phyllotactic spacing + genre phase offset
+  // Distribute hits per drum using phyllotactic spacing + genre phase offset
   G.loomDensity.forEach(({roman,steps,phase})=>{
     const r=GENRE_ROW[roman];
     if(r===undefined||steps===0)return;
+    const tr=dm.tracks[GENRE_DRUM[r]];
     for(let i=0;i<steps;i++){
       const pos=(i*GF*16 + phase)%16;
-      const step=Math.floor(pos)%SEQ_STEPS;
-      seqPat[r][step]=true;
+      tr.steps[Math.floor(pos)%DM_STEPS]=1;
     }
   });
 
-  // Apply genre row lengths
-  G.rowLengths.forEach((len,r)=>{ rowLen[r]=len; });
+  // Genre loop lengths become each drum's own loop (polyrhythm)
+  G.rowLengths.forEach((len,r)=>{ dm.tracks[GENRE_DRUM[r]].len=Math.max(3,Math.min(DM_STEPS,len)); });
+  dm.pattern=`${G.name} groove`;
+  renderDrums(); saveDrums();
 
-  // Open loom to show result
+  // Open the drum machine to show the result
   showPane('rhythm');
-  setSt(`⟳ Rhythm set → ${G.name} · ${G.loomDensity.filter(d=>d.steps>0).map(d=>d.roman+'×'+d.steps).join(' ')}`);
+  const name=id=>DRUMS.find(d=>d.id===id).name.toLowerCase();
+  setSt(`⟳ ${G.name} groove → `+G.loomDensity.filter(d=>d.steps>0)
+    .map(d=>`${name(GENRE_DRUM[GENRE_ROW[d.roman]])}×${d.steps}`).join(' · '));
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -7786,26 +8019,8 @@ function transmuteLoomToGenre(genreKey){
 // Mapped to step grid: step_i = floor(i × (137.508/360) × 16) % 16
 // ═══════════════════════════════════════════════════════════
 function loadPhyllotacticPattern(){
-  clearSeq();
-  const GOLDEN_FRAC=1-1/PHI; // ≈ 0.3820 = 137.508°/360°
-  // Per-row density follows Fibonacci: 5,8,5,3,5
-  const density=[5,8,5,3,5];
-  ROW_DEF.forEach((_,r)=>{
-    for(let i=0;i<density[r];i++){
-      // Phase-offset each row by r×2.4 to avoid all rows firing at step 0
-      const pos=(i*GOLDEN_FRAC*16 + r*2.4)%16;
-      const step=Math.floor(pos)%SEQ_STEPS;
-      seqPat[r][step]=true;
-      const cell=document.getElementById(`sc-${r}-${step}`);
-      if(cell)cell.classList.add('on');
-    }
-  });
-  // Set polyrhythm lengths to Fibonacci numbers
-  [13,8,13,5,8].forEach((len,r)=>{ rowLen[r]=len; });
-  if(loomOpen)buildPolySection();
-  // Rebuild grid display
-  if(loomOpen)buildSeqGrid();
-  setSt('φ Golden Angle Spiral — 137.508° phyllotactic onset pattern');
+  applyDrumPattern('Golden spread',{quiet:true});
+  setSt('φ Golden Angle Spiral — 137.508° onsets, Fibonacci loop lengths');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -9054,8 +9269,6 @@ function renderCadenceStrip(){
 
 syncSceneBg();buildKeySelector();syncKeySelector();renderChordStrip('C');renderLedger();syncLevelUI();buildPlasmaKeys();setPlasmaOffset(0);syncPanelMargins();
 buildDroneNoteButtons();initOracleSelects();
-loadFibonacciPattern();
-const _ebt=document.getElementById('entrain-btn');if(_ebt){_ebt.textContent='Follow Ledger: On';_ebt.classList.add('on');}
 
 // ═══════════════════════════════════════════════════════════
 // PRACTICE TIMER
