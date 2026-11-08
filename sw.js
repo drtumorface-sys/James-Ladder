@@ -14,13 +14,18 @@
 // network-first document path means users get updates even without it.
 // ═══════════════════════════════════════════════════════════
 
-const VERSION = 'v16';
+const VERSION = 'v17';
 const CACHE   = 'james-ladder-' + VERSION;
 
 const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png',
+  './icons/favicon-32.png',
 ];
 
 // Immutable, version-pinned third-party asset — safe to serve from cache forever.

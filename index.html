@@ -5,9 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>James' Ladder</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#eeead8">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ladder">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
@@ -2895,6 +2900,9 @@ function triggerFlash(fi){if(fi>=0&&fi<12)flashState[fi]={start:performance.now(
 function syncSceneBg(){
   const dark=document.documentElement.dataset.theme==='dark';
   scene.background=new THREE.Color(dark?0x07080e:0xeeead8);
+  // Phone status bar / browser chrome follows the in-app theme.
+  const tc=document.querySelector('meta[name="theme-color"]');
+  if(tc) tc.setAttribute('content',dark?'#07080e':'#eeead8');
   wireMat.color.set(dark?0xc8a84b:0x9a6e14);wireMat.opacity=dark?0.06:0.22;
   pivotEdgeLines.forEach(p=>p.mat.color.set(dark?0xc8a84b:0x9a6e14));
   layers.forEach(lyr=>{const h=lyr.h,l=!dark;
