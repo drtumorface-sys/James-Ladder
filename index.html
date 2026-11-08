@@ -398,21 +398,21 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .rg-desc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;
   color:var(--text3);line-height:1.45;}
 /* ══ PARALLEL TRANSPOSE ══ */
-#xpose{display:none;position:fixed;inset:0;z-index:886;background:rgba(0,0,0,0.40);}
-#xpose.open{display:block;}
-#xpose .rg-sheet{position:absolute;left:0;right:0;bottom:0;max-height:86vh;
+#xpose,#modsheet{display:none;position:fixed;inset:0;z-index:886;background:rgba(0,0,0,0.40);}
+#xpose.open,#modsheet.open{display:block;}
+#xpose .rg-sheet,#modsheet .rg-sheet{position:absolute;left:0;right:0;bottom:0;max-height:86vh;
   display:flex;flex-direction:column;background:var(--bg2);
   border-top:1px solid var(--border2);border-radius:14px 14px 0 0;
   box-shadow:0 -10px 44px rgba(0,0,0,0.26);}
-#xpose .cc-grip{width:36px;height:4px;border-radius:2px;background:var(--border2);
+#xpose .cc-grip,#modsheet .cc-grip{width:36px;height:4px;border-radius:2px;background:var(--border2);
   margin:9px auto 2px;flex-shrink:0;}
-#xpose .rg-head{display:flex;align-items:center;justify-content:space-between;
+#xpose .rg-head,#modsheet .rg-head{display:flex;align-items:center;justify-content:space-between;
   padding:4px 16px 10px;border-bottom:1px solid var(--glass-border);flex-shrink:0;}
-#xpose .set-title{font-family:'Cormorant Garamond',serif;font-size:18px;
+#xpose .set-title,#modsheet .set-title{font-family:'Cormorant Garamond',serif;font-size:18px;
   font-style:italic;color:var(--gold);}
-#xpose .rg-body{flex:1;overflow-y:auto;padding:12px 16px 26px;
+#xpose .rg-body,#modsheet .rg-body{flex:1;overflow-y:auto;padding:12px 16px 26px;
   -webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
-#xpose .cc-close{background:none;border:none;color:var(--text3);font-size:24px;
+#xpose .cc-close,#modsheet .cc-close{background:none;border:none;color:var(--text3);font-size:24px;
   cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;}
 #xp-shape{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;margin:0 0 14px;}
 .xp-src{font-family:'Fira Code',monospace;font-size:13px;color:var(--text);}
@@ -437,6 +437,38 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .xp-stats{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;
   font-family:'Fira Code',monospace;font-size:9px;color:var(--text2);letter-spacing:0.03em;}
 #xp-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+/* ══ MODULATE ══ */
+.md-from{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--text2);margin:0 0 12px;}
+.md-from b{font-style:normal;font-family:'Fira Code',monospace;font-size:11px;font-weight:400;color:var(--gold);}
+#md-keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:14px;}
+@media (min-width:560px){#md-keys{grid-template-columns:repeat(6,minmax(0,1fr));}}
+.md-folds{font-family:'Fira Code',monospace;font-size:7px;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;}
+.md-folds.near{color:var(--gold);}
+.md-method{display:flex;flex-direction:column;align-items:flex-start;gap:5px;width:100%;text-align:left;
+  background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:9px 11px;
+  margin-bottom:6px;cursor:pointer;min-height:56px;transition:all 0.11s;}
+.md-method:hover{border-color:var(--glm);}
+.md-method.sel{border-color:var(--gold);background:var(--glo);box-shadow:inset 0 0 0 1px var(--gold);}
+.md-mhead{display:flex;align-items:center;gap:8px;font-family:'Fira Code',monospace;font-size:9px;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);}
+.md-rec{font-size:7px;letter-spacing:0.10em;border:1px solid var(--glm);border-radius:8px;padding:1px 6px;}
+.md-chain{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.md-chain .xp-chip{padding:3px 7px;font-size:12px;display:inline-flex;align-items:baseline;gap:4px;}
+.md-chain .xp-chip small{font-size:8px;color:var(--text3);font-family:'Cormorant Garamond',serif;font-style:italic;}
+.md-chain .md-from-chip{color:var(--text3);background:none;border-style:dashed;}
+.md-chain .md-old{color:var(--text2);background:var(--surface);border-color:var(--border2);}
+.md-arrow{color:var(--text3);font-size:10px;}
+.md-desc{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);line-height:1.4;}
+.md-repeat{display:flex;align-items:center;gap:8px;min-height:44px;margin:-2px 0 8px 4px;
+  font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text2);cursor:pointer;}
+.md-repeat input{width:18px;height:18px;accent-color:var(--gold);}
+#md-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+
+/* Key row extras: fold mode (Levels II–III) and ⤳ Modulate */
+.key-extra{display:inline-flex;gap:4px;flex-shrink:0;margin-left:6px;}
+.key-extra .ks{white-space:nowrap;}
+.key-mod{border-color:var(--glm);color:var(--gold);}
+body.lvl-1 #fold-chip{display:none;}
 #rt-beats{font-family:'Fira Code',monospace;font-size:10px;color:var(--text2);
   min-width:26px;text-align:center;white-space:nowrap;}
 #rt-figs{display:flex;gap:4px;flex-wrap:wrap;}
@@ -1359,6 +1391,8 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   /* Every strip wraps instead of scrolling off the edge. */
   #key-row,#chord-row,#plr-row,#sec-dom-row,#borrowed-row{flex-wrap:wrap;overflow:visible;row-gap:5px;}
   #key-lbl{flex-basis:100%;margin:0 0 1px;}
+  .key-extra{flex:1 1 100%;margin-left:0;display:flex;}
+  .key-extra .ks{flex:1 1 0;}
   /* Two even rows of six keys. */
   .ks{padding:4px 0;min-height:32px;min-width:0;flex:0 0 calc((100% - 20px) / 6);text-align:center;}
   .hfg-wrap{flex-wrap:wrap;row-gap:4px;}
@@ -1877,6 +1911,28 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
           <button class="pa" id="xp-prev-all" onclick="previewTranspose(true)">▶ With current</button>
           <button class="pa pa-copy" id="xp-add" onclick="commitTranspose('add')">＋ Add to end</button>
           <button class="pa pa-danger" id="xp-replace" onclick="commitTranspose('replace')">⇄ Replace</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modulate — change key six ways -->
+  <div id="modsheet" onclick="if(event.target===this)closeModulate()">
+    <div class="rg-sheet">
+      <div class="cc-grip" aria-hidden="true"></div>
+      <div class="rg-head">
+        <div class="set-title">Change key</div>
+        <button class="cc-close" onclick="closeModulate()" aria-label="Close">×</button>
+      </div>
+      <div class="rg-body">
+        <p class="md-from" id="md-from"></p>
+        <div class="cc-section">To</div>
+        <div id="md-keys"></div>
+        <div class="cc-section">How</div>
+        <div id="md-methods"></div>
+        <div id="md-acts">
+          <button class="pa" id="md-prev" onclick="previewModulation()">▶ Preview</button>
+          <button class="pa pa-copy" id="md-add" onclick="commitModulation()">＋ Add key change</button>
         </div>
       </div>
     </div>
@@ -3620,6 +3676,7 @@ function setSt(m){const el=document.getElementById('status');if(el)el.textConten
 const LN=['','Planar Sovereignty','Modulation Gateway','Harmonic Advisor'];
 const LC=['','I','II','III'];
 function syncLevelUI(){
+  document.body.classList.toggle('lvl-1',pedagogyLevel<2);
   [1,2,3].forEach(i=>{
     const b=document.getElementById('lq'+i);
     if(b){ b.classList.toggle('on',i===pedagogyLevel); b.setAttribute('aria-pressed',String(i===pedagogyLevel)); }
@@ -3750,6 +3807,10 @@ function plantFirst(fi){placeFace(fi,FKEY[fi]);setSt(`${FKEY[fi]} · tap bubble 
 function modulate(destFi){
   if(builtSet.has(destFi))return;
   const destKey=FKEY[destFi];
+  // The key we are leaving is the key of the music — the last chord, or failing
+  // that the open face. Not curKey: tapping a Root Key button moves curKey to the
+  // destination before the fold, which used to record a key change of D → D.
+  const fromKey=_modContext().from||(activeFace>=0?FKEY[activeFace]:curKey);
   // Prefer explicitly primed pivot over implicit lastChord
   const pivot=pendingPivot||lastChord;
   if(pivot&&builtSet.size>0){
@@ -3764,7 +3825,7 @@ function modulate(destFi){
           originKey:p.key,destKey,romanInDest:rDest,fi:destFi};
       }
     }
-    ledger.push({type:'keymod',fromKey:curKey,toKey:destKey});
+    if(fromKey!==destKey) ledger.push({type:'keymod',fromKey,toKey:destKey});
   }
   // Clear both pivot stores — fold is consumed
   pendingPivot=null;lastChord=null;
@@ -4752,13 +4813,306 @@ function _afterLedgerRewrite(){
 function undoLedgerSnapshot(){
   if(!ledgerUndo) return false;
   if(JSON.stringify(ledger)!==ledgerUndo.after){ ledgerUndo=null; return false; }
-  const label=ledgerUndo.label;
-  ledger.splice(0,ledger.length,...JSON.parse(ledgerUndo.before));
-  tonicAnchor=ledgerUndo.anchor;
+  const u=ledgerUndo;
+  // A key change may also have opened a face and moved the key — put those back.
+  if(u.placedFace!=null) _popFace(u.placedFace);
+  if(u.prevKey!=null){
+    curKey=u.prevKey; activeFace=u.prevActive; previewFace=u.prevPreview??-1;
+    if(activeFace>=0&&FACES[activeFace]) rotateTo(FACES[activeFace].cen);
+  }
+  ledger.splice(0,ledger.length,...JSON.parse(u.before));
+  tonicAnchor=u.anchor;
   ledgerUndo=null;
   _afterLedgerRewrite();
-  setSt(`${label} undone`);
+  if(u.prevKey!=null){ syncKeySelector(); }
+  setSt(`${u.label} undone`);
   return true;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODULATE — change key, six ways
+//
+// Folding on the solid only reaches the keys whose faces touch an open one, and
+// only by pivot chord. (C's neighbours on the solid are G D A E B — not F.) This
+// panel reaches any key by the move a musician would choose, writes the bridge
+// chords into the ledger, and lets the solid follow: a neighbouring face folds
+// open; a distant one is highlighted, so the ladder's one-step rule still holds.
+// ═══════════════════════════════════════════════════════════
+const MOD_TYPES={
+  pivot:   {name:'Pivot chord',       desc:'Through a chord that belongs to both keys, then V → I. The smooth, classic way.'},
+  dominant:{name:'Dominant',          desc:'The new key’s V → I. Quick and strong — works for any key.'},
+  common:  {name:'Common tone',       desc:'Through a chord that shares a note with your last one, so even a far key has a thread.'},
+  direct:  {name:'Direct',            desc:'Straight to the new I, like a new section starting. Abrupt on purpose.'},
+  mediant: {name:'Chromatic mediant', desc:'A third away: home I → new I, joined by one shared note. Dramatic, filmic.'},
+  stepup:  {name:'Step up',           desc:'The pop “truck driver” lift: the new key’s V, then your progression again, higher.'},
+};
+const MOD_ORDER=['pivot','dominant','common','direct','mediant','stepup'];
+// Interval up from the current key → how it is usually named.
+const MOD_REL={1:'up a half step',2:'up a whole step',3:'♭III — minor third up',4:'III — major third up',
+  5:'IV — the subdominant',6:'tritone — the farthest key',7:'V — the dominant',8:'♭VI — major third down',
+  9:'VI — minor third down',10:'♭VII — whole step down',11:'down a half step'};
+const MOD_REL_SHORT={1:'up ½',2:'up 1',3:'♭III',4:'III',5:'IV',6:'tritone',7:'V',8:'♭VI',9:'VI',10:'♭VII',11:'down ½'};
+// Closest first, by distance round the circle of fifths.
+const MOD_IV_ORDER=[7,5,2,10,9,3,4,8,11,1,6];
+
+let modTarget=null, modType=null, modRepeat=true;
+
+function _diaChord(key,i){ return {note:noteFrom(key,D_SEMI[i]), qual:D_QUAL[i], key}; }
+function _keyI(k){ return _diaChord(k,0); }
+function _keyV(k){ return _diaChord(k,4); }
+function _pcsOf(c){ return chordPCs(KS[c.note]??0, c.qual||'maj'); }
+function _sharedPcs(a,b){ const B=new Set(_pcsOf(b)); return _pcsOf(a).filter(p=>B.has(p)); }
+function _sameChord(a,b){ return !!(a&&b&&a.note===b.note&&(a.qual||'maj')===(b.qual||'maj')); }
+function _modIv(from,to){ return ((KS[to]??0)-(KS[from]??0)+12)%12; }
+
+// Where the music is now: the last chord in the ledger and the key it is in.
+function _modContext(){
+  const chords=ledger.filter(_isChordEntry);
+  const last=chords[chords.length-1]||null;
+  let from=curKey;
+  if(last) from=(last.type==='pivot'?last.destKey:last.key)||curKey;
+  return {last, from};
+}
+
+// The bridge for one modulation type, or null where that type doesn't fit.
+// Each step is {note, qual, key} — plus pivot:true for a pivot chord.
+// A first chord that just repeats the last chord played is dropped (B → B → E).
+function modPlan(type, from, to, last){
+  const p=_modPlanRaw(type,from,to,last);
+  if(p&&p.length>1&&!p[0].pivot&&_sameChord(p[0],last)) p.shift();
+  return p;
+}
+function _modPlanRaw(type, from, to, last){
+  const iv=_modIv(from,to);
+  const I=_keyI(to), V=_keyV(to);
+  const resolve=c=>_sameChord(c,I)?[]:(_sameChord(c,V)?[I]:[V,I]);
+  if(type==='direct')   return [I];
+  if(type==='dominant') return [V,I];
+  if(type==='pivot'){
+    // Best pivot: one that is a pre-dominant (ii, IV) in the new key, then vi, iii, I.
+    const rank={ii:4,IV:4,vi:3,iii:2,I:1};
+    let best=null, bestScore=-1;
+    for(let i=0;i<7;i++){
+      const c=_diaChord(from,i);
+      if(c.qual==='dim'||!isDiatonicIn(c.note,c.qual,to)) continue;
+      const s=rank[romanAny(c.note,to,c.qual)]??0;
+      if(s>bestScore){ best=c; bestScore=s; }
+    }
+    return best?[{...best,pivot:true},V,I]:null;
+  }
+  if(type==='common'){
+    const ref=last||_keyI(from);
+    let best=null, bestN=0;
+    [0,3,4,5,1,2].forEach(i=>{            // I IV V vi ii iii of the new key
+      const c=_diaChord(to,i), n=_sharedPcs(ref,c).length;
+      if(n>bestN&&!_sameChord(c,ref)){ best=c; bestN=n; }
+    });
+    // If the best shared-note chord is the new I itself, this is just Direct — skip it.
+    if(!best||_sameChord(best,I)) return null;
+    return [best,...resolve(best)];
+  }
+  if(type==='mediant'){
+    if(![3,4,8,9].includes(iv)) return null;
+    const home=_keyI(from);
+    return _sameChord(last,home)?[I]:[home,I];   // land on home I so the shared note is heard
+  }
+  if(type==='stepup'){
+    if(iv!==1&&iv!==2) return null;
+    return [V];
+  }
+  return null;
+}
+
+// The move a musician would usually reach for, per distance.
+function modRecommend(from,to,last){
+  const iv=_modIv(from,to);
+  if([7,5,2,10].includes(iv) && modPlan('pivot',from,to,last)) return 'pivot';
+  if(iv===1) return 'stepup';
+  if([3,4,8,9].includes(iv)) return 'mediant';
+  if(iv===6) return 'common';
+  return 'dominant';
+}
+
+// Folds from the nearest open face (0 = already open).
+function foldsFromOpen(){
+  const dist=new Array(12).fill(Infinity), q=[];
+  builtSet.forEach(fi=>{ dist[fi]=0; q.push(fi); });
+  while(q.length){
+    const cur=q.shift();
+    (ADJ[cur]||[]).forEach(({face})=>{ if(dist[face]===Infinity){ dist[face]=dist[cur]+1; q.push(face); } });
+  }
+  return dist;
+}
+
+// Turn a plan into ledger entries, with the key-change marker in the right place.
+function _modEntries(plan, from, to){
+  const out=[];
+  const hasChords=ledger.some(_isChordEntry);
+  let crossed=false;
+  plan.forEach(st=>{
+    if(st.pivot){
+      out.push({type:'pivot', note:st.note, qual:st.qual, roman:romanAny(st.note,from,st.qual),
+                originKey:from, destKey:to, romanInDest:romanAny(st.note,to,st.qual), fi:faceForKey(to)});
+      out.push({type:'keymod', fromKey:from, toKey:to});
+      crossed=true; return;
+    }
+    if(st.key===to && !crossed){
+      if(hasChords||out.length) out.push({type:'keymod', fromKey:from, toKey:to});
+      crossed=true;
+    }
+    out.push({type:'chord', roman:romanAny(st.note,st.key,st.qual), note:st.note, qual:st.qual,
+              key:st.key, fi:faceForKey(st.key)});
+  });
+  return out;
+}
+
+function _stepShift(from,to){ return _signedShift(_modIv(from,to)); }
+
+function openModulate(){
+  const {last,from}=_modContext();
+  modTarget=_shiftKey(from,7);                 // start on the dominant key
+  modType=modRecommend(from,modTarget,last);
+  renderModulate();
+  document.getElementById('modsheet')?.classList.add('open');
+}
+function closeModulate(){ document.getElementById('modsheet')?.classList.remove('open'); }
+
+function _chainHTML(last, plan, from, to){
+  const chips=[];
+  if(last) chips.push(`<span class="xp-chip md-from-chip">${entrySymbol(last)}</span>`);
+  plan.forEach(c=>{
+    const sym=chordSymbol(displayNote(c.note),c.qual);
+    const tag=c.pivot?`<small>${romanAny(c.note,from,c.qual)}→${romanAny(c.note,to,c.qual)}</small>`:'';
+    chips.push(`<span class="xp-chip${c.key===to&&!c.pivot?'':' md-old'}">${sym}${tag}</span>`);
+  });
+  return chips.join('<span class="md-arrow">→</span>');
+}
+
+function renderModulate(){
+  const {last,from}=_modContext();
+  const head=document.getElementById('md-from');
+  if(head) head.innerHTML=`From <b>${transposedKey(from)} major</b>`+
+    (last?` · last chord <b>${entrySymbol(last)}</b>`:' · no chords yet');
+
+  const folds=foldsFromOpen();
+  const keys=document.getElementById('md-keys');
+  if(keys){
+    keys.innerHTML=MOD_IV_ORDER.map(iv=>{
+      const k=_shiftKey(from,iv), fi=faceForKey(k), f=fi>=0?folds[fi]:Infinity;
+      const fl=f===0?'open':f===1?'1 fold':f===Infinity?'—':`${f} folds`;
+      return `<button class="xp-tile md-key${k===modTarget?' sel':''}" data-mkey="${k}" title="${transposedKey(k)} major — ${MOD_REL[iv]}">`+
+             `<span class="xp-sym">${transposedKey(k)}</span>`+
+             `<span class="xp-shift">${MOD_REL_SHORT[iv]}</span>`+
+             `<span class="md-folds${f<=1?' near':''}">${fl}</span></button>`;
+    }).join('');
+  }
+
+  const box=document.getElementById('md-methods');
+  if(box){
+    if(!modTarget){ box.innerHTML='<p class="cc-hint">Pick a key above.</p>'; }
+    else{
+      const rec=modRecommend(from,modTarget,last);
+      const iv=_modIv(from,modTarget);
+      let h=`<p class="cc-hint">${transposedKey(modTarget)} major is ${MOD_REL[iv]} from ${transposedKey(from)}.</p>`;
+      const seen=new Set();
+      MOD_ORDER.forEach(t=>{
+        const plan=modPlan(t,from,modTarget,last);
+        if(!plan) return;
+        // Two methods can land on the same chords from here; show it once.
+        const sig=plan.map(c=>c.note+c.qual+(c.pivot?'*':'')).join(' ');
+        if(seen.has(sig)&&t!==modType) return;
+        seen.add(sig);
+        h+=`<button class="md-method${t===modType?' sel':''}" data-mtype="${t}">`+
+           `<span class="md-mhead">${MOD_TYPES[t].name}${t===rec?'<span class="md-rec">suggested</span>':''}</span>`+
+           `<span class="md-chain">${_chainHTML(last,plan,from,modTarget)}</span>`+
+           `<span class="md-desc">${MOD_TYPES[t].desc}</span>`+
+           `</button>`;
+        if(t==='stepup'&&t===modType){
+          h+=`<label class="md-repeat"><input type="checkbox" id="md-repeat"${modRepeat?' checked':''}> `+
+             `Repeat my progression in ${transposedKey(modTarget)} after the lift</label>`;
+        }
+      });
+      box.innerHTML=h;
+    }
+  }
+  const ok=!!(modTarget&&modType&&modPlan(modType,from,modTarget,last));
+  ['md-prev','md-add'].forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=!ok; });
+}
+
+function onModClick(ev){
+  const b=ev.target.closest('button'); if(!b) return;
+  if(b.dataset.mkey){
+    const {last,from}=_modContext();
+    modTarget=b.dataset.mkey;
+    modType=modRecommend(from,modTarget,last);
+    const I=_keyI(modTarget); playChord(I.note,I.qual);
+    renderModulate();
+  } else if(b.dataset.mtype){
+    modType=b.dataset.mtype;
+    renderModulate();
+  }
+}
+function onModChange(ev){
+  if(ev.target.id==='md-repeat'){ modRepeat=ev.target.checked; }
+}
+
+function previewModulation(){
+  const {last,from}=_modContext();
+  const plan=modTarget&&modType?modPlan(modType,from,modTarget,last):null;
+  if(!plan) return;
+  const seq=(last?[last]:[]).concat(plan.map(c=>({note:c.note,qual:c.qual})));
+  if(modType==='stepup'&&modRepeat){
+    const shift=_stepShift(from,modTarget);
+    seq.push(...ledger.filter(_isChordEntry).slice(0,4).map(e=>transposeEntry(e,shift)));
+  }
+  const d=2*60/seqBpm;
+  seq.forEach((e,i)=>playEntry(e,i*d,d*0.96));
+  setSt(`▶ ${MOD_TYPES[modType].name} → ${transposedKey(modTarget)}`);
+}
+
+// Take a just-opened face back off the solid (used by ↩ Undo).
+function _popFace(fi){
+  const i=builtFaces.length-1;
+  if(i<0||builtFaces[i].fi!==fi) return;
+  builtFaces.pop(); faceRecord[fi]=null; builtSet.delete(fi); animClock[fi]=null; flashState[fi]=null;
+  destroyBubbleSet(fi); destroySignifier(fi);
+  const fcn=document.getElementById('fc-n'); if(fcn) fcn.textContent=builtSet.size;
+  const c=document.getElementById('complete'); if(c) c.classList.remove('show');
+  updateWorldIndicator();
+}
+
+function commitModulation(){
+  const {last,from}=_modContext();
+  const to=modTarget;
+  const plan=to&&modType?modPlan(modType,from,to,last):null;
+  if(!plan) return;
+  const rec=_rememberLedger(`key change to ${transposedKey(to)}`);
+  rec.prevKey=curKey; rec.prevActive=activeFace; rec.prevPreview=previewFace;
+
+  const repeat=(modType==='stepup'&&modRepeat)
+    ? ledger.map(e=>transposeEntry(e,_stepShift(from,to))) : [];
+  ledger.push(..._modEntries(plan,from,to), ...repeat);
+
+  // The solid follows: open the face if it is next to an open one, otherwise
+  // highlight it — the ladder still opens one fold at a time.
+  const fi=faceForKey(to);
+  let opened=false, far=false;
+  if(fi>=0){
+    if(builtSet.has(fi)){ activeFace=fi; previewFace=-1; rotateTo(FACES[fi].cen); }
+    else if(builtSet.size===0||getAvailable().includes(fi)){ placeFace(fi,to); opened=true; previewFace=-1; }
+    else { previewFace=fi; rotateTo(FACES[fi].cen); far=true; }
+  }
+  rec.placedFace=opened?fi:null;
+  curKey=to; pendingPivot=null;
+  _armLedgerUndo(rec);
+  closeModulate();
+  _afterLedgerRewrite();
+  syncKeySelector();
+  const bridge=plan.map(c=>chordSymbol(displayNote(c.note),c.qual)).join(' → ');
+  setSt(`${MOD_TYPES[modType].name} to ${transposedKey(to)}: ${bridge}`+
+        (repeat.length?' · progression repeated':'')+
+        (opened?' · face opened':far?' · its face is further round the solid':'')+
+        ' · ↩ Undo reverses');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -5475,10 +5829,17 @@ function lockKeyToFace(key){
     rotateTo(FACES[fi].cen);
     setSt(`${transposedKey(key)} · face ${fi+1} · built`);
   } else {
+    // A second tap on a neighbouring key opens it — the same fold as tapping its
+    // ghost face, so a phone (where the solid sits behind the panel) can do it too.
+    const near=builtSet.size>0&&getAvailable().includes(fi);
+    if(previewFace===fi&&near&&pedagogyLevel>=2){ modulate(fi); return; }
     // Face not yet built — preview-highlight it without activating
     // Set a preview target so updateVisuals can highlight it distinctly
     previewFace=fi;
-    setSt(`${transposedKey(key)} · tap the highlighted face to open`);
+    const k=transposedKey(key);
+    setSt(!near ? `${k} · not next to an open key yet — ⤳ Modulate reaches any key`
+        : pedagogyLevel<2 ? `${k} · Level I stays in one key — switch to II to open it`
+        : `${k} · tap ${k} again (or its highlighted face) to open it`);
     // Rotate gently toward it so the user can see it
     rotateTo(FACES[fi].cen);
   }
@@ -5486,7 +5847,7 @@ function lockKeyToFace(key){
 
 function buildKeySelector(){
   const row=document.getElementById('key-row');if(!row)return;
-  row.querySelectorAll('.ks').forEach(b=>b.remove());
+  row.querySelectorAll('.ks,.key-extra').forEach(b=>b.remove());
   COF.forEach(key=>{
     const b=document.createElement('button');
     b.className='ks'+(key===curKey?' on':'');
@@ -5495,6 +5856,15 @@ function buildKeySelector(){
     b.onclick=()=>lockKeyToFace(key);
     row.appendChild(b);
   });
+  // Fold mode lived in the top bar before the toolbar was consolidated; it is back
+  // on the Play screen here (Levels II–III), next to the way to change key outright.
+  const extra=document.createElement('div');
+  extra.className='key-extra';
+  extra.innerHTML=
+    `<button class="ks" id="fold-chip" onclick="cycleFoldMode()" `+
+      `title="How a fold to a new key is chosen — tap to cycle Manual · Proximity · Discovery">Fold: ${FOLD_LABELS[foldMode]}</button>`+
+    `<button class="ks key-mod" onclick="openModulate()" title="Change key — pivot, dominant, common tone, direct, mediant or step up">⤳ Modulate</button>`;
+  row.appendChild(extra);
 }
 // Harmonic function groups — T/PD/D with diatonic indices
 const HFG=[
@@ -6376,6 +6746,11 @@ function onDrumInput(ev){
   if(ev.target.id==='dmt-vol') setDrumVol(dm.sel,+ev.target.value);
 }
 
+(function initModulate(){
+  const m=document.getElementById('modsheet');
+  if(m){ m.addEventListener('click',onModClick); m.addEventListener('change',onModChange); }
+})();
+
 (function initDrums(){
   if(!loadDrums()) applyDrumPattern('Rock',{quiet:true});
   const body=document.getElementById('loom-body');
@@ -6679,6 +7054,8 @@ function cycleFoldMode(){
   foldMode=FOLD_MODES[(idx+1)%FOLD_MODES.length];
   const btn=document.getElementById('fold-mode-btn');
   if(btn)btn.textContent=FOLD_LABELS[foldMode];
+  const chip=document.getElementById('fold-chip');
+  if(chip)chip.textContent='Fold: '+FOLD_LABELS[foldMode];
   setSt(`Fold mode: ${FOLD_LABELS[foldMode]} — ${foldModeHint()}`);
 }
 
