@@ -79,6 +79,25 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 #bar-state b{color:var(--gold);font-weight:400;}
 #bar-state .bs-sep{opacity:0.45;margin:0 2px;}
 #bar-state .bs-slash{opacity:0.55;}
+/* Top-bar level switch: I · II · III */
+#lvl-quick{display:flex;flex-shrink:0;border:1px solid var(--border2);border-radius:20px;
+  overflow:hidden;background:var(--surface);}
+.lq{background:transparent;border:none;border-right:1px solid var(--border);color:var(--text3);
+  font-family:'Fira Code',monospace;font-size:10px;letter-spacing:0.06em;cursor:pointer;
+  min-width:34px;height:34px;padding:0 6px;transition:all 0.12s;}
+.lq:last-child{border-right:none;}
+.lq:hover{color:var(--gold);background:var(--glo);}
+.lq.on{color:var(--bg2);background:var(--gold);}
+@media (max-width:420px){
+  /* Small phones can't fit the level switch, three round buttons and the
+     keys-opened count on one row, so the count is dropped here (wider screens
+     still show it) and everything else tightens. */
+  #bar-state{display:none;}
+  .bar-r1 #wm{font-size:16px;letter-spacing:0.03em;}
+  .bar-r1 .bar-r1-right{gap:6px;}
+  .lq{min-width:30px;height:32px;padding:0 4px;}
+  .bar-r1 #solid-btn,.bar-r1 #stop-all-btn,.bar-r1 #settings-btn{width:36px;height:36px;}
+}
 #settings-btn{width:40px;height:40px;border-radius:50%;background:var(--surface);
   border:1px solid var(--border2);cursor:pointer;font-size:16px;display:flex;
   align-items:center;justify-content:center;transition:all 0.12s;color:var(--text2);flex-shrink:0;}
@@ -131,6 +150,12 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
   transition:all 0.12s;width:40px;height:40px;flex-shrink:0;
   display:inline-flex;align-items:center;justify-content:center;}
 #stop-all-btn:hover{border-color:rgba(160,40,20,0.55);color:rgba(175,45,20,0.92);}
+/* Phones only (shown by the phone layout block) — brings the solid forward. */
+#solid-btn{display:none;background:var(--surface);border:1px solid var(--border);color:var(--text3);
+  font-size:16px;cursor:pointer;border-radius:50%;transition:all 0.12s;width:40px;height:40px;
+  flex-shrink:0;align-items:center;justify-content:center;}
+#solid-btn:hover{border-color:var(--glm);color:var(--gold);}
+#solid-btn.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
 #stop-all-btn.armed{border-color:var(--gold);color:var(--gold);background:var(--glo);
   animation:stoppulse 1.5s ease-in-out infinite;}
 @keyframes stoppulse{0%,100%{box-shadow:0 0 0 0 rgba(190,150,60,0.00);}
@@ -541,6 +566,12 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
   cursor:pointer;border-radius:2px;padding:0 12px;min-height:40px;flex-shrink:0;
   display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
 .cc-sub-swap:hover{background:var(--glm);}
+.cc-sub-btns{display:inline-flex;gap:6px;flex-shrink:0;margin-left:auto;}
+/* Narrow screens: the two actions drop to their own line under the chord. */
+@media (max-width:480px){
+  .cc-sub.sel{flex-wrap:wrap;padding-bottom:6px;}
+  .cc-sub.sel .cc-sub-btns{flex:1 1 100%;justify-content:flex-end;}
+}
 
 /* One row per key the chord is diatonic in */
 .cc-read{display:flex;align-items:center;gap:10px;min-height:44px;
@@ -582,8 +613,21 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .pa.pa-danger:hover{border-color:rgba(160,40,20,0.72);color:rgba(190,50,25,1);background:rgba(160,40,20,0.10);}
 [data-theme="dark"] .pa.pa-danger{border-color:rgba(230,90,60,0.40);color:rgba(240,110,80,0.88);}
 .pa[disabled]{opacity:0.30;pointer-events:none;}
+/* Ledger Stop — lights up while anything is sounding, like the top-bar ■. */
+.pa.pa-stop.armed{border-color:rgba(160,40,20,0.60);color:rgba(175,45,20,0.95);background:rgba(160,40,20,0.08);}
+[data-theme="dark"] .pa.pa-stop.armed{border-color:rgba(230,90,60,0.55);color:rgba(240,110,80,0.95);background:rgba(230,90,60,0.10);}
 @keyframes leout{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.65)}}
 .le.removing{animation:leout 0.15s ease forwards;pointer-events:none;}
+/* Hold to remove: a red fill sweeps across while the chord is held. It waits a
+   moment before starting so an ordinary tap doesn't flash red. */
+.le.selectable,.rt-seg{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+/* Drawn on ::before so the chip's own pop-in animation isn't replaced (and
+   replayed) when a hold is cancelled. */
+.le.holding::before,.rt-seg.holding::before{content:'';position:absolute;inset:0;
+  background:rgba(160,40,20,0.26);border-radius:inherit;pointer-events:none;
+  transform-origin:left center;transform:scaleX(0);
+  animation:holdfill 0.43s linear 0.12s forwards;}
+@keyframes holdfill{to{transform:scaleX(1);}}
 /* One scrolling row, never wrapping. With flex-shrink:0 and flex-wrap:wrap this
    took its 500px max-content width inside a 343px container and simply clipped the
    last buttons — they were unreachable. Scrolling keeps the row a predictable 44px
@@ -1167,6 +1211,56 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 .rule-dot.ok{background:rgba(60,180,60,0.80);}.rule-dot.fail{background:rgba(200,60,40,0.80);}.rule-dot.na{background:var(--border2);}
 .rule-name{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);flex:1;}
 .rule-hint{font-family:'Fira Code',monospace;font-size:7px;color:var(--text3);letter-spacing:0.10em;}
+
+/* ═══ PHONE LAYOUT — Play screen ═══
+   On a phone the chord panel used to be a stack of single-line strips, each
+   clipped at the screen edge, under a solid that took most of the height. The
+   panel is now the priority: every row wraps so nothing is off-screen, and the
+   panel scrolls vertically if it outgrows the space. The solid is refitted by
+   fitSolidToSpace() — centred in whatever is left above the panel, or, when that
+   is too thin, behind a translucent panel as a soft background. */
+:root,[data-theme="light"]{--panel-soft:rgba(234,229,212,0.84);}
+[data-theme="dark"]{--panel-soft:rgba(9,10,19,0.80);}
+@media (max-width:700px), (max-height:500px){
+  #bot{max-height:calc(100dvh - var(--bar-h,76px) - 56px);overflow-y:auto;overflow-x:hidden;
+    overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;
+    padding:8px 12px 10px;}
+  /* Light blur only, so the solid behind still reads as a drawing. */
+  body.solid-bg #bot{background:var(--panel-soft);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+  /* ◈ brings the solid forward: the panel shrinks to a scrollable third of the
+     screen, which leaves fitSolidToSpace() enough room to put the solid in front. */
+  #solid-btn{display:flex;}
+  body.solid-front #bot{max-height:34dvh;}
+  #status{white-space:normal;text-align:left;line-height:1.45;letter-spacing:0.12em;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+
+  /* Every strip wraps instead of scrolling off the edge. */
+  #key-row,#chord-row,#plr-row,#sec-dom-row,#borrowed-row{flex-wrap:wrap;overflow:visible;row-gap:5px;}
+  #key-lbl{flex-basis:100%;margin:0 0 1px;}
+  /* Two even rows of six keys. */
+  .ks{padding:4px 0;min-height:32px;min-width:0;flex:0 0 calc((100% - 20px) / 6);text-align:center;}
+  .hfg-wrap{flex-wrap:wrap;row-gap:4px;}
+  .cp{padding:6px 9px;}
+
+  /* Rhythm track gets the full width; its controls drop to a second line. */
+  #rhythm-track-row.on{flex-wrap:wrap;row-gap:4px;}
+  #rt-track{flex:1 1 100%;}
+  #rt-meta{margin-left:auto;}
+
+  /* Ledger: chips wrap, actions become a grid with no hidden buttons. */
+  #led-seq{flex-wrap:wrap;overflow:visible;flex:1 1 100%;}
+  /* Nine actions → three even rows of three. */
+  #led-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:5px;}
+  #led-acts .pa{padding:4px 2px;letter-spacing:0.08em;min-width:0;white-space:nowrap;}
+}
+/* Phone on its side: too short to stack, so the panel takes the right half as a
+   scrolling column and the solid gets the left half. Both are always visible, so
+   the ◈ toggle isn't needed here. */
+@media (max-height:500px) and (orientation:landscape){
+  #bot,body.solid-front #bot{top:var(--bar-h,76px);bottom:56px;left:50%;right:0;max-height:none;
+    border-top:none;border-left:1px solid var(--border);}
+  #solid-btn{display:none;}
+}
 </style>
 </head>
 <body>
@@ -1179,9 +1273,21 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   <div class="bar-r1">
     <div id="wm">James' Ladder</div>
     <div class="bar-r1-right">
-      <div id="bar-state" title="Pedagogy level · keys opened">
-        <b id="lvl-n">I</b><span class="bs-sep">·</span><span id="fc-sym">◦</span>&thinsp;<b id="fc-n">0</b><span class="bs-slash">/12</span>
+      <!-- One-tap level switch — the I/II/III selector used to live in the top bar
+           before it moved into Settings, which made changing level a three-step trip. -->
+      <div id="lvl-quick" role="group" aria-label="Level">
+        <button class="lq on" id="lq1" onclick="setLevel(1)" aria-pressed="true"
+                title="Level I · Planar Sovereignty — play chords, no folding">I</button>
+        <button class="lq" id="lq2" onclick="setLevel(2)" aria-pressed="false"
+                title="Level II · Modulation Gateway — play a chord, then tap a ghost face to change key">II</button>
+        <button class="lq" id="lq3" onclick="setLevel(3)" aria-pressed="false"
+                title="Level III · Harmonic Advisor — consonance scores on every chord">III</button>
       </div>
+      <div id="bar-state" title="Keys opened">
+        <span id="fc-sym">◦</span>&thinsp;<b id="fc-n">0</b><span class="bs-slash">/12</span>
+      </div>
+      <button id="solid-btn" onclick="toggleSolidFront()" aria-pressed="false"
+              title="Bring the solid forward to tap its faces">◈</button>
       <button id="stop-all-btn" onclick="stopAll()" title="Stop all sound — transports, drone, and any queued progression">■</button>
       <button id="settings-btn" onclick="toggleSettings()" title="Level, modulation, view and session controls">⚙</button>
     </div>
@@ -1667,6 +1773,8 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <div id="led-acts">
       <button class="pa" onclick="playLedger()">▶ Play</button>
       <button class="pa" id="led-loop-btn" onclick="toggleLoop()">⟳ Loop</button>
+      <button class="pa pa-stop" id="led-stop-btn" onclick="stopAll()"
+              title="Stop all sound — playback, loop, sequencer, drone and metronome">■ Stop</button>
       <button class="pa pa-danger" id="led-remove-btn" onclick="removeSelected()"
               title="Remove the selected chord" disabled>✕ Remove</button>
       <button class="pa" onclick="undoLast()">↩ Undo</button>
@@ -2363,11 +2471,14 @@ function anythingPlaying(){
       || (typeof metroPlaying!=='undefined' && metroPlaying)
       || (typeof droneActive !=='undefined' && droneActive)
       || (typeof macroTimerActive!=='undefined' && macroTimerActive)
-      || _liveTimers.size>0;
+      || _liveTimers.size>0
+      // One-shot playback (▶ Play, previews) schedules its voices straight onto
+      // the audio clock with no transport flag, so count sounding voices too.
+      || _liveVoices.size>0;
 }
 function syncStopButton(){
   const active=anythingPlaying();
-  ['stop-all-btn','snd-stop-btn'].forEach(id=>{
+  ['stop-all-btn','snd-stop-btn','led-stop-btn'].forEach(id=>{
     const b=document.getElementById(id);
     if(b)b.classList.toggle('armed',active);
   });
@@ -2463,7 +2574,68 @@ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 document.getElementById('three').appendChild(renderer.domElement);
-window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);updateBubbles();});
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);fitSolidToSpace();});
+
+// ── FIT THE SOLID TO THE SPACE LEFT OVER (phones) ──
+// The solid is centred on the whole window, which on a phone put it half behind
+// the chord panel and spilling off both sides. On phone-sized screens it is now
+// centred in the band between the top bar and the panel and scaled to fit it.
+// When that band is too thin to be useful the solid moves behind the panel as a
+// background (body.solid-bg makes the panel translucent so it still shows).
+// Desktop keeps the original framing. Wheel and pinch zoom still work on top of
+// this: they move the camera, while the fit only sets camera.zoom.
+const PHONE_MQ=matchMedia('(max-width:700px), (max-height:500px)');
+const SOLID_MIN_BAND=220;   // px — below this the solid goes to the background
+
+// ◈ — on a phone, shrink the panel so the solid comes forward and its faces can
+// be tapped (opening a key, folding to a ghost face). Tap again to send it back.
+function toggleSolidFront(){
+  const on=!document.body.classList.contains('solid-front');
+  document.body.classList.toggle('solid-front',on);
+  const b=document.getElementById('solid-btn');
+  if(b){ b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); }
+  fitSolidToSpace();
+  setSt(on?'solid forward · tap its faces · ◈ to send it back':'chords forward');
+}
+function fitSolidToSpace(){
+  const W=innerWidth,H=innerHeight;
+  const bar=document.getElementById('bar');
+  const barH=bar?bar.getBoundingClientRect().height:0;
+  document.documentElement.style.setProperty('--bar-h',Math.round(barH)+'px');
+
+  if(!PHONE_MQ.matches){
+    camera.zoom=1;
+    camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+    document.body.classList.remove('solid-bg');
+    updateBubbles();
+    return;
+  }
+  const nav=document.getElementById('bottom-nav');
+  const bot=document.getElementById('bot');
+  const navTop=nav?nav.getBoundingClientRect().top:H;
+  // (offsetParent is always null for position:fixed, so check display instead.)
+  const botR=(bot&&getComputedStyle(bot).display!=='none')?bot.getBoundingClientRect():null;
+  // Free area: above the panel when it is stacked at the bottom (portrait), or to
+  // its left when it is a side column (phone on its side).
+  const side=!!(botR&&botR.height&&botR.left>W*0.25);
+  let L=0, R=side?botR.left:W, T=barH;
+  let B=side?navTop:((botR&&botR.height)?botR.top:navTop);
+  const bg=Math.min(R-L,B-T)<SOLID_MIN_BAND;
+  if(bg){ L=0; R=W; B=navTop; }   // background: centre behind the panel instead
+  const cx=(L+R)/2, cy=(T+B)/2;
+
+  // Projected diameter at zoom 1 from the default distance (a little over 2R,
+  // since the near vertices project larger), then scale to fit the free area.
+  const pxPerUnit=H/(2*5.2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
+  const diam=2*RADIUS*1.08*pxPerUnit;
+  camera.zoom=Math.min(1,(0.86*Math.max(1,Math.min(R-L,B-T)))/diam);
+  // Shift the frame so the solid's centre lands in the middle of the free area.
+  camera.setViewOffset(W,H,W/2-cx,H/2-cy,W,H);
+  camera.updateProjectionMatrix();
+  document.body.classList.toggle('solid-bg',bg);
+  updateBubbles();
+}
 const group=new THREE.Group();scene.add(group);
 
 // ═══════════════════════════════════════════════════════════
@@ -3273,7 +3445,10 @@ function setSt(m){const el=document.getElementById('status');if(el)el.textConten
 const LN=['','Planar Sovereignty','Modulation Gateway','Harmonic Advisor'];
 const LC=['','I','II','III'];
 function syncLevelUI(){
-  const n=document.getElementById('lvl-n');if(n)n.textContent=LC[pedagogyLevel];
+  [1,2,3].forEach(i=>{
+    const b=document.getElementById('lq'+i);
+    if(b){ b.classList.toggle('on',i===pedagogyLevel); b.setAttribute('aria-pressed',String(i===pedagogyLevel)); }
+  });
   const lt=document.getElementById('lvl-tag');if(lt)lt.innerHTML=`Level&thinsp;<b>${LC[pedagogyLevel]}</b>&thinsp;·&thinsp;${LN[pedagogyLevel]}`;
   updateWorldIndicator();   // keeps the compact readout's tooltip in step
   ['ls1','ls2','ls3'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',i+1===pedagogyLevel);});
@@ -3528,6 +3703,30 @@ rd.addEventListener('wheel',e=>{
   el.addEventListener('touchmove', e=>{ e.stopPropagation(); },{passive:true});
 });
 
+// ── WHEEL → SIDEWAYS SCROLL ──
+// The chord strips (keys, chord pills, neighbours, ledger, rhythm track, button
+// rows) scroll sideways with hidden scrollbars, which a mouse wheel can't reach.
+// Over any such strip a vertical wheel turn scrolls it sideways instead. At either
+// end the event passes through, so the page or panel underneath still scrolls.
+document.addEventListener('wheel',e=>{
+  // Ctrl+wheel is zoom, and trackpad sideways swipes already work natively.
+  if(e.ctrlKey||Math.abs(e.deltaX)>=Math.abs(e.deltaY)) return;
+  for(let el=e.target instanceof Element?e.target:null; el&&el!==document.body; el=el.parentElement){
+    if(el.scrollWidth<=el.clientWidth+1) continue;
+    const cs=getComputedStyle(el);
+    if(cs.overflowX!=='auto'&&cs.overflowX!=='scroll') continue;
+    // A panel that scrolls vertically keeps its normal wheel behaviour.
+    if((cs.overflowY==='auto'||cs.overflowY==='scroll')&&el.scrollHeight>el.clientHeight+1) return;
+    const unit=e.deltaMode===1?16:e.deltaMode===2?el.clientWidth:1;
+    const dx=e.deltaY*unit;
+    const max=el.scrollWidth-el.clientWidth;
+    if((dx<0&&el.scrollLeft<=0)||(dx>0&&el.scrollLeft>=max-1)) return;
+    e.preventDefault();
+    el.scrollLeft=Math.max(0,Math.min(max,el.scrollLeft+dx));
+    return;
+  }
+},{passive:false});
+
 // ── TOUCH — single finger rotate, two-finger pinch zoom ──
 let pinchDist0=0;
 rd.addEventListener('touchstart',e=>{
@@ -3636,6 +3835,15 @@ function animate(){
   }
 }
 animate();
+
+// Refit the solid whenever the bars or the chord panel change height — chords
+// added, a row opened, the status line wrapping — not just on window resize.
+if(window.ResizeObserver){
+  const solidRO=new ResizeObserver(()=>fitSolidToSpace());
+  ['bar','bot','bottom-nav'].forEach(id=>{ const el=document.getElementById(id); if(el) solidRO.observe(el); });
+}
+if(PHONE_MQ.addEventListener) PHONE_MQ.addEventListener('change',fitSolidToSpace);
+fitSolidToSpace();
 
 // ═══════════════════════════════════════════════════════════
 // LEDGER & UNDO
@@ -3989,15 +4197,17 @@ function renderChordSubs(e){
         (s.diatonic?`<span class="cc-sub-diatonic">${s.roman} in key</span>`:'')+
       `</span>`+
       (isSel
-        ? `<button class="cc-sub-swap">⇄ Replace</button>`
+        ? `<span class="cc-sub-btns">`+
+            `<button class="cc-sub-swap" data-act="replace">⇄ Replace</button>`+
+            `<button class="cc-sub-swap" data-act="add">＋ Add next</button>`+
+          `</span>`
         : `<span class="cc-sub-cost">${ct} shared · ${s.cost} st</span>`);
     row.title=`${sym} — ${s.label}${ct?` · shares ${s.common.join(', ')}`:' · no shared notes'} · ${s.cost} semitones`;
     row.onclick=ev=>{
       ev.stopPropagation();
-      if(ev.target.classList.contains('cc-sub-swap')){
-        replaceLedgerChord(s.note, s.qual);
-        return;
-      }
+      const act=ev.target.closest('.cc-sub-swap')?.dataset.act;
+      if(act==='replace'){ replaceLedgerChord(s.note, s.qual); return; }
+      if(act==='add'){ insertLedgerChordAfter(s.note, s.qual); return; }
       ccSelectedSub=(ccSelectedSub===i)?null:i;
       if(ccSelectedSub!==null){
         playChord(s.note, s.qual);
@@ -4007,6 +4217,43 @@ function renderChordSubs(e){
     };
     wrap.appendChild(row);
   });
+}
+
+// Insert one of this chord's substitutions straight after it. The card then moves
+// to the new chord, so the next pick carries the progression on from there.
+// ↩ Undo removes it again.
+function insertLedgerChordAfter(note, qual){
+  if(chordCardIdx===null) return;
+  const i=chordCardIdx, e=ledger[i];
+  if(!_isChordEntry(e)) return;
+  const sym=chordSymbol(displayNote(note), qual);
+  const rec=_rememberLedger(`add ${sym}`);
+
+  let at=i+1, key=e.key||curKey;
+  if(e.type==='pivot'){
+    // A pivot leads into a new key; the chord after it belongs there, past the
+    // key-change marker, so the pivot stays the last chord of the old key.
+    key=e.destKey||e.originKey||curKey;
+    if(ledger[at]&&ledger[at].type==='keymod') at++;
+  }
+  ledger.splice(at,0,{type:'chord',roman:romanAny(note,key,qual),note,qual,key,fi:FKEY.indexOf(key)});
+  _armLedgerUndo(rec);
+
+  const isLast=!ledger.slice(at+1).some(_isChordEntry);
+  if(isLast){
+    lastChord={roman:ledger[at].roman,note,qual,key};
+    updatePLRStrip(note,qual);
+  }
+  selectedLedgerIdx=at;
+  ccSelectedSub=null;
+  playChord(note,qual);
+  renderLedger();
+  renderChordStrip(curKey);
+  updateGrimoire();
+  applyGenreTints();
+  if(pedagogyLevel===3) updateVLDots();
+  openChordCard(at);
+  setSt(`${entrySymbol(e)} → ${sym} added · ↩ Undo removes it`);
 }
 
 // Swap the chord this card describes for one of its substitutions, in place.
@@ -4086,7 +4333,13 @@ function replaceLedgerChord(note, qual){
 //   score = 0.6·tonal + 0.4·fit
 // ═══════════════════════════════════════════════════════════
 let xposeTarget=null;   // signed semitone shift picked in the sheet
-let xposeUndo=null;     // {before, after, anchor} — lets ↩ Undo reverse a whole transpose
+// One-step snapshot so ↩ Undo can reverse a whole transpose or a mid-sequence
+// removal, not just pop the last entry: {before, after, anchor, label}.
+let ledgerUndo=null;
+function _rememberLedger(label){
+  return {before:JSON.stringify(ledger), anchor:tonicAnchor?{...tonicAnchor}:null, label};
+}
+function _armLedgerUndo(rec){ rec.after=JSON.stringify(ledger); ledgerUndo=rec; }
 
 function _isChordEntry(e){ return !!e&&(e.type==='chord'||e.type==='pivot'); }
 function _shiftNote(note,shift){
@@ -4275,8 +4528,7 @@ function commitTranspose(mode){
   const src=ledger.filter(_isChordEntry);
   if(!src.length) return;
 
-  const before=JSON.stringify(ledger);
-  const prevAnchor=tonicAnchor?{...tonicAnchor}:null;
+  const undoRec=_rememberLedger('transpose');
   const moved=ledger.map(e=>transposeEntry(e,shift));
   const fromSym=entrySymbol(src[0]);
 
@@ -4297,7 +4549,7 @@ function commitTranspose(mode){
     ledger.push(...moved);
   }
 
-  xposeUndo={before, after:JSON.stringify(ledger), anchor:prevAnchor};
+  _armLedgerUndo(undoRec);
   _afterLedgerRewrite();
   closeTranspose();
   const toSym=entrySymbol(moved.find(_isChordEntry));
@@ -4321,16 +4573,17 @@ function _afterLedgerRewrite(){
   if(pedagogyLevel===3) updateVLDots();
 }
 
-// Undo reverses a whole transpose in one step, as long as nothing has touched the
+// Undo restores the snapshot in one step, as long as nothing has touched the
 // ledger since. Returns true if it did.
-function undoTranspose(){
-  if(!xposeUndo) return false;
-  if(JSON.stringify(ledger)!==xposeUndo.after){ xposeUndo=null; return false; }
-  ledger.splice(0,ledger.length,...JSON.parse(xposeUndo.before));
-  tonicAnchor=xposeUndo.anchor;
-  xposeUndo=null;
+function undoLedgerSnapshot(){
+  if(!ledgerUndo) return false;
+  if(JSON.stringify(ledger)!==ledgerUndo.after){ ledgerUndo=null; return false; }
+  const label=ledgerUndo.label;
+  ledger.splice(0,ledger.length,...JSON.parse(ledgerUndo.before));
+  tonicAnchor=ledgerUndo.anchor;
+  ledgerUndo=null;
   _afterLedgerRewrite();
-  setSt('transpose undone');
+  setSt(`${label} undone`);
   return true;
 }
 
@@ -4368,7 +4621,10 @@ function renderRhythmTrack(){
       (fig!=='hold'?`<span class="rt-seg-fig">${FIGURE_GLYPH[fig]}</span>`:'');
     seg.title=`${sym} · ${beats} beat${beats===1?'':'s'} · ${FIGURE_NAME[fig]}`;
     seg.dataset.idx=i;
-    seg.onclick=ev=>{ ev.stopPropagation(); selectLedgerEntry(i); };
+    seg.onclick=ev=>{ ev.stopPropagation(); if(holdConsumedClick()) return; selectLedgerEntry(i); };
+    // Animate the matching ledger chip out, looked up when the removal happens.
+    attachHoldToRemove(seg,i,()=>document.querySelectorAll('#led-seq > *')[i]||null);
+    seg.title+=' · hold or right-click to remove';
     track.appendChild(seg);
     running+=beats;
   });
@@ -4602,7 +4858,9 @@ function removeSelected(){
   if(selectedLedgerIdx===null)return;
   const i=selectedLedgerIdx;
   selectedLedgerIdx=null;
-  removeLedgerEntry(i,document.querySelectorAll('#led-seq .le')[i]||null);
+  // Every ledger entry (key-change bands included) renders one child, so index by
+  // child rather than by .le, which skips the bands and points at the wrong chip.
+  removeLedgerEntry(i,document.querySelectorAll('#led-seq > *')[i]||null);
 }
 
 function renderLedger(){
@@ -4631,7 +4889,9 @@ function renderLedger(){
       d.title=isPivot
         ? `${sym} — ${e.roman} in ${transposedKey(e.originKey)} = ${e.romanInDest} in ${transposedKey(e.destKey)} · tap to hear`
         : `${sym} — ${e.roman} in ${transposedKey(e.key||'C')}${score!=null?` · consonance ${score}%`:''} · tap to hear`;
-      d.onclick=ev=>{ev.stopPropagation();selectLedgerEntry(i);};
+      d.onclick=ev=>{ev.stopPropagation();if(holdConsumedClick())return;selectLedgerEntry(i);};
+      attachHoldToRemove(d,i,d);
+      d.title+=' · hold or right-click to remove';
     } else {
       // Key change → a labelled divider, so the chords either side group visually.
       d.className='le-keyband';
@@ -4661,13 +4921,76 @@ function renderLedger(){
 
 function removeLedgerEntry(idx,el){
   if(idx<0||idx>=ledger.length)return;
+  const e=ledger[idx];
+  const sym=_isChordEntry(e)?entrySymbol(e):'key change';
+  // Snapshot first so ↩ Undo can put a mid-sequence chord back where it was.
+  const rec=_rememberLedger(`remove ${sym}`);
+  const commit=()=>{
+    // Bail if the ledger shifted under the animation (e.g. a second fast removal).
+    if(ledger[idx]!==e) return;
+    _commitRemove(idx);
+    _armLedgerUndo(rec);
+    setSt(`removed ${sym} · ↩ Undo to restore`);
+  };
   // Animate out then commit removal
   if(el){
     el.classList.add('removing');
-    setTimeout(()=>_commitRemove(idx),150);
+    setTimeout(commit,150);
   } else {
-    _commitRemove(idx);
+    commit();
   }
+}
+
+// ── HOLD OR RIGHT-CLICK TO REMOVE ──
+// Press and hold a chord in the ledger or the rhythm track (finger or mouse) to
+// remove it — the touch-screen counterpart of right-click. The chip fills red while
+// held so a removal is never a surprise; lifting early or dragging cancels it.
+// Android also fires contextmenu on a long press, so whichever of the hold timer and
+// contextmenu arrives first does the removal and the other is ignored.
+const HOLD_MS=550;
+const _hold={timer:null, fired:false, el:null};
+function _holdCancel(){
+  if(_hold.timer){ clearTimeout(_hold.timer); _hold.timer=null; }
+  if(_hold.el) _hold.el.classList.remove('holding');
+}
+function _holdRemove(idx,chipEl){
+  _holdCancel();
+  _hold.fired=true;
+  // A short buzz confirms the removal; browsers only allow it after a real tap.
+  try{
+    const active=!navigator.userActivation||navigator.userActivation.hasBeenActive;
+    if(navigator.vibrate&&active) navigator.vibrate(18);
+  }catch(e){}
+  if(selectedLedgerIdx===idx) selectedLedgerIdx=null;
+  removeLedgerEntry(idx,typeof chipEl==='function'?chipEl():chipEl);
+}
+function attachHoldToRemove(el,idx,chipEl){
+  let sx=0, sy=0;
+  el.addEventListener('pointerdown',ev=>{
+    _holdCancel();
+    _hold.fired=false;
+    if(ev.button!==0) return;              // right button goes through contextmenu
+    sx=ev.clientX; sy=ev.clientY; _hold.el=el;
+    el.classList.add('holding');
+    _hold.timer=setTimeout(()=>_holdRemove(idx,chipEl),HOLD_MS);
+  });
+  el.addEventListener('pointermove',ev=>{
+    if(_hold.timer&&_hold.el===el&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>10) _holdCancel();
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>
+    el.addEventListener(t,()=>{ if(_hold.el===el) _holdCancel(); }));
+  el.addEventListener('contextmenu',ev=>{
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(_hold.fired) return;
+    _holdRemove(idx,chipEl);
+  });
+}
+// The click that ends a completed hold must not also select the chord.
+function holdConsumedClick(){
+  if(!_hold.fired) return false;
+  _hold.fired=false;
+  return true;
 }
 
 function _commitRemove(idx){
@@ -4902,7 +5225,7 @@ function setChordBeats(n){
   });
 }
 function undoLast(){
-  if(undoTranspose()) return;
+  if(undoLedgerSnapshot()) return;
   if(builtFaces.length>0){
     const rec=builtFaces.pop();faceRecord[rec.fi]=null;builtSet.delete(rec.fi);animClock[rec.fi]=null;flashState[rec.fi]=null;
     destroyBubbleSet(rec.fi);destroySignifier(rec.fi);activeFace=builtFaces.length?builtFaces[builtFaces.length-1].fi:-1;curKey=activeFace>=0?FKEY[activeFace]:'C';
