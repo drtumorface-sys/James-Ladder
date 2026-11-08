@@ -52,6 +52,19 @@ committed to the audio clock stops immediately.
   **⧉ Duplicate** branches a variation; ✕ twice deletes.
 - Sketches live on this device only (browser / app storage). Nothing is uploaded.
 
+## Instruments — Synth, Piano, Guitar, Nylon
+
+- Pick one on **Sound → Instrument**, or tap **♪** in the ledger buttons to cycle through them.
+  Each sketch remembers its instrument.
+- **Piano** and the two **guitars** are recordings (one every few semitones, re-pitched to fill the
+  gaps), so chords, ▶ Play, ⟳ Loop, Rhythm's ＋ Chords, ear drills and Voicing all sound real.
+- Guitars play the chord **shapes a guitarist would use** (open chords, otherwise E- or A-shape
+  barres) and strum low to high; the *Pulse* figure alternates down and up strums.
+- In Learn, the **Guitar** tab always sounds like a guitar and the **Keyboard** tab like a piano.
+- Each set (1–2 MB) downloads the first time it's chosen and is then cached for offline use, in a
+  cache that survives app updates. The synth plays until it's ready. Soft Tone rounds samples off
+  too. Credits and licences: [samples/CREDITS.txt](samples/CREDITS.txt) and the privacy page.
+
 ## Offline and privacy
 
 - Three.js (`vendor/`) and the fonts (`fonts/`, SIL OFL) ship with the app, so it starts with no

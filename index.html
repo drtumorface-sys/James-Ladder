@@ -1632,7 +1632,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
         <button class="tb set-wide" onclick="closeSettings();openSketches()">▤ My sketches</button>
         <button class="tb set-wide" id="reset-btn" onclick="closeSettings();newSketch()">＋ New sketch</button>
       </div>
-      <a class="set-link" href="privacy.html" target="_blank" rel="noopener">Privacy &amp; support</a>
+      <a class="set-link" href="privacy.html" target="_blank" rel="noopener">Privacy, support &amp; credits</a>
 
     </div>
   </div>
@@ -2074,6 +2074,8 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     <div id="led-acts">
       <button class="pa" onclick="playLedger()">▶ Play</button>
       <button class="pa" id="led-loop-btn" onclick="toggleLoop()">⟳ Loop</button>
+      <button class="pa pa-copy" id="led-inst-btn" onclick="cycleInstrument()"
+              title="Instrument — tap to switch between Synth, Piano, Guitar and Nylon guitar">♪ Synth</button>
       <button class="pa pa-stop" id="led-stop-btn" onclick="stopAll()"
               title="Stop all sound — playback, loop, sequencer, drone and metronome">■ Stop</button>
       <button class="pa pa-danger" id="led-remove-btn" onclick="removeSelected()"
@@ -2134,6 +2136,15 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   <div id="sound-body">
 
     <button id="snd-stop-btn" class="snd-stop" onclick="stopAll()">■ Stop All Sound</button>
+
+    <div class="s-section">Instrument</div>
+    <div class="snd-seg" id="inst-seg" role="group" aria-label="Instrument">
+      <button class="snd-seg-btn on" data-inst="synth"  onclick="setInstrument('synth')">Synth</button>
+      <button class="snd-seg-btn"    data-inst="piano"  onclick="setInstrument('piano')">Piano</button>
+      <button class="snd-seg-btn"    data-inst="guitar" onclick="setInstrument('guitar')">Guitar</button>
+      <button class="snd-seg-btn"    data-inst="nylon"  onclick="setInstrument('nylon')">Nylon</button>
+    </div>
+    <p class="snb-hint snd-hint">Chords, playback and ear drills all use it. Guitars strum real chord shapes. Recorded sounds download once (1–2 MB), then work offline.</p>
 
     <!-- ── TRANSPORT ── -->
     <div class="s-section">Tempo</div>
@@ -2861,11 +2872,198 @@ function playDrum(id,vel=1,when){
   fn(when!=null?when:voiceTime(0.01), vel);
 }
 
+// ═══════════════════════════════════════════════════════════
+// INSTRUMENTS — recorded piano and guitars, or the original synth
+//
+// Every pitched sound goes through harmonicVoice(), so swapping its insides is
+// enough for chords, ▶ Play, ⟳ Loop, Rhythm, drills and Learn to all follow the
+// chosen instrument. Each set holds one recording every few semitones; a note
+// plays the nearest one, re-pitched. Sets load only when first chosen and are
+// then cached for offline use. Until a set is ready the synth fills in.
+// Credits and licences: samples/CREDITS.txt (also on privacy.html).
+// ═══════════════════════════════════════════════════════════
+const INSTRUMENTS={
+  synth: {name:'Synth'},
+  piano: {name:'Piano',  dir:'samples/piano/',  release:0.32, trim:0.9,
+          notes:['A1','C2','Ds2','Fs2','A2','C3','Ds3','Fs3','A3','C4','Ds4','Fs4','A4','C5','Ds5','Fs5','A5','C6']},
+  guitar:{name:'Guitar', dir:'samples/guitar/', release:0.22, trim:1.0, strings:true,
+          notes:['E2','G2','As2','Cs3','E3','G3','As3','Cs4','E4','G4','As4','Cs5']},
+  nylon: {name:'Nylon',  dir:'samples/nylon/',  release:0.22, trim:1.0, strings:true,
+          notes:['E2','Gs2','B2','D3','Fs3','A3','Cs4','E4','Gs4','B4','D5','Fs5']},
+};
+const INSTRUMENT_ORDER=['synth','piano','guitar','nylon'];
+const SAMPLE_OPEN_FC=16000, SAMPLE_SOFT_FC=2600;   // Soft Tone rounds samples off here
+// var, not let: harmonicVoice reads these, and must never hit a not-yet-declared name.
+var instrument='synth';
+var _voiceInst=null;          // a temporary override (Learn's guitar and keyboard taps)
+let _sampleBus=null;          // samples → lowpass (Soft Tone) → Chords level
+
+function _curInst(){ return _voiceInst||instrument; }
+function _isStrings(){ const i=INSTRUMENTS[_curInst()]; return !!(i&&i.strings); }
+function _withInstrument(id,fn){
+  const prev=_voiceInst; _voiceInst=INSTRUMENTS[id]?id:null;
+  try{ return fn(); } finally { _voiceInst=prev; }
+}
+function _noteMidi(n){
+  const m=/^([A-G])(s?)(-?\d)$/.exec(n);
+  return 12*(+m[3]+1)+{C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]+(m[2]?1:0);
+}
+function _sampleOut(){
+  const a=getAC();
+  if(!_sampleBus){
+    _sampleBus=a.createBiquadFilter(); _sampleBus.type='lowpass'; _sampleBus.Q.value=0.5;
+    _sampleBus.frequency.value=softMode?SAMPLE_SOFT_FC:SAMPLE_OPEN_FC;
+    _sampleBus.connect(_harmonicGain);
+  }
+  return _sampleBus;
+}
+
+// Decoding uses its own offline context, so loading at startup doesn't create
+// (and get blocked starting) the main audio context before the first tap.
+let _decodeCtx=null;
+function _decode(buf){
+  if(!_decodeCtx){
+    _decodeCtx=_ac||new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(1,1,44100);
+  }
+  return new Promise((res,rej)=>{
+    const p=_decodeCtx.decodeAudioData(buf,res,rej);   // callback form for older Safari
+    if(p&&p.then) p.then(res,rej);
+  });
+}
+// Each recording is cut down to mono, starting where the note really starts (MP3s
+// carry a little silence) and lasting SAMPLE_SECS with a fade at the end. The raw
+// files run up to 23 s in stereo: kept whole, the piano alone would take over
+// 100 MB of memory on a phone. Also sets a gain that matches its loudness over
+// the first 0.4 s to the synth's.
+const SAMPLE_SECS=6;
+function _analyseSample(buf,midi){
+  const sr=buf.sampleRate, chs=buf.numberOfChannels, L=buf.length;
+  const src=[]; for(let c=0;c<chs;c++) src.push(buf.getChannelData(c));
+  let peak=0;
+  for(let i=0;i<L;i++){ let v=0; for(let c=0;c<chs;c++) v+=src[c][i]; v=Math.abs(v/chs); if(v>peak) peak=v; }
+  const th=peak*0.03; let on=0;
+  while(on<L){ let v=0; for(let c=0;c<chs;c++) v+=src[c][on]; if(Math.abs(v/chs)>=th) break; on++; }
+  on=Math.max(0,on-Math.round(sr*0.002));
+  const len=Math.max(1,Math.min(L-on,Math.round(sr*SAMPLE_SECS)));
+  const out=_decodeCtx.createBuffer(1,len,sr), d=out.getChannelData(0);
+  const fade=Math.min(len,Math.round(sr*0.4));
+  let ss=0; const nR=Math.min(len,Math.round(sr*0.4));
+  for(let i=0;i<len;i++){
+    let v=0; for(let c=0;c<chs;c++) v+=src[c][on+i]; v/=chs;
+    if(i>len-fade) v*=(len-i)/fade;
+    d[i]=v;
+    if(i<nR) ss+=v*v;
+  }
+  const rms=Math.sqrt(ss/Math.max(1,nR))||1e-4;
+  return {midi, buf:out, off:0, gain:0.25/rms, peak:peak*0.25/rms};
+}
+function loadInstrument(id){
+  const ins=INSTRUMENTS[id];
+  if(!ins||!ins.dir) return Promise.resolve(true);
+  if(ins.ready) return Promise.resolve(true);
+  if(ins.loading) return ins.loading;
+  ins.failed=false;
+  ins.loading=Promise.all(ins.notes.map(n=>
+      fetch(ins.dir+n+'.mp3')
+        .then(r=>{ if(!r.ok) throw new Error(n); return r.arrayBuffer(); })
+        .then(_decode)
+        .then(buf=>_analyseSample(buf,_noteMidi(n)))))
+    .then(list=>{ ins.samples=list.sort((a,b)=>a.midi-b.midi); ins.ready=true; ins.loading=null; return true; })
+    .catch(()=>{ ins.loading=null; ins.failed=true; return false; })
+    .finally(()=>{ if(typeof syncInstrumentUI==='function') syncInstrumentUI(); });
+  return ins.loading;
+}
+
+// One recorded note. Returns null (so the synth plays instead) if the set isn't loaded.
+function sampleVoice(id,freq,dur,vol,delay){
+  const ins=INSTRUMENTS[id];
+  if(!ins||!ins.dir) return null;
+  if(!ins.ready){ if(!ins.loading&&!ins.failed) loadInstrument(id); return null; }
+  const a=getAC(), t=voiceTime(delay);
+  const midi=69+12*Math.log2(freq/440);
+  let s=ins.samples[0];
+  for(const x of ins.samples) if(Math.abs(x.midi-midi)<Math.abs(s.midi-midi)) s=x;
+  const src=a.createBufferSource(); src.buffer=s.buf;
+  src.playbackRate.value=Math.pow(2,(midi-s.midi)/12);
+  const g=a.createGain(), lvl=vol*s.gain*ins.trim, hold=Math.max(0.06,dur);
+  src.connect(g); g.connect(_sampleOut());
+  // The recording carries its own attack and decay; this only fades in to avoid a
+  // click and lets go when the note's time is up.
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(lvl,t+0.004);
+  g.gain.setValueAtTime(lvl,t+hold);
+  g.gain.setTargetAtTime(0,t+hold,ins.release/4);
+  const rec=trackVoice(src,g);
+  src.start(t,s.off); src.stop(t+hold+ins.release+0.05);
+  return rec;
+}
+
+// ── GUITAR CHORD SHAPES ──
+// The shapes a guitarist would actually play: the eight classic open chords,
+// otherwise the E-shape or A-shape barre, whichever sits lower on the neck.
+// Frets run low E → high E; -1 is a muted string.
+const GTR_OPEN=[40,45,50,55,59,64];   // E2 A2 D3 G3 B3 E4
+const GTR_OPEN_CHORDS={
+  '0:maj':[-1,3,2,0,1,0],  '2:maj':[-1,-1,0,2,3,2], '4:maj':[0,2,2,1,0,0],
+  '7:maj':[3,2,0,0,0,3],   '9:maj':[-1,0,2,2,2,0],
+  '9:min':[-1,0,2,2,1,0],  '2:min':[-1,-1,0,2,3,1], '4:min':[0,2,2,0,0,0],
+};
+// Movable shapes, as offsets from the fret where the root sits on the 6th (E)
+// or 5th (A) string. null = muted.
+const GTR_BARRE={
+  maj:{E:[0,2,2,1,0,0],       A:[null,0,2,2,2,0]},
+  min:{E:[0,2,2,0,0,0],       A:[null,0,2,2,1,0]},
+  dim:{E:[0,1,2,0,null,null], A:[null,0,1,2,1,null]},
+  aug:{E:[0,3,2,1,1,0],       A:[null,0,-1,-2,-2,null]},
+};
+const _gtrShapeCache=new Map();
+function guitarShape(rootPc, qual){
+  const key=rootPc+':'+qual;
+  if(_gtrShapeCache.has(key)) return _gtrShapeCache.get(key);
+  let frets=GTR_OPEN_CHORDS[key];
+  if(!frets){
+    const sh=GTR_BARRE[qual]||GTR_BARRE.maj;
+    const pick=str=>{
+      // Lowest fret for the root on that string, an octave up if the shape
+      // would reach below the nut.
+      let r=(rootPc-GTR_OPEN[str]%12+12)%12;
+      const offs=sh[str===0?'E':'A'];
+      while(Math.min(...offs.filter(o=>o!=null))+r<0||(r===0&&offs.some(o=>o!=null&&o<0))) r+=12;
+      return {r, frets:offs.map(o=>o==null?-1:o+r)};
+    };
+    const e=pick(0), a=pick(1);
+    frets=(e.r<=a.r?e:a).frets;
+  }
+  const midi=[]; frets.forEach((f,s)=>{ if(f>=0) midi.push(GTR_OPEN[s]+f); });
+  const out={frets, midi};
+  _gtrShapeCache.set(key,out);
+  return out;
+}
+
+function _qualIv(q){ return q==='maj'?[0,4,7]:q==='min'?[0,3,7]:q==='aug'?[0,4,8]:[0,3,6]; }
+// Frequencies for a chord on the current instrument, low to high. Keys and synth
+// keep the app's voicing (bass note + chord around middle C); guitars use a real
+// chord shape. `extra` adds extension intervals above the chord.
+function chordFreqs(root,qual,extra){
+  const f=(HZ[root]||261.63)*Math.pow(2,globalOffset/12);
+  const ext=(extra||[]).map(s=>f*Math.pow(2,s/12));
+  if(_isStrings()){
+    const pc=((Math.round(12*Math.log2(f/261.63))%12)+12)%12;   // sounding pitch class
+    return [...guitarShape(pc,qual||'maj').midi.map(m=>440*Math.pow(2,(m-69)/12)), ...ext];
+  }
+  return [f*0.5, ..._qualIv(qual||'maj').map(s=>f*Math.pow(2,s/12)), ...ext];
+}
+// Seconds between notes when a chord is struck: guitars strum low to high, the
+// piano is nearly together, the synth keeps its original gentle roll.
+function strikeGap(){ return _isStrings()?0.018:_curInst()==='piano'?0.008:0.032; }
+// Six strings shouldn't be louder than four synth voices.
+function stringsVol(vol,n){ return _isStrings()?vol*4/Math.max(4,n):vol; }
+
 // ── HARMONIC VOICE → _harmonicGain ──
 // LP 1800Hz rolls off harsh upper harmonics of triangle (1/n² series)
 // 15ms soft attack, exponential decay scales with dur (A·e^-λt)
-// Declared as let so Soft Mode can reassign without strict-mode duplicate-declaration error
-let harmonicVoice = function(freq, dur, vol, delay=0){
+// The synth. Declared as let so Soft Mode can rebuild it with a new filter.
+let _synthVoice = function(freq, dur, vol, delay=0){
   const a=getAC(), t=voiceTime(delay);
   const o=a.createOscillator(), f=a.createBiquadFilter(), g=a.createGain();
   f.type='lowpass'; f.frequency.value=1800; f.Q.value=1.0;
@@ -2878,6 +3076,12 @@ let harmonicVoice = function(freq, dur, vol, delay=0){
   o.start(t); o.stop(t+dur+0.015);
   return rec;
 };
+// Every pitched note: the chosen instrument's recording, or the synth if that's
+// the choice or the recordings aren't loaded yet.
+function harmonicVoice(freq, dur, vol, delay=0){
+  const id=_curInst();
+  return (id!=='synth'&&sampleVoice(id,freq,dur,vol,delay)) || _synthVoice(freq,dur,vol,delay);
+}
 
 // ── STACCATO VOICE → _harmonicGain (grid-triggered chords) ──
 // Fast 6ms attack; bass note uses lower fc for warmth
@@ -2907,10 +3111,15 @@ function triTone(freq, dur=0.65, vol=0.09, delay=0){
 }
 // playChord → harmonic chain (bubble taps, ledger playback, loop)
 function playChord(root, qual, sched=0){
-  const f=(HZ[root]||261.63)*Math.pow(2,globalOffset/12);
-  const iv=qual==='maj'?[0,4,7]:qual==='min'?[0,3,7]:[0,3,6];
-  harmonicVoice(f*0.5, 1.0, 0.08, sched);
-  iv.forEach((s,i)=>harmonicVoice(f*Math.pow(2,s/12), 0.85, 0.07, sched+i*0.032));
+  const fr=chordFreqs(root,qual), gap=strikeGap();
+  if(_curInst()==='synth'){   // the original sound, unchanged
+    harmonicVoice(fr[0], 1.0, 0.08, sched);
+    fr.slice(1).forEach((f,i)=>harmonicVoice(f, 0.85, 0.07, sched+i*gap));
+    return;
+  }
+  // Recorded instruments ring a little longer, and every note is struck in order.
+  const v=stringsVol(0.075,fr.length);
+  fr.forEach((f,i)=>harmonicVoice(f, 1.5, v, sched+i*gap));
 }
 // playChordStaccato → rhythmic chain (grid hits)
 function playChordStaccato(root, qual, dur){
@@ -6002,17 +6211,15 @@ function entryPitches(e){
   if(Array.isArray(e.voicing)&&e.voicing.length){
     return e.voicing.map(m=>440*Math.pow(2,(m+globalOffset-69)/12));
   }
-  const f=(HZ[e.note]||261.63)*Math.pow(2,globalOffset/12);
-  const q=e.qual||'maj';
-  const iv=q==='maj'?[0,4,7]:q==='min'?[0,3,7]:[0,3,6];
-  return [f*0.5, ...iv.map(s=>f*Math.pow(2,s/12))];
+  return chordFreqs(e.note, e.qual||'maj');
 }
 
 // Render one entry at an offset, honouring its duration and figure.
 function playEntry(e, at, durSec, collect){
   const keep=v=>{ if(collect&&v) collect.push(v); return v; };
   const freqs=entryPitches(e);
-  const vol=0.075*entryAccent(e);
+  const vol=stringsVol(0.075*entryAccent(e), freqs.length);
+  const gap=_curInst()==='synth'?0.03:strikeGap();
   const fig=entryFigure(e);
   const beatSec=60/seqBpm;
 
@@ -6027,10 +6234,12 @@ function playEntry(e, at, durSec, collect){
   } else if(fig==='pulse'){
     const hits=Math.max(1,Math.round(durSec/beatSec));
     for(let h=0;h<hits;h++){
-      freqs.forEach((f,i)=>keep(harmonicVoice(f, Math.min(beatSec*0.7,durSec), vol*0.9, at+h*beatSec+i*0.012)));
+      // Guitars alternate down and up strums.
+      const seq=(_isStrings()&&h%2)?[...freqs].reverse():freqs;
+      seq.forEach((f,i)=>keep(harmonicVoice(f, Math.min(beatSec*0.7,durSec), vol*0.9, at+h*beatSec+i*(_isStrings()?0.014:0.012))));
     }
   } else {
-    freqs.forEach((f,i)=>keep(harmonicVoice(f, durSec*0.96, vol, at+i*0.03)));
+    freqs.forEach((f,i)=>keep(harmonicVoice(f, durSec*0.96, vol, at+i*gap)));
   }
 }
 
@@ -7416,11 +7625,12 @@ function toggleSoftMode(){
   // Soft Tone used to mute the percussion bus outright. Now that the bus carries a
   // drum machine, it rounds the drums off instead of silencing them.
   if(_drumTone) _drumTone.frequency.setTargetAtTime(softMode?DRUM_SOFT_FC:DRUM_OPEN_FC,_ac.currentTime,0.02);
+  if(_sampleBus) _sampleBus.frequency.setTargetAtTime(softMode?SAMPLE_SOFT_FC:SAMPLE_OPEN_FC,_ac.currentTime,0.02);
 }
 
-// Soft Mode overrides harmonicVoice — reassignment is safe because it was declared as let
+// Soft Mode rebuilds the synth voice — reassignment is safe because it was declared as let
 function _buildHarmonicVoice(){
-  harmonicVoice = function(freq, dur, vol, delay=0){
+  _synthVoice = function(freq, dur, vol, delay=0){
     const a=getAC(), t=voiceTime(delay);
     const o=a.createOscillator(), f=a.createBiquadFilter(), g=a.createGain();
     f.type='lowpass';
@@ -8093,12 +8303,10 @@ function setFibExt(level){
 
 // Play a chord with Fibonacci extensions applied
 function playChordExtended(root, qual, sched=0){
-  const baseIv = qual==='maj'?[0,4,7]:qual==='min'?[0,3,7]:[0,3,6];
   const extIv  = (FIB_EXT_SEMIS[qual]||FIB_EXT_SEMIS.maj)[fibExtLevel]||[];
-  const allIv  = [...baseIv, ...extIv];
-  const f = (HZ[root]||261.63)*Math.pow(2,globalOffset/12);
-  harmonicVoice(f*0.5, 1.0, 0.08, sched);
-  allIv.forEach((s,i)=>harmonicVoice(f*Math.pow(2,s/12), 0.85/(1+i*0.1), 0.07, sched+i*0.032));
+  const fr=chordFreqs(root,qual,extIv), gap=strikeGap(), v=stringsVol(0.07,fr.length);
+  harmonicVoice(fr[0], 1.0, _isStrings()?v:0.08, sched);
+  fr.slice(1).forEach((f,i)=>harmonicVoice(f, 0.85/(1+i*0.1), v, sched+(i+(_isStrings()?1:0))*gap));
 }
 
 // Build a Markov-sampled phrase from a genre transition matrix
@@ -8740,7 +8948,7 @@ function showPTab(id){
   if(ctrl) ctrl.style.display = INSTRUMENT_TABS.includes(id) ? '' : 'none';
 
   if(id==='vl'){ _vlDropIfStale(); renderVoiceLeading(); drawVLDiagram(); }
-  if(INSTRUMENT_TABS.includes(id)){ renderInstChips(); instUpdate(); }
+  if(INSTRUMENT_TABS.includes(id)){ renderInstChips(); instUpdate(); loadInstrument(_learnInst()); }
 }
 // Legacy alias — a few call sites still reach for showITab.
 function showITab(id){ showPTab(id); }
@@ -8770,7 +8978,12 @@ function _learnWidth(wrap){
 }
 function _midiHz(m){ return 440*Math.pow(2,(m-69)/12); }
 // One note from a tapped key or fret. These diagrams show sounding pitch, so no capo.
-function learnNote(midi){ harmonicVoice(_midiHz(midi), 1.0, 0.09, 0); }
+function learnNote(midi, inst){ _withInstrument(inst, ()=>harmonicVoice(_midiHz(midi), 1.2, 0.09, 0)); }
+// Guitar taps play a guitar (nylon if that's the chosen sound), keyboard taps a piano.
+function _learnInst(){
+  const t=_learnTab();
+  return t==='guitar'?(instrument==='nylon'?'nylon':'guitar'):t==='piano'?'piano':null;
+}
 // A stored note as it sounds with the capo applied.
 function _soundName(note){ return CHROM[((KS[note]??0)+globalOffset+120)%12]; }
 
@@ -8814,10 +9027,14 @@ function buildEarGrid(){
 }
 
 function _earSound(c){
-  const f = (HZ[c.root]||261.63) * Math.pow(2, globalOffset/12);
-  const iv = c.qual==='maj'?[0,4,7]:c.qual==='min'?[0,3,7]:c.qual==='dim'?[0,3,6]:[0,4,8];
-  harmonicVoice(f*0.5, 1.2, 0.08, 0);
-  iv.forEach((s,i)=> harmonicVoice(f*Math.pow(2,s/12), 1.0, 0.07, i*0.04));
+  const fr = chordFreqs(c.root, c.qual);
+  if(_curInst()==='synth'){
+    harmonicVoice(fr[0], 1.2, 0.08, 0);
+    fr.slice(1).forEach((f,i)=> harmonicVoice(f, 1.0, 0.07, i*0.04));
+    return;
+  }
+  const v=stringsVol(0.075,fr.length), gap=strikeGap();
+  fr.forEach((f,i)=> harmonicVoice(f, 1.6, v, i*gap));
 }
 
 function earPlay(){
@@ -9515,7 +9732,7 @@ function renderInstChips(){
     const b = ev.target.closest('.inst-chip'); if(!b) return;
     const i = +b.dataset.i, c = ch[i];
     if(i < 0 || (instChord && c && instChord.pc===c.pc && instChord.qual===c.qual)) instChord = null;
-    else { instChord = c; playChord(c.note, c.qual); }
+    else { instChord = c; _withInstrument(_learnInst(), ()=>playChord(c.note, c.qual)); }
     renderInstChips();
     instUpdate();
   };
@@ -9706,7 +9923,7 @@ function drawGuitar(){
     }
     if(!best || bd > Math.max(22, _gtrGeom.R * 1.8)) return;
     const midi = GUITAR_MIDI[best.s] + best.f;
-    learnNote(midi);
+    learnNote(midi, _learnInst());
     _flashTap('g', best.s, best.f, drawGuitar);
     setSt(`${midiName(midi)} · string ${6 - best.s}, ${best.f ? 'fret ' + best.f : 'open'}`);
   };
@@ -9788,7 +10005,7 @@ function drawPiano(){
     let k = py <= g.BH ? g.blacks.find(b=> px >= b.x && px <= b.x + g.BW) : null;
     if(!k && py <= g.WH) k = g.whites.find(w=> px >= w.x && px < w.x + g.WW);
     if(!k) return;
-    learnNote(k.midi);
+    learnNote(k.midi, _learnInst());
     _flashTap('p', k.midi, 0, drawPiano);
     setSt(`${midiName(k.midi)}`);
   };
@@ -9812,7 +10029,7 @@ function drawDegrees(){
   }).join('');
   grid.onclick = ev=>{
     const b = ev.target.closest('.deg-card'); if(!b) return;
-    learnNote(+b.dataset.midi);
+    learnNote(+b.dataset.midi, _learnInst());
   };
 }
 
@@ -10415,6 +10632,57 @@ function toggleIcos(){
   }
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// INSTRUMENT SWITCH — Sound screen and the ♪ button on Play
+// ═══════════════════════════════════════════════════════════
+const INST_KEY='jl-inst';
+function setInstrument(id,opts){
+  const quiet=!!(opts&&opts.quiet);
+  if(!INSTRUMENTS[id]) id='synth';
+  instrument=id;
+  try{ localStorage.setItem(INST_KEY,id); }catch(e){}
+  const ins=INSTRUMENTS[id];
+  if(ins.dir&&!ins.ready){
+    if(!quiet) setSt(`loading ${ins.name}… the synth plays until it's ready`);
+    ins.failed=false;
+    loadInstrument(id).then(ok=>{
+      if(instrument!==id||quiet) return;
+      if(ok){ setSt(`instrument · ${ins.name}`); _instPreview(); }
+      else setSt(`couldn't load ${ins.name} · check the connection and tap it again · the synth plays meanwhile`);
+    });
+  } else if(!quiet){
+    setSt(`instrument · ${ins.name}`); _instPreview();
+  }
+  syncInstrumentUI();
+}
+function cycleInstrument(){
+  const i=INSTRUMENT_ORDER.indexOf(instrument);
+  setInstrument(INSTRUMENT_ORDER[(i+1)%INSTRUMENT_ORDER.length]);
+}
+// Play the last chord (or C) so the change is heard straight away.
+function _instPreview(){
+  const c=lastChord||{note:'C',qual:'maj'};
+  playChord(c.note,c.qual||'maj');
+}
+function syncInstrumentUI(){
+  const ins=INSTRUMENTS[instrument];
+  const busy=!!(ins.dir&&!ins.ready&&ins.loading);
+  const b=document.getElementById('led-inst-btn');
+  if(b){ b.textContent=`♪ ${ins.name}${busy?'…':''}`; b.setAttribute('aria-label',`Instrument: ${ins.name}. Tap to change.`); }
+  document.querySelectorAll('#inst-seg [data-inst]').forEach(x=>{
+    const on=x.dataset.inst===instrument;
+    x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on));
+    const it=INSTRUMENTS[x.dataset.inst];
+    x.classList.toggle('loading',!!(it.dir&&!it.ready&&it.loading));
+  });
+}
+(function initInstrument(){
+  let saved='synth';
+  try{ saved=localStorage.getItem(INST_KEY)||'synth'; }catch(e){}
+  setInstrument(saved,{quiet:true});
+})();
+
 // ═══════════════════════════════════════════════════════════
 // SKETCHES — the progression is saved on this device as you work
 //
@@ -10448,7 +10716,7 @@ function _sketchState(){
     faces:builtFaces.map(f=>({fi:f.fi, key:f.key})),
     active:activeFace, key:curKey, capo:globalOffset,
     anchor:tonicAnchor?{...tonicAnchor}:null,
-    bpm:seqBpm, beats:chordBeats, drums:_drumState(),
+    bpm:seqBpm, beats:chordBeats, drums:_drumState(), inst:instrument,
   };
 }
 function _skIsEmpty(st){ return !st.ledger.length&&!st.faces.length; }
@@ -10493,6 +10761,7 @@ function _applySketchState(st){
     if(typeof st.bpm==='number'&&st.bpm>=30&&st.bpm<=300) setBpm(st.bpm);
     if([1,2,4,8].includes(st.beats)) setChordBeats(st.beats);
     if(st.drums&&_applyDrumState(st.drums)){ renderDrums(); saveDrums(); }
+    if(st.inst&&INSTRUMENTS[st.inst]) setInstrument(st.inst,{quiet:true});
     _afterLedgerRewrite();
     renderChordStrip(curKey); buildKeySelector(); syncKeySelector(); updateWorldIndicator();
     if(typeof renderRhythmTrack==='function') renderRhythmTrack();

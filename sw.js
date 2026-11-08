@@ -6,13 +6,16 @@
 // and works the same inside an App Store / Play Store wrapper.
 //
 //   app files (index.html, privacy.html…) → NETWORK-FIRST, cache as fallback
-//   vendor/ and fonts/                    → CACHE-FIRST (they never change)
+//   vendor/, fonts/, samples/             → CACHE-FIRST (they never change)
+//
+// Instrument samples (samples/) aren't precached: each set downloads the first
+// time it's chosen, and is cached from then on.
 //
 // Network-first for the app means users get updates on the next reload. Bump
 // VERSION on release anyway: the activate handler then clears the old cache.
 // ═══════════════════════════════════════════════════════════
 
-const VERSION = 'v19';
+const VERSION = 'v20';
 const CACHE   = 'james-ladder-' + VERSION;
 
 const PRECACHE = [
@@ -37,10 +40,16 @@ const PRECACHE = [
 ];
 
 // Library files: a new version would get a new file name, so cache them for good.
-const STATIC_DIRS = ['/vendor/', '/fonts/'];
+const STATIC_DIRS = ['/vendor/', '/fonts/', '/samples/'];
 function isStatic(url) {
   const u = new URL(url);
   return u.origin === self.location.origin && STATIC_DIRS.some(d => u.pathname.includes(d));
+}
+// Samples live in their own cache that survives app updates, so a new release
+// doesn't make anyone download the piano again.
+const SAMPLE_CACHE = 'james-ladder-samples-v1';
+function cacheFor(url) {
+  return new URL(url).pathname.includes('/samples/') ? SAMPLE_CACHE : CACHE;
 }
 
 self.addEventListener('install', e => {
@@ -55,7 +64,7 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE && k !== SAMPLE_CACHE).map(k => caches.delete(k))
       ))
       .then(() => self.clients.claim())
   );
@@ -70,7 +79,7 @@ self.addEventListener('fetch', e => {
       caches.match(req).then(hit => hit || fetch(req).then(res => {
         if (res && res.ok) {
           const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(req, copy));
+          caches.open(cacheFor(req.url)).then(c => c.put(req, copy));
         }
         return res;
       }))

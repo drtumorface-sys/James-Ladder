@@ -1,0 +1,33 @@
+James' Ladder — instrument sample credits
+=========================================
+
+The app loads an instrument's samples only when it is chosen. Each folder holds
+single-note recordings, one every two to four semitones; the app re-pitches them
+to fill the notes between. Changes from the originals: a subset of notes was
+selected and the files were converted to MP3 (by the Tone.js and
+tonejs-instruments projects, from which these copies were taken).
+
+piano/  — Salamander Grand Piano
+  Author:  Alexander Holm
+  Source:  https://github.com/sfzinstruments/SalamanderGrandPiano
+           (MP3 copies: https://github.com/Tonejs/audio, folder "salamander")
+  Licence: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+           https://creativecommons.org/licenses/by/3.0/
+  Derived from the sfz instrument in the sfzinstruments/SalamanderGrandPiano
+  GitHub repository.
+
+guitar/ — Acoustic guitar (steel string)
+  Source:  University of Iowa Electronic Music Studios,
+           Musical Instrument Samples — https://theremin.music.uiowa.edu/MIS.html
+           (MP3 copies: https://github.com/nbrosowsky/tonejs-instruments,
+           folder "guitar-acoustic")
+  Terms:   "may be downloaded and used for any projects, without restrictions."
+
+nylon/  — Classical (nylon string) guitar
+  Author:  quartertone
+  Source:  "ClassicalGuitar-multisampled", Freesound pack 11573
+           https://freesound.org/people/quartertone/packs/11573/
+           (MP3 copies: https://github.com/nbrosowsky/tonejs-instruments,
+           folder "guitar-nylon")
+  Licence: Creative Commons Attribution 4.0 International (CC BY 4.0)
+           https://creativecommons.org/licenses/by/4.0/
