@@ -23,7 +23,7 @@ Five screens, one row of tabs at the bottom. No overlay menu.
 | **Rhythm** | Drum machine — 8 drums, pattern library, tempo, swing, meter, per-drum loops; ＋ Chords plays your progression with the beat |
 | **Sound** | Every audio control: Stop All, tempo, tap, metronome, mixer, drone, tone, practice timer |
 | **Analysis** | Five tabs — **Progression** (key areas, Roman numerals, cadences, how each key change happens, rule check, style fit) · **Scales** (best-fit scales per key area, notes used, pitch wheel) · **Tonnetz** · **Generate** (adds whole phrases; one Undo removes them) · **Pitch** (capo, session presets, CSV/JSON export) |
-| **Learn** | Ear, voice leading, cadences, fretboard, keyboard, degrees |
+| **Learn** | Ear drills (chords, intervals, cadences) with replay · Voicing (smoothest voice leading, applied to your chords) · Guitar and Keyboard (any scale, or a chord from your progression; tap to hear) |
 
 **■ Stop** sits in the top bar on every screen. It cancels queued phrases and cuts
 every scheduled voice, not just the transports — a 30-second progression already

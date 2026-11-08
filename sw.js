@@ -14,7 +14,7 @@
 // network-first document path means users get updates even without it.
 // ═══════════════════════════════════════════════════════════
 
-const VERSION = 'v17';
+const VERSION = 'v18';
 const CACHE   = 'james-ladder-' + VERSION;
 
 const PRECACHE = [
