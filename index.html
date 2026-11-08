@@ -809,6 +809,65 @@ body.lvl-1 #fold-chip{display:none;}
 .cloud-note.active{opacity:1;}
 .cloud-note.inactive{opacity:0.18;}
 #cloud-count{font-size:8px;letter-spacing:0.3em;color:var(--text3);margin-bottom:8px;}
+/* Shaded by how long the note sounds (--a, 0–1), on a layer under the label. */
+.cloud-note{position:relative;font-size:11px;min-width:38px;text-align:center;color:var(--text2);
+  border-color:var(--border);}
+.cloud-note.active{border-color:var(--glm);color:var(--text);}
+.cloud-note.active::before{content:'';position:absolute;inset:0;border-radius:inherit;
+  background:var(--gold);opacity:calc(0.08 + var(--a,0) * 0.42);z-index:-1;}
+.cloud-note.outside{border-style:dashed;border-color:var(--c-V);}
+#cloud-display{position:relative;z-index:0;}
+#cloud-detail{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text2);margin-bottom:6px;}
+.score-row{flex-wrap:wrap;row-gap:2px;}
+.score-out{flex-basis:100%;font-family:'Fira Code',monospace;font-size:9px;color:var(--text3);}
+
+/* ══ ANALYSIS — Progression tab ══ */
+.g-hint{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text2);
+  line-height:1.55;margin:-2px 0 12px;}
+.pg-summary{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text2);line-height:1.5;margin:0 0 12px;}
+.pg-summary b{font-family:'Fira Code',monospace;font-size:11px;font-weight:400;color:var(--gold);}
+.pg-sec{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:8px;}
+.pg-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:4px 10px;flex-wrap:wrap;margin-bottom:8px;}
+.pg-key{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--gold);}
+.pg-meta{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:0.04em;color:var(--text3);}
+.pg-chords{display:flex;flex-wrap:wrap;gap:4px;align-items:stretch;}
+.pg-chip{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-width:46px;min-height:52px;padding:4px 8px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:3px;cursor:pointer;}
+.pg-chip:hover{border-color:var(--glm);}
+.pg-chip.pivot{border-color:var(--gold);background:var(--glo);}
+.pg-sym{font-family:'Fira Code',monospace;font-size:13px;color:var(--text);}
+.pg-rom{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--text2);line-height:1.1;}
+.pg-beats{font-family:'Fira Code',monospace;font-size:8px;color:var(--text3);}
+.pg-cad{align-self:center;font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--cad);border:1px solid var(--cad);border-radius:8px;padding:1px 6px;}
+.pg-cads{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-family:'Fira Code',monospace;font-size:9px;}
+.pg-cads span{color:var(--cad,var(--text3));}
+.pg-none{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text3);}
+.pg-change{display:flex;gap:8px;align-items:baseline;margin:2px 0 8px 6px;font-family:'Cormorant Garamond',serif;
+  font-size:14px;color:var(--text2);line-height:1.4;}
+.pg-change b{font-style:normal;color:var(--gold);font-weight:400;}
+.pg-change-arrow{color:var(--gold);}
+.pg-score{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border2);
+  border-radius:3px;padding:12px 16px;margin-bottom:10px;}
+.pg-score-num{font-family:'Cormorant Garamond',serif;font-size:38px;font-style:italic;color:var(--gold);line-height:1;min-width:52px;}
+.pg-score-side{flex:1;}
+.pg-verdict{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--text2);margin-top:4px;}
+.pg-rules{margin-bottom:10px;}
+.pg-rules-key{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin:8px 0 2px;}
+.pg-rule{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 8px;padding:6px 0;border-bottom:1px solid var(--glass-border);}
+.pg-rule:last-child{border-bottom:none;}
+.pg-rule .rule-dot{align-self:center;}
+.pg-rule-lbl{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--text2);}
+.pg-rule-note{font-family:'Fira Code',monospace;font-size:9px;color:var(--text3);margin-left:auto;text-align:right;}
+.pg-rule.ok .pg-rule-note{color:var(--c-I);}
+.pg-rule.fail .pg-rule-note{color:var(--c-V);}
+.sc-scope{flex-wrap:wrap;margin-bottom:10px;width:fit-content;max-width:100%;}
+.sc-scope .dm-seg{padding:0 12px;}
+#gpane-generate .g-hint{margin-top:0;}
+/* Five tabs share the width, so they all fit a phone. */
+.gtab{flex:1 1 0;padding:12px 4px;letter-spacing:0.10em;}
+@media (max-width:420px){ .gtab{font-size:8px;letter-spacing:0.04em;} }
 
 /* ── CONSONANCE MATRIX ── */
 .score-row{
@@ -1544,188 +1603,124 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 <div id="grimoire">
   <div id="grimoire-header">
     <div id="grimoire-title">Analysis</div>
-    <div id="grimoire-sub">utility extraction layer</div>
+    <div id="grimoire-sub">reading your progression</div>
     <button id="grimoire-close" onclick="showPane('ladder')">×</button>
   </div>
   <div id="grimoire-tabs">
-    <button class="gtab on" id="gt-plasma"   onclick="showGTab('plasma')">Transposer</button>
-    <button class="gtab"    id="gt-cloud"    onclick="showGTab('cloud')">Cloud</button>
-    <button class="gtab"    id="gt-scores"   onclick="showGTab('scores')">Scales</button>
-    <button class="gtab"    id="gt-ledger"   onclick="showGTab('ledger')">Ledger</button>
-    <button class="gtab"    id="gt-sensory"  onclick="showGTab('sensory')">Presets</button>
-    <button class="gtab"    id="gt-kharu"   onclick="showGTab('kharu')">Harmony Check</button>
-    <button class="gtab"    id="gt-tonnetz" onclick="showGTab('tonnetz')">Tonnetz</button>
-    <button class="gtab"    id="gt-wheel"   onclick="showGTab('wheel')">Pitch Wheel</button>
+    <button class="gtab on" id="gt-progression" onclick="showGTab('progression')">Progression</button>
+    <button class="gtab"    id="gt-scales"      onclick="showGTab('scales')">Scales</button>
+    <button class="gtab"    id="gt-tonnetz"     onclick="showGTab('tonnetz')">Tonnetz</button>
+    <button class="gtab"    id="gt-generate"    onclick="showGTab('generate')">Generate</button>
+    <button class="gtab"    id="gt-pitch"       onclick="showGTab('pitch')">Pitch</button>
   </div>
   <div id="grimoire-body">
 
-    <!-- TRANSPOSE -->
-    <div class="gpane on" id="gpane-plasma">
-      <div class="g-section">Transpose</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
-        Transpose the entire harmonic structure through chromatic space. The geometry of intervals is preserved; only the absolute pitch coordinates shift.
-      </p>
-      <div id="transposer-display">
-        <div>
-          <div id="plasma-root">C</div>
-          <div id="plasma-delta">Δ = 0 semitones</div>
-        </div>
-        <div class="plasma-btns">
-          <button class="pbtn" onclick="shiftPlasma(-1)">♭</button>
-          <button class="pbtn" onclick="shiftPlasma(1)">♯</button>
-        </div>
-      </div>
-      <div class="g-section">Target Root</div>
-      <div class="transposer-row" id="plasma-keys"></div>
-      <div class="g-section" style="margin-top:16px;">Effect</div>
-      <div id="plasma-effect" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2.2;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 12px;"></div>
-    </div>
+    <!-- PROGRESSION — key areas, cadences, rule check, style fit -->
+    <div class="gpane on" id="gpane-progression">
+      <div class="g-section">Your progression</div>
+      <p class="pg-summary" id="pg-summary"></p>
+      <div id="pg-sections"></div>
+      <div class="g-section">Rule check</div>
+      <p class="g-hint">Five rules of common-practice harmony, judged in each key area’s own key — a section built around vi is read as the relative minor. Breaking them is often the point; this just shows where.</p>
+      <div id="pg-check"></div>
+      <div class="g-section">Style fit</div>
 
-    <!-- HARMONIC CLOUD -->
-    <div class="gpane" id="gpane-cloud">
-      <div class="g-section">Harmonic Cloud H</div>
-      <div id="cloud-count">0 pitch classes active</div>
-      <div id="cloud-display"></div>
-      <div class="g-section">Cloud Composition</div>
-      <div id="cloud-detail" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2;color:var(--text2);"></div>
-    </div>
-
-    <!-- CONSONANCE SCORES -->
-    <div class="gpane" id="gpane-scores">
-      <div class="g-section">Melodic Derivative Matrix</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);line-height:1.7;margin-bottom:12px;">
-        C<sub>k</sub> = (|H∩S<sub>k</sub>| / |H∪S<sub>k</sub>|) × 100
-      </p>
-      <div id="score-list"></div>
-    </div>
-
-    <!-- CHORD LEDGER -->
-    <div class="gpane" id="gpane-ledger">
-      <div class="g-section">Chord Matrix</div>
+      
       <div class="genre-strip" id="genre-strip">
-        <button class="genre-btn" data-genre="DIA" style="--genre-clr:var(--c-I)"   onclick="selectGenre('DIA')">DIA</button>
-        <button class="genre-btn" data-genre="MOD" style="--genre-clr:var(--c-vi)"  onclick="selectGenre('MOD')">MOD</button>
-        <button class="genre-btn" data-genre="JAZ" style="--genre-clr:var(--c-ii)"  onclick="selectGenre('JAZ')">JAZ</button>
-        <button class="genre-btn" data-genre="BLU" style="--genre-clr:var(--c-IV)"  onclick="selectGenre('BLU')">BLU</button>
-        <button class="genre-btn" data-genre="AMB" style="--genre-clr:var(--text3)" onclick="selectGenre('AMB')">AMB</button>
-        <button class="genre-btn" data-genre="GOS" style="--genre-clr:#b8860b"      onclick="selectGenre('GOS')">GOS</button>
-        <button class="genre-btn" data-genre="CHR" style="--genre-clr:var(--c-V)"   onclick="selectGenre('CHR')">CHR</button>
+        <button class="genre-btn" data-genre="DIA" style="--genre-clr:var(--c-I)"   onclick="selectGenre('DIA')">Diatonic</button>
+        <button class="genre-btn" data-genre="MOD" style="--genre-clr:var(--c-vi)"  onclick="selectGenre('MOD')">Modal</button>
+        <button class="genre-btn" data-genre="JAZ" style="--genre-clr:var(--c-ii)"  onclick="selectGenre('JAZ')">Jazz</button>
+        <button class="genre-btn" data-genre="BLU" style="--genre-clr:var(--c-IV)"  onclick="selectGenre('BLU')">Blues</button>
+        <button class="genre-btn" data-genre="AMB" style="--genre-clr:var(--text3)" onclick="selectGenre('AMB')">Ambient</button>
+        <button class="genre-btn" data-genre="GOS" style="--genre-clr:#b8860b"      onclick="selectGenre('GOS')">Gospel</button>
+        <button class="genre-btn" data-genre="CHR" style="--genre-clr:var(--c-V)"   onclick="selectGenre('CHR')">Chromatic</button>
       </div>
       <div class="genre-badge" id="genre-badge"></div>
       <div class="genre-align-bar" id="genre-align-bar" style="display:none;"><div class="genre-align-fill" id="genre-align-fill"></div></div>
       <div class="genre-view-toggle" id="genre-view-toggle" style="display:none;">
-        <button class="gv-btn on" id="gv-chrono" onclick="setGenreView('chrono')">⌛ Chronological</button>
-        <button class="gv-btn"    id="gv-optimal" onclick="setGenreView('optimal')">✦ Genre Optimal</button>
+        <button class="gv-btn on" id="gv-chrono" onclick="setGenreView('chrono')">In order</button>
+        <button class="gv-btn"    id="gv-optimal" onclick="setGenreView('optimal')">Best order for this style</button>
       </div>
       <div id="chord-ledger-list"></div>
-      <div class="export-btns">
-        <button class="exp-btn" onclick="exportClipboard()">⎘ Copy CSV</button>
-        <button class="exp-btn" onclick="exportJSON()">⎘ Copy JSON</button>
-      </div>
-      <button class="exp-btn" style="margin-top:6px;width:100%;" onclick="transmuteLoomToGenre(selectedGenre||detectAndGetBest())">⟳ Apply Genre Rhythm</button>
+      
+      <button class="exp-btn" style="margin-top:6px;width:100%;" onclick="transmuteLoomToGenre(selectedGenre||detectAndGetBest())">⟳ Load a matching drum groove</button>
+    
     </div>
 
-    <!-- SESSION PRESETS PANE -->
-    <div class="gpane" id="gpane-sensory">
-      <div class="g-section">Session Presets</div>
+    <!-- SCALES — best fit per key area, notes used, pitch wheel -->
+    <div class="gpane" id="gpane-scales">
+      <div class="g-section">Scales that fit</div>
+      <p class="g-hint">Weighted by how long each chord lasts. With more than one key area, pick one to read it on its own.</p>
+      <div class="dm-segs sc-scope" id="sc-scope" role="group" aria-label="Which part"></div>
+      <div id="score-list"></div>
+      <div class="g-section">Notes used</div>
+      <div id="cloud-count"></div>
+      <div id="cloud-display"></div>
+      <div id="cloud-detail"></div>
+
+      <div class="g-section">Pitch wheel</div>
       <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
-        Configured for heightened auditory sensitivity. Soft Tone attenuates harsh upper harmonics. Functional colours are locked to stable emotional anchors. The rhythm presets give evenly spread, easy-to-follow patterns.
+        The best-fitting scale above, drawn on the chromatic circle — intervals become distances, and the outline shows how much of the circle it spans.
       </p>
-
-
-      <!-- Preset buttons -->
-      <div class="g-section">Presets</div>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
-        <button class="exp-btn" onclick="applySensoryPreset('first')">
-          First Session — C Major · sparse offbeat rhythm · Soft Tone on
-        </button>
-        <button class="exp-btn" onclick="applySensoryPreset('explore')">
-          Free Exploration — all chords available · no sequence locked
-        </button>
-        <button class="exp-btn" onclick="applySensoryPreset('shape')">
-          Shape Focus — Whole Tone · perfect hexagon on the pitch wheel
-        </button>
+      <div id="constellation-wrap">
+        <canvas id="constellation-canvas" width="260" height="260"></canvas>
       </div>
-
-      <!-- Rhythm preset info -->
-      <div class="g-section">Rhythm Presets</div>
-      <div id="fib-info" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2.2;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:12px;">
-        Sparse Offbeat · kick 16 · rim 13 · hat 8 · tom 5 steps<br>
-        Even Spread &nbsp;· golden-angle hits, Fibonacci loops<br>
-        Loops of different lengths drift against each other<br>
-        Both load into the drum machine on the Rhythm screen
-      </div>
-      <button class="exp-btn" onclick="loadFibonacciPattern()">Sparse Offbeat Pattern →</button>
-      <button class="exp-btn" onclick="loadPhyllotacticPattern()" style="margin-top:5px;">Even Spread Pattern →</button>
-
-      <!-- Colour key -->
-      <div class="g-section">Functional Colour Map</div>
-      <div style="display:flex;flex-direction:column;gap:5px;">
-        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
-          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-I);flex-shrink:0;"></div>
-          <span>I — Tonic — Ground State — Blue</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
-          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-V);flex-shrink:0;"></div>
-          <span>V — Dominant — The Pull — Orange</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
-          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-IV);flex-shrink:0;"></div>
-          <span>IV — Subdominant — Expansion — Yellow</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
-          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-ii);flex-shrink:0;"></div>
-          <span>ii — Supertonic — Approach — Blue-Violet</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
-          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-vi);flex-shrink:0;"></div>
-          <span>vi — Relative Minor — Return — Violet</span>
-        </div>
-      </div>
-
+      <div id="constellation-label">—</div>
+      <div id="constellation-sub">place chords to generate</div>
+    
     </div>
 
-    <!-- ══ HARMONY CHECK PANE ══ -->
-    <div class="gpane" id="gpane-kharu">
-      <div class="g-section">Harmony Check</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
-        Checks your progression against five rules of common-practice harmony — tonic framing, subdominant order, no dominant retrogression, correct use of vii°, and a proper cadence. A high score means the progression follows textbook voice-leading; a low one just means it breaks the rules, which is sometimes exactly what you want.
+    <!-- TONNETZ -->
+    <div class="gpane" id="gpane-tonnetz">
+      <div class="g-section">Tonnetz — Tone Net</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:10px;">
+        Each node is a pitch class. → perfect fifths (+7 st) · ↑ major thirds (+4 st) · ↗ minor thirds (+3 st). Each cell holds one major △ and one minor ▽ triad. The active chord is highlighted; P · L · R neighbors are ringed.
       </p>
-
-      <!-- Score display -->
-      <div class="gevurah-score-wrap">
-        <div>
-          <div class="gevurah-score-num" id="gev-score">—</div>
-          <div class="gevurah-score-lbl">Rule Score</div>
-        </div>
-        <div style="flex:1;">
-          <div class="gevurah-bar-wrap">
-            <div class="gevurah-bar" id="gev-bar" style="width:0%"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;">
-            <span style="font-size:7px;letter-spacing:0.18em;color:var(--text3);">BREAKS RULES</span>
-            <span style="font-size:7px;letter-spacing:0.18em;color:var(--text3);">FOLLOWS RULES</span>
-          </div>
-          <div id="gev-verdict" style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);margin-top:4px;">Place chords to activate analysis.</div>
-        </div>
+      <canvas id="tonnetz-canvas" height="200"></canvas>
+      <div class="tz-legend">
+        <div class="tz-li"><div class="tz-dot" style="background:var(--gold);"></div><span>Root</span></div>
+        <div class="tz-li"><div class="tz-dot" style="background:var(--glo);border:1px solid var(--gold);"></div><span>Chord tone</span></div>
+        <div class="tz-li"><div class="tz-dash" style="background:#6088e8;"></div><span>P</span></div>
+        <div class="tz-li"><div class="tz-dash" style="background:#e07028;"></div><span>L</span></div>
+        <div class="tz-li"><div class="tz-dash" style="background:#88c868;"></div><span>R</span></div>
       </div>
+      <div id="tonnetz-info"></div>
 
-      <!-- Five Laws -->
-      <div class="g-section">Common-Practice Rules</div>
-      <div id="gev-rules">
-        <div class="rule-check-row"><div class="rule-dot na" id="rd-0"></div><span class="rule-name">Tonic Anchor (I → … → I)</span><span class="rule-hint" id="rh-0">—</span></div>
-        <div class="rule-check-row"><div class="rule-dot na" id="rd-1"></div><span class="rule-name">Subdominant Order (IV before ii)</span><span class="rule-hint" id="rh-1">—</span></div>
-        <div class="rule-check-row"><div class="rule-dot na" id="rd-2"></div><span class="rule-name">No V→IV Retrogression</span><span class="rule-hint" id="rh-2">—</span></div>
-        <div class="rule-check-row"><div class="rule-dot na" id="rd-3"></div><span class="rule-name">vii° precedes V only</span><span class="rule-hint" id="rh-3">—</span></div>
-        <div class="rule-check-row"><div class="rule-dot na" id="rd-4"></div><span class="rule-name">Authentic Cadence V→I</span><span class="rule-hint" id="rh-4">—</span></div>
+      <!-- ── PLR DISTANCE ORACLE ── -->
+      <div class="g-section" style="margin-top:16px;">PLR Path Finder</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:10px;">
+        Find the shortest PLR path between any two chords on the Tonnetz.
+      </p>
+      <div class="oracle-controls">
+        <div class="oracle-group">
+          <span class="oracle-group-lbl">From</span>
+          <div class="oracle-selects">
+            <select id="oracle-from-note" class="inst-sel" style="min-width:56px;"></select>
+            <select id="oracle-from-qual" class="inst-sel" style="min-width:64px;">
+              <option value="maj">maj</option><option value="min">min</option>
+            </select>
+          </div>
+        </div>
+        <span style="color:var(--text3);font-size:16px;padding-bottom:2px;">→</span>
+        <div class="oracle-group">
+          <span class="oracle-group-lbl">To</span>
+          <div class="oracle-selects">
+            <select id="oracle-to-note" class="inst-sel" style="min-width:56px;"></select>
+            <select id="oracle-to-qual" class="inst-sel" style="min-width:64px;">
+              <option value="maj">maj</option><option value="min">min</option>
+            </select>
+          </div>
+        </div>
+        <button class="exp-btn" style="align-self:flex-end;" onclick="runOracle()">Find Path</button>
       </div>
+      <div id="oracle-result"></div>
+    </div>
 
-      <!-- Violations log -->
-      <div class="g-section" style="margin-top:14px;">Violations</div>
-      <div id="gev-violations" style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text3);">No violations detected.</div>
-
+    <!-- GENERATE — everything that writes chords into the ledger -->
+    <div class="gpane" id="gpane-generate">
+      <p class="g-hint">Everything here adds to the ledger on the Play screen in one go, then plays it. ↩ Undo removes the whole addition.</p>
       <!-- Guided path generator -->
-      <div class="g-section" style="margin-top:14px;">Generate a Progression</div>
+      <div class="g-section">Generate a progression</div>
       <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:10px;">
         Builds a progression that satisfies all five rules: framed by the tonic, subdominants in order, and closed with an authentic V→I cadence.
       </p>
@@ -1783,65 +1778,87 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
         <button class="fib-btn"        id="fib-4" onclick="setFibExt(4)">13th</button>
       </div>
       <div id="fib-status" style="font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--text3);">Triads — no added sevenths or extensions.</div>
+    
     </div>
 
-    <!-- PITCH WHEEL (moved here from Rhythm — it is a harmony view) -->
-    <div class="gpane" id="gpane-wheel">
-      <div class="g-section">Pitch Wheel</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">
-        The chromatic circle, divided into 12 equidistant nodes. The top-scoring scale from the Consonance Matrix is projected as a geometric polygon — intervals become spatial distances.
-      </p>
-      <div id="constellation-wrap">
-        <canvas id="constellation-canvas" width="260" height="260"></canvas>
-      </div>
-      <div id="constellation-label">—</div>
-      <div id="constellation-sub">place chords to generate</div>
-    </div>
+    <!-- PITCH — capo, session presets, export -->
+    <div class="gpane" id="gpane-pitch">
 
-    <!-- TONNETZ LATTICE -->
-    <div class="gpane" id="gpane-tonnetz">
-      <div class="g-section">Tonnetz — Tone Net</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:10px;">
-        Each node is a pitch class. → perfect fifths (+7 st) · ↑ major thirds (+4 st) · ↗ minor thirds (+3 st). Each cell holds one major △ and one minor ▽ triad. The active chord is highlighted; P · L · R neighbors are ringed.
-      </p>
-      <canvas id="tonnetz-canvas" height="200"></canvas>
-      <div class="tz-legend">
-        <div class="tz-li"><div class="tz-dot" style="background:var(--gold);"></div><span>Root</span></div>
-        <div class="tz-li"><div class="tz-dot" style="background:var(--glo);border:1px solid var(--gold);"></div><span>Chord tone</span></div>
-        <div class="tz-li"><div class="tz-dash" style="background:#6088e8;"></div><span>P</span></div>
-        <div class="tz-li"><div class="tz-dash" style="background:#e07028;"></div><span>L</span></div>
-        <div class="tz-li"><div class="tz-dash" style="background:#88c868;"></div><span>R</span></div>
+      <div class="g-section">Capo — shift the whole instrument</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:14px;">Moves every chord, bubble, the drone and the ledger up or down together, like a capo on a guitar. Your progression keeps its shape; only the pitch changes. To write a progression into a new key instead, use ⇅ Transpose or ⤳ Modulate on Play.</p>
+      <div id="transposer-display">
+        <div>
+          <div id="plasma-root">C</div>
+          <div id="plasma-delta">Δ = 0 semitones</div>
+        </div>
+        <div class="plasma-btns">
+          <button class="pbtn" onclick="shiftPlasma(-1)">♭</button>
+          <button class="pbtn" onclick="shiftPlasma(1)">♯</button>
+        </div>
       </div>
-      <div id="tonnetz-info"></div>
+      <div class="g-section">C now sounds as</div>
+      <div class="transposer-row" id="plasma-keys"></div>
+      <div class="g-section" style="margin-top:16px;">What moved</div>
+      <div id="plasma-effect" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2.2;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 12px;"></div>
+    
 
-      <!-- ── PLR DISTANCE ORACLE ── -->
-      <div class="g-section" style="margin-top:16px;">PLR Path Finder</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);line-height:1.6;margin-bottom:10px;">
-        Find the shortest PLR path between any two chords on the Tonnetz.
-      </p>
-      <div class="oracle-controls">
-        <div class="oracle-group">
-          <span class="oracle-group-lbl">From</span>
-          <div class="oracle-selects">
-            <select id="oracle-from-note" class="inst-sel" style="min-width:56px;"></select>
-            <select id="oracle-from-qual" class="inst-sel" style="min-width:64px;">
-              <option value="maj">maj</option><option value="min">min</option>
-            </select>
-          </div>
-        </div>
-        <span style="color:var(--text3);font-size:16px;padding-bottom:2px;">→</span>
-        <div class="oracle-group">
-          <span class="oracle-group-lbl">To</span>
-          <div class="oracle-selects">
-            <select id="oracle-to-note" class="inst-sel" style="min-width:56px;"></select>
-            <select id="oracle-to-qual" class="inst-sel" style="min-width:64px;">
-              <option value="maj">maj</option><option value="min">min</option>
-            </select>
-          </div>
-        </div>
-        <button class="exp-btn" style="align-self:flex-end;" onclick="runOracle()">Find Path</button>
+      <div class="g-section">Session presets</div>
+      <p class="g-hint">Quick starting points. First Session and Shape Focus turn on Soft Tone, which rounds off harsh edges for long or sound-sensitive sessions.</p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <button class="exp-btn" onclick="applySensoryPreset('first')">
+          First Session — C Major · sparse offbeat rhythm · Soft Tone on
+        </button>
+        <button class="exp-btn" onclick="applySensoryPreset('explore')">
+          Free Exploration — all chords available · no sequence locked
+        </button>
+        <button class="exp-btn" onclick="applySensoryPreset('shape')">
+          Shape Focus — Whole Tone · perfect hexagon on the pitch wheel
+        </button>
       </div>
-      <div id="oracle-result"></div>
+
+      <!-- Rhythm preset info -->
+      <div class="g-section">Rhythm presets</div>
+      <div id="fib-info" style="font-family:'Fira Code',monospace;font-size:9px;line-height:2.2;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:12px;">
+        Sparse Offbeat · kick 16 · rim 13 · hat 8 · tom 5 steps<br>
+        Even Spread &nbsp;· golden-angle hits, Fibonacci loops<br>
+        Loops of different lengths drift against each other<br>
+        Both load into the drum machine on the Rhythm screen
+      </div>
+      <button class="exp-btn" onclick="loadFibonacciPattern()">Sparse Offbeat Pattern →</button>
+      <button class="exp-btn" onclick="loadPhyllotacticPattern()" style="margin-top:5px;">Even Spread Pattern →</button>
+
+      <!-- Colour key -->
+      <div class="g-section">Chord colours</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
+          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-I);flex-shrink:0;"></div>
+          <span>I — tonic — home — green</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
+          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-V);flex-shrink:0;"></div>
+          <span>V — dominant — the pull — red</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
+          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-IV);flex-shrink:0;"></div>
+          <span>IV — subdominant — opening out — ochre</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
+          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-ii);flex-shrink:0;"></div>
+          <span>ii — supertonic — the approach — blue</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:9px;color:var(--text2);">
+          <div style="width:14px;height:14px;border-radius:50%;background:var(--c-vi);flex-shrink:0;"></div>
+          <span>vi — relative minor — the shadow of home — violet</span>
+        </div>
+      </div>
+
+    
+      <div class="g-section">Export</div>
+      <p class="g-hint">Every chord with its key area, Roman numeral and length — for a spreadsheet or another app.</p>
+      <div class="export-btns">
+        <button class="exp-btn" onclick="exportClipboard()">⎘ Copy CSV</button>
+        <button class="exp-btn" onclick="exportJSON()">⎘ Copy JSON</button>
+      </div>
     </div>
 
   </div>
@@ -3241,70 +3258,13 @@ function overallHarmonyPct(){
 function updateGrimoire(){
   if(!grimoireOpen)return;
   const activeTab=document.querySelector('.gtab.on')?.id?.replace('gt-','');
-  if(activeTab==='cloud')updateCloudPane();
-  if(activeTab==='scores')updateScoresPane();
-  if(activeTab==='ledger')updateLedgerPane();
-  if(activeTab==='kharu')updateKharuPane();
+  if(activeTab==='progression')updateProgressionPane();
+  if(activeTab==='scales')updateScalesPane();
   if(activeTab==='tonnetz')drawTonnetz();
-  if(activeTab==='wheel')drawConstellation();
-  // sensory pane is static — no recalculation needed
   updatePlasmaEffect();
 }
 
-function updateCloudPane(){
-  const H=computeHarmonicCloud();
-  const countEl=document.getElementById('cloud-count');
-  if(countEl)countEl.textContent=`${H.size} of 12 pitch classes active`;
-  const display=document.getElementById('cloud-display');
-  if(!display)return;
-  display.innerHTML='';
-  CHROM.forEach((note,i)=>{
-    const transNote=CHROM[(i+globalOffset+120)%12];
-    const hue=i*30;
-    const active=H.has(i);
-    const d=document.createElement('div');
-    d.className='cloud-note '+(active?'active':'inactive');
-    d.style.cssText=`background:hsla(${hue},${active?65:30}%,${active?50:40}%,${active?0.18:0.06});border-color:hsla(${hue},60%,50%,${active?0.5:0.12});color:hsla(${hue},${active?70:40}%,${active?35:50}%,1)`;
-    d.textContent=transNote;
-    display.appendChild(d);
-  });
-  const detail=document.getElementById('cloud-detail');
-  if(detail){
-    if(H.size===0){detail.textContent='No chords placed yet.';}
-    else{
-      const notes=[...H].map(i=>CHROM[(i+globalOffset+120)%12]).join('  ·  ');
-      detail.textContent=notes;
-    }
-  }
-}
 
-function updateScoresPane(){
-  const H=computeHarmonicCloud();
-  const list=document.getElementById('score-list');
-  if(!list)return;list.innerHTML='';
-  if(H.size===0){list.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">Place chords to generate the consonance matrix.</div>';return;}
-  // Score each candidate scale against each possible root
-  const scores=[];
-  COF.forEach((key,ki)=>{
-    const rootSemi=(COF_SEMI[ki]+globalOffset+120)%12;
-    CANDIDATE_SCALES.forEach(sc=>{
-      const scalePCs=new Set(sc.iv.map(s=>(rootSemi+s)%12));
-      const ck=consonanceScore(H,scalePCs);
-      scores.push({name:`${transposedKey(key)} ${sc.name}`,ck,key,scaleName:sc.name});
-    });
-  });
-  scores.sort((a,b)=>b.ck-a.ck);
-  const top=scores.slice(0,20);
-  const maxScore=top[0]?.ck||1;
-  top.forEach((s,i)=>{
-    const row=document.createElement('div');
-    row.className='score-row'+(i===0?' top-score':i<5?' high-score':'');
-    row.innerHTML=`<span class="score-name">${s.name}</span>
-      <div class="score-bar-wrap"><div class="score-bar" style="width:${(s.ck/maxScore)*100}%"></div></div>
-      <span class="score-pct">${s.ck}%</span>`;
-    list.appendChild(row);
-  });
-}
 
 let genreViewMode='chrono';
 
@@ -3356,7 +3316,9 @@ function updateLedgerPane(){
     detectGenre();return;
   }
 
-  if(G&&genreViewMode==='optimal'){
+  if(!G){
+    list.innerHTML='<div class="pg-none">Pick a style above to see how each chord and move fits it.</div>';
+  } else if(genreViewMode==='optimal'){
     renderOptimalView(list,G);
   } else {
     renderChronologicalView(list,G);
@@ -3365,18 +3327,11 @@ function updateLedgerPane(){
 }
 
 function renderChronologicalView(list,G){
-  const byFace={};
-  ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach(e=>{
-    const fiKey=e.fi>=0?e.fi:-1;
-    if(!byFace[fiKey])byFace[fiKey]=[];
-    byFace[fiKey].push(e);
-  });
-  // Flatten to a single ordered list (preserving face grouping) for transition arrows
-  const flat=[];
-  Object.entries(byFace).forEach(([fiStr,entries])=>{
-    const fi=parseInt(fiStr);
-    const faceKey=fi>=0?transposedKey(FKEY[fi]??'?'):'—';
-    entries.forEach(e=>flat.push({e,fi,faceKey}));
+  // In the order you played them. (This used to group chords by 3D face, so a
+  // progression that changed key came out of order.)
+  const flat=ledger.filter(e=>e.type==='chord'||e.type==='pivot').map(e=>{
+    const k=e.type==='pivot'?e.originKey:e.key;
+    return {e, fi:e.fi, faceKey:k?transposedKey(k):'—'};
   });
 
   flat.forEach(({e,fi,faceKey},idx)=>{
@@ -3410,7 +3365,7 @@ function renderChronologicalView(list,G){
     }
     row.className=`ledger-entry${genreClass?' '+genreClass:''}`;
     if(G&&genreClass==='ge-hi')row.style.setProperty('--genre-clr',G.color);
-    row.innerHTML=`<span class="le-face">${fi>=0?fi+1:''}</span>`+
+    row.innerHTML=`<span class="le-face">${idx+1}</span>`+
       `<span class="le-key">${faceKey}</span>`+
       `<span class="le-chord">${e.roman} · ${transNote} ${qual}</span>`+
       `<span class="le-semis">${pcs}</span>${genreBadge}`;
@@ -3633,25 +3588,36 @@ function _copy(text,msg){
 function exportChart(){ _copy(buildChordChart(),'Chord chart copied — paste into any notes app'); }
 function exportLine(){  _copy(buildChordLine(), 'One-line progression copied'); }
 
+// Exports read the same analysis the Progression tab shows: every chord in order,
+// with its key area, Roman numeral in that key, length and figure. They go
+// through _copy(), so a blocked clipboard falls back to a select-and-copy box
+// instead of failing silently.
+function _exportRows(){
+  const A=analyzeProgression();
+  const rows=[];
+  A.sections.forEach((s,si)=>s.items.forEach(x=>rows.push({
+    section:si+1, key:s.name, chord:entrySymbol(x.e,true), roman:romanAscii(x.roman),
+    root:noteAscii(displayNote(x.e.note)), quality:x.e.qual||'maj', beats:x.beats, figure:entryFigure(x.e),
+    notes:_pcsOf(x.e).map(pc=>noteAscii(displayNote(CHROM[pc]))).join('-'),
+    pivot:x.e.type==='pivot'?`${romanAscii(x.e.roman)}->${romanAscii(x.e.romanInDest)}`:''
+  })));
+  return {A,rows};
+}
 function exportClipboard(){
-  const rows=['face,key,roman,note,qual,pitchClasses'];
-  ledger.filter(e=>e.type==='chord'||e.type==='pivot').forEach(e=>{
-    const fi=e.fi>=0?e.fi+1:'';
-    const fk=e.fi>=0?transposedKey(FKEY[e.fi]??'?'):'?';
-    const tn=CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12];
-    const rs=(CHROM.indexOf(e.note)+globalOffset+120)%12;
-    const pcs=chordPCs(rs,e.qual||'maj').map(i=>CHROM[i]).join('-');
-    rows.push(`${fi},${fk},${e.roman},${tn},${e.qual||'maj'},${pcs}`);
-  });
-  navigator.clipboard.writeText(rows.join('\n')).then(()=>setSt('Ledger copied to clipboard'));
+  const {rows}=_exportRows();
+  if(!rows.length){ setSt('add some chords first'); return; }
+  const cols=['section','key','chord','roman','root','quality','beats','figure','notes','pivot'];
+  const csv=[cols.join(',')].concat(rows.map(r=>cols.map(c=>`"${String(r[c]).replace(/"/g,'""')}"`).join(','))).join('\n');
+  _copy(csv,`CSV copied — ${rows.length} chords`);
 }
 function exportJSON(){
-  const data={offset:globalOffset,cloud:[...computeHarmonicCloud()].map(i=>CHROM[i]),
-    chords:ledger.filter(e=>e.type==='chord'||e.type==='pivot').map(e=>({
-      face:e.fi>=0?e.fi+1:null,key:e.fi>=0?transposedKey(FKEY[e.fi]):null,
-      roman:e.roman,note:CHROM[(CHROM.indexOf(e.note)+globalOffset+120)%12],qual:e.qual
-    }))};
-  navigator.clipboard.writeText(JSON.stringify(data,null,2)).then(()=>setSt('JSON copied to clipboard'));
+  const {A,rows}=_exportRows();
+  if(!rows.length){ setSt('add some chords first'); return; }
+  const data={capo:globalOffset, tempo:seqBpm, beats:A.beats,
+    sections:A.sections.map((s,si)=>({key:s.name, beats:s.beats, bestScale:s.scales[0]?scaleLabel(s.scales[0]):null,
+      cadences:s.cadences.map(c=>c.type), enteredBy:s.entry?s.entry.type:null,
+      chords:rows.filter(r=>r.section===si+1).map(({section,key,...r})=>r)}))};
+  _copy(JSON.stringify(data,null,2),'JSON copied');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3753,7 +3719,11 @@ function showPane(name){
 
 function toggleGrimoire(){ showPane(grimoireOpen?'ladder':'analysis'); }
 function toggleLoom(){ showPane(loomOpen?'ladder':'rhythm'); }
+// Eight tabs became five; the old names still land in the right place.
+const GTAB_ALIAS={ledger:'progression',kharu:'progression',cloud:'scales',scores:'scales',wheel:'scales',
+                  plasma:'pitch',sensory:'pitch'};
 function showGTab(id){
+  id=GTAB_ALIAS[id]||id;
   document.querySelectorAll('.gtab').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('.gpane').forEach(p=>p.classList.remove('on'));
   const tb=document.getElementById('gt-'+id);if(tb)tb.classList.add('on');
@@ -5113,6 +5083,346 @@ function commitModulation(){
         (repeat.length?' · progression repeated':'')+
         (opened?' · face opened':far?' · its face is further round the solid':'')+
         ' · ↩ Undo reverses');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROGRESSION ANALYSIS
+//
+// The Analysis screen used to treat the whole ledger as one major key: Harmony
+// Check judged every chord against I (a three-key progression scored a perfect
+// 100, a D-minor one was marked down for "starting on vi"), the scale matrix pooled
+// every note (so "Chromatic" won as soon as you changed key), and the chord list
+// was grouped by 3D face instead of the order you played it.
+//
+// Everything here reads the ledger the way the rest of the app writes it: in order,
+// in sections split at key changes, weighted by how long each chord lasts, with a
+// section centred on vi read as the relative minor.
+// ═══════════════════════════════════════════════════════════
+
+// Minor-key Roman numerals, by semitones above the minor tonic (i III v VI …).
+const MINOR_DEG=['I','♭II','II','III','♯III','IV','♯IV','V','VI','♯VI','VII','♯VII'];
+function _minorRoman(note,tonicNote,qual){
+  const base=MINOR_DEG[((KS[note]??0)-(KS[tonicNote]??0)+12)%12];
+  if(qual==='min') return base.toLowerCase();
+  if(qual==='dim') return base.toLowerCase()+'°';
+  return base;
+}
+
+// Pitch-class weights, in beats: a chord held for 8 beats counts 8 times as much as
+// a passing one-beat chord.
+function _pcWeights(items){
+  const w=new Array(12).fill(0);
+  items.forEach(x=>_pcsOf(x.e).forEach(pc=>{ w[pc]+=x.beats; }));
+  return w;
+}
+
+// Scales that fit a set of chords, best first. Fit is a duration-weighted overlap:
+// note-time inside the scale, against all note-time plus half a share for each
+// scale note you never use — so a 12-note scale can't win just by containing
+// everything. Chromatic is left out for the same reason. Ties go to the scale on
+// the section's tonic, then to the smaller scale.
+function bestScales(items,tonic,n){
+  const w=_pcWeights(items);
+  const used=[]; w.forEach((v,pc)=>{ if(v>0) used.push(pc); });
+  const total=w.reduce((a,b)=>a+b,0);
+  if(!total) return [];
+  const mean=total/used.length;
+  const t=tonic?(KS[tonic.note]??-1):-1;
+  const out=[];
+  for(let r=0;r<12;r++) CANDIDATE_SCALES.forEach(sc=>{
+    if(sc.name==='Chromatic') return;
+    const S=new Set(sc.iv.map(s=>(r+s)%12));
+    let inW=0; S.forEach(pc=>{ inW+=w[pc]; });
+    const missing=[...S].filter(pc=>!w[pc]).length;
+    out.push({root:r, name:sc.name, S, size:S.size,
+              fit:Math.round(100*inW/(total+missing*mean*0.5)),
+              outside:used.filter(pc=>!S.has(pc))});
+  });
+  out.sort((a,b)=>b.fit-a.fit||((b.root===t)-(a.root===t))||(a.size-b.size));
+  // The modes of one scale share their notes (D Dorian = C major = E Phrygian…), so
+  // they tie. Keep each set of notes once — named from the tonic where possible —
+  // and list its other names underneath.
+  const seen=new Map(), uniq=[];
+  out.forEach(s=>{
+    const sig=[...s.S].sort((x,y)=>x-y).join(',');
+    if(seen.has(sig)){ const k=seen.get(sig); if(k.also.length<3) k.also.push(s); return; }
+    s.also=[]; seen.set(sig,s); uniq.push(s);
+  });
+  return uniq.slice(0,n||8);
+}
+function scaleLabel(s){ return `${displayNote(CHROM[s.root])} ${s.name}`; }
+
+// Cadences inside one section, in its own key (major or relative minor).
+function _sectionCadences(s){
+  const out=[], it=s.items;
+  for(let i=1;i<it.length;i++){
+    const a=it[i-1].roman, b=it[i].roman;
+    let type=null;
+    if(!s.minor){
+      if(b==='I') type=a==='V'?'Authentic':a==='IV'?'Plagal':null;
+      else if(a==='V'&&b==='vi') type='Deceptive';
+    } else {
+      if(b==='i') type=(a==='V'||a==='v')?'Authentic':(a==='iv'||a==='IV')?'Plagal':a==='VII'?'Modal':null;
+      else if(a==='V'&&b==='VI') type='Deceptive';
+    }
+    if(type) out.push({type, at:i, from:it[i-1].sym, to:it[i].sym});
+  }
+  const last=it[it.length-1].roman;
+  if(it.length>1&&(last==='V'||(s.minor&&last==='v'))) out.push({type:'Half', at:it.length-1, from:it[it.length-1].sym, to:''});
+  return out;
+}
+
+// A key-aware version of the old five rules, judged per section. null = n/a.
+// A later key area is entered by its own route (often through V), so it only has
+// to reach its tonic; a section that hands over to a key change ends with that
+// change rather than a cadence.
+function _sectionChecks(s,isFirst,isLast){
+  const it=s.items, R=it.map(x=>x.roman), home=s.minor?'i':'I';
+  const pairs=(a,b)=>{ for(let i=1;i<R.length;i++) if(a.includes(R[i-1])&&b.includes(R[i])) return i; return -1; };
+  const checks=[];
+  if(isFirst) checks.push({label:`Starts on home (${home})`, ok:R[0]===home,
+               note:R[0]===home?'':`starts on ${R[0]} — fine for a pickup, but home isn't stated first`});
+  else checks.push({label:`Reaches its new home (${home})`, ok:R.includes(home),
+               note:R.includes(home)?'':`never lands on ${home} — the new key is implied, not confirmed`});
+  if(it.length<2){ checks.push({label:'Ends with a cadence',ok:null,note:'one chord'}); return checks; }
+  const lastCad=s.cadences.find(c=>c.at===it.length-1);
+  const closes=lastCad&&['Authentic','Plagal','Modal'].includes(lastCad.type);
+  if(!isLast&&!closes) checks.push({label:'Ends with a cadence', ok:null, note:'hands over to the key change'});
+  else checks.push({label:'Ends with a cadence', ok:closes?true:false,
+               note:closes?`${lastCad.type.toLowerCase()} (${lastCad.from} → ${lastCad.to})`
+                   :lastCad&&lastCad.type==='Half'?'ends open on V — a half cadence'
+                   :`ends ${R.slice(-2).join(' → ')}`});
+  const retro=s.minor?pairs(['V','v'],['iv','IV']):pairs(['V'],['IV']);
+  checks.push({label:'No backward V → IV', ok:retro<0, note:retro<0?'':`at chord ${retro+1}`});
+  if(!s.minor){
+    const sub=pairs(['ii'],['IV']);
+    checks.push({label:'IV before ii', ok:sub<0, note:sub<0?'':`ii → IV at chord ${sub+1}`});
+    const lt=pairs(['V'],['vii°']);
+    checks.push({label:'vii° leads to I, not after V', ok:lt<0, note:lt<0?'':`V → vii° at chord ${lt+1}`});
+  }
+  return checks;
+}
+
+// How the music got into section s from the one before.
+function _describeKeyChange(prev,s){
+  const lastPrev=prev.items[prev.items.length-1].e, first=s.items[0].e;
+  const iv=_modIv(prev.key,s.key);
+  let type, text;
+  if(lastPrev.type==='pivot'){
+    type='pivot';
+    const inNew=s.minor?_minorRoman(lastPrev.note,s.tonic.note,lastPrev.qual||'maj'):romanAny(lastPrev.note,s.key,lastPrev.qual||'maj');
+    text=`pivot chord ${entrySymbol(lastPrev)} — ${prev.items[prev.items.length-1].roman} in ${prev.name}, ${inNew} in ${s.name}`;
+  } else if(_sameChord(first,_keyV(s.key))){
+    type='dominant'; text=`through the new key's V (${entrySymbol(first)})`;
+  } else if(_sameChord(first,_keyI(s.key))||_sameChord(first,s.tonic)){
+    if([3,4,8,9].includes(iv)){ type='mediant'; text='chromatic mediant — straight to the new tonic a third away'; }
+    else { type='direct'; text='direct — straight to the new tonic'; }
+  } else {
+    const n=_sharedPcs(lastPrev,first).length;
+    type=n?'common':'direct';
+    text=n?`common tone — ${entrySymbol(lastPrev)} and ${entrySymbol(first)} share ${n} note${n>1?'s':''}`
+          :`abrupt — ${entrySymbol(lastPrev)} and ${entrySymbol(first)} share no notes`;
+  }
+  return {type, text, rel:MOD_REL[iv]||'', step:iv===1||iv===2};
+}
+
+function analyzeProgression(){
+  const sections=[]; let cur=null;
+  ledger.forEach((e,i)=>{
+    if(e.type==='keymod'){ cur=null; return; }
+    if(!_isChordEntry(e)) return;
+    const key=(e.type==='pivot'?e.originKey:e.key)||curKey;
+    if(!cur||cur.key!==key){ cur={key, items:[]}; sections.push(cur); }
+    cur.items.push({e, idx:i, beats:entryBeats(e)});
+  });
+  sections.forEach((s,si)=>{
+    const I=_keyI(s.key), vi=_diaChord(s.key,5);
+    const beatsOn=c=>s.items.filter(x=>_sameChord(x.e,c)).reduce((a,x)=>a+x.beats,0);
+    const first=s.items[0].e, last=s.items[s.items.length-1].e;
+    s.minor=(_sameChord(first,vi)||_sameChord(last,vi))&&beatsOn(vi)>=beatsOn(I)&&beatsOn(vi)>0;
+    s.tonic=s.minor?vi:I;
+    s.name=`${displayNote(s.tonic.note)} ${s.minor?'minor':'major'}`;
+    s.beats=s.items.reduce((a,x)=>a+x.beats,0);
+    s.items.forEach(x=>{
+      const q=x.e.qual||'maj';
+      x.roman=s.minor?_minorRoman(x.e.note,s.tonic.note,q):romanAny(x.e.note,s.key,q);
+      x.sym=entrySymbol(x.e);
+    });
+    s.cadences=_sectionCadences(s);
+    s.checks=_sectionChecks(s,si===0,si===sections.length-1);
+    s.scales=bestScales(s.items,s.tonic,8);
+    s.entry=si>0?_describeKeyChange(sections[si-1],s):null;
+  });
+  // Overall rule score: share of applicable checks passed, weighted by section length.
+  let num=0, den=0;
+  sections.forEach(s=>{
+    const app=s.checks.filter(c=>c.ok!==null);
+    if(!app.length) return;
+    num+=s.beats*app.filter(c=>c.ok).length/app.length; den+=s.beats;
+  });
+  const all=sections.flatMap(s=>s.items);
+  return {sections, score:den?Math.round(100*num/den):null, chords:all.length,
+          beats:all.reduce((a,x)=>a+x.beats,0),
+          scales:bestScales(all, sections[0]?sections[0].tonic:null, 8)};
+}
+
+// ── Progression tab ──
+const PG_CAD_COLOUR={Authentic:'var(--c-I)',Plagal:'var(--c-IV)',Modal:'var(--c-vi)',Deceptive:'var(--c-V)',Half:'var(--c-ii)'};
+function _bars(beats){ const b=beats/4; return `${Number.isInteger(b)?b:b.toFixed(1)} bar${b===1?'':'s'}`; }
+
+function updateProgressionPane(){
+  const A=analyzeProgression();
+  const sum=document.getElementById('pg-summary');
+  const box=document.getElementById('pg-sections');
+  const chk=document.getElementById('pg-check');
+  if(!A.chords){
+    if(sum) sum.textContent='Add chords on the Play screen and they will be read here.';
+    if(box) box.innerHTML=''; if(chk) chk.innerHTML='';
+    updateLedgerPane();
+    return;
+  }
+  const keys=A.sections.map(s=>s.name);
+  if(sum) sum.innerHTML=`<b>${A.chords}</b> chord${A.chords===1?'':'s'} · <b>${_bars(A.beats)}</b> · `+
+    (A.sections.length===1?`in <b>${keys[0]}</b>`:`<b>${A.sections.length}</b> key areas: ${keys.join(' → ')}`)+
+    // One scale across several keys says little, so only name it for a single key area.
+    (A.sections.length===1&&A.scales[0]?` · fits <b>${scaleLabel(A.scales[0])}</b>`:'');
+
+  if(box) box.innerHTML=A.sections.map((s,si)=>{
+    const change=s.entry?`<div class="pg-change"><span class="pg-change-arrow">⤳</span>`+
+      `<span><b>${s.name}</b> — ${s.entry.rel}. <i>${s.entry.text}</i></span></div>`:'';
+    const cadAt={}; s.cadences.forEach(c=>{ cadAt[c.at]=c; });
+    const chips=s.items.map((x,i)=>{
+      const c=cadAt[i];
+      const mark=c&&c.type!=='Half'?`<span class="pg-cad" style="--cad:${PG_CAD_COLOUR[c.type]}" title="${c.type} cadence">${c.type}</span>`:'';
+      const half=c&&c.type==='Half'?`<span class="pg-cad" style="--cad:${PG_CAD_COLOUR.Half}" title="Half cadence">half</span>`:'';
+      return mark+`<button class="pg-chip${x.e.type==='pivot'?' pivot':''}" data-lidx="${x.idx}" title="${x.sym} — ${x.roman} in ${s.name} · ${x.beats} beat${x.beats===1?'':'s'} · tap to hear">`+
+        `<span class="pg-sym">${x.sym}</span><span class="pg-rom">${x.roman}</span><span class="pg-beats">${x.beats}</span></button>`+half;
+    }).join('');
+    const sc=s.scales[0];
+    return change+`<div class="pg-sec">`+
+      `<div class="pg-sec-head"><span class="pg-key">${s.name}</span>`+
+      `<span class="pg-meta">${s.items.length} chord${s.items.length===1?'':'s'} · ${_bars(s.beats)}`+
+      (sc?` · fits ${scaleLabel(sc)}`:'')+`</span></div>`+
+      `<div class="pg-chords">${chips}</div>`+
+      `<div class="pg-cads">${s.cadences.length?s.cadences.map(c=>`<span style="--cad:${PG_CAD_COLOUR[c.type]}">${c.type}${c.to?` ${c.from} → ${c.to}`:` on ${c.from}`}</span>`).join(''):'<span class="pg-none">no cadence in this section</span>'}</div>`+
+      `</div>`;
+  }).join('');
+
+  if(chk){
+    const verdicts=['Breaks most of the rules','Mostly outside the rules','Loosely follows the rules',
+                    'Broadly by the book','Close to textbook','Textbook'];
+    const v=A.score==null?'':verdicts[Math.min(5,Math.floor(A.score/17))];
+    chk.innerHTML=`<div class="pg-score"><span class="pg-score-num">${A.score??'—'}</span>`+
+      `<div class="pg-score-side"><div class="gevurah-bar-wrap"><div class="gevurah-bar" style="width:${A.score||0}%"></div></div>`+
+      `<div class="pg-verdict">${v}${A.sections.length>1?` · each key area judged in its own key`:''}</div></div></div>`+
+      A.sections.map(s=>`<div class="pg-rules"><div class="pg-rules-key">${s.name}</div>`+
+        s.checks.map(c=>`<div class="pg-rule ${c.ok===null?'na':c.ok?'ok':'fail'}"><span class="rule-dot ${c.ok===null?'na':c.ok?'ok':'fail'}"></span>`+
+          `<span class="pg-rule-lbl">${c.label}</span><span class="pg-rule-note">${c.ok?'✓':''}${c.note?` ${c.note}`:''}</span></div>`).join('')+
+      `</div>`).join('');
+  }
+  updateLedgerPane();
+}
+
+// ── Scales tab ──
+let scaleScope='all';      // 'all' or a section index
+let _wheelScope=null;      // what the Pitch Wheel draws: {top, H} in sounding pitch
+function updateScalesPane(){
+  const A=analyzeProgression();
+  const pick=document.getElementById('sc-scope');
+  if(scaleScope!=='all'&&!A.sections[scaleScope]) scaleScope='all';
+  if(pick){
+    pick.innerHTML=A.sections.length>1
+      ? [`<button class="dm-seg${scaleScope==='all'?' on':''}" data-scope="all">Whole</button>`]
+        .concat(A.sections.map((s,i)=>`<button class="dm-seg${scaleScope===i?' on':''}" data-scope="${i}">${s.name}</button>`)).join('')
+      : '';
+    pick.style.display=A.sections.length>1?'flex':'none';
+  }
+  const items=scaleScope==='all'?A.sections.flatMap(s=>s.items):A.sections[scaleScope].items;
+  const tonic=scaleScope==='all'?(A.sections[0]&&A.sections[0].tonic):A.sections[scaleScope].tonic;
+  const scales=items.length?bestScales(items,tonic,8):[];
+  const w=_pcWeights(items), wMax=Math.max(1,...w);
+
+  const list=document.getElementById('score-list');
+  if(list){
+    list.innerHTML=!scales.length
+      ? '<div class="pg-none">Add chords on the Play screen to see which scales fit.</div>'
+      : scales.map((s,i)=>`<div class="score-row${i===0?' top-score':i<3?' high-score':''}">`+
+          `<span class="score-name">${scaleLabel(s)}</span>`+
+          `<div class="score-bar-wrap"><div class="score-bar" style="width:${s.fit}%"></div></div>`+
+          `<span class="score-pct">${s.fit}%</span>`+
+          `<span class="score-out">${s.outside.length?'outside: '+s.outside.map(pc=>displayNote(CHROM[pc])).join(' '):'every note fits'}`+
+          `${s.also&&s.also.length?` · same notes as ${s.also.map(scaleLabel).join(', ')}`:''}</span></div>`).join('');
+  }
+  const used=w.filter(v=>v>0).length;
+  const cnt=document.getElementById('cloud-count');
+  if(cnt) cnt.textContent=`${used} of 12 notes used · darker = held longer · dashed = outside the top scale`;
+  const disp=document.getElementById('cloud-display');
+  if(disp){
+    const top=scales[0];
+    disp.innerHTML=CHROM.map((_,pc)=>{
+      const a=w[pc]/wMax, inTop=top&&top.S.has(pc);
+      return `<div class="cloud-note${w[pc]?' active':' inactive'}${top&&w[pc]&&!inTop?' outside':''}" `+
+        `style="--a:${a.toFixed(2)}" title="${displayNote(CHROM[pc])} · ${w[pc]} beat${w[pc]===1?'':'s'}">${displayNote(CHROM[pc])}</div>`;
+    }).join('');
+  }
+  const det=document.getElementById('cloud-detail');
+  if(det) det.textContent=scales[0]&&scales[0].outside.length
+    ? `Outside ${scaleLabel(scales[0])}: ${scales[0].outside.map(pc=>displayNote(CHROM[pc])).join(', ')} — the colour notes.`
+    : scales[0]?`Every note sits inside ${scaleLabel(scales[0])}.`:'';
+
+  // Pitch Wheel follows the same selection (it draws in sounding pitch).
+  const off=pc=>(pc+globalOffset+120)%12;
+  _wheelScope=scales[0]?{
+    top:{scalePCs:new Set([...scales[0].S].map(off)), rootSemi:off(scales[0].root), scaleName:scales[0].name, ck:scales[0].fit},
+    H:new Set(w.map((v,pc)=>v?off(pc):-1).filter(x=>x>=0))
+  }:null;
+  drawConstellation();
+}
+
+// ── Generators: add a whole phrase in one go ──
+// The generators used to drip chords into the ledger one at a time on timers, so
+// ↩ Undo could only take them back chord by chord and "Tour All Keys" changed key
+// without key-change markers. Now a phrase lands at once — one Undo removes it,
+// key changes get their markers — and then it plays.
+//   steps: [{note, qual, key, roman?}]
+//   opts.play: true (default) plays the triads; 'extended' plays with the current
+//   chord extensions, like the style generator always has; false stays silent.
+function addGeneratedPhrase(steps,label,opts){
+  if(!steps||!steps.length) return [];
+  const play=opts&&opts.play!==undefined?opts.play:true;
+  const rec=_rememberLedger(label);
+  const start=ledger.length;
+  const lastC=ledger.filter(_isChordEntry).slice(-1)[0];
+  let prevKey=lastC?((lastC.type==='pivot'?lastC.destKey:lastC.key)||null):null;
+  // A key-change marker already waiting at the end (a fold with no chord after it
+  // yet) is where the music is heading, so start from its destination.
+  const tail=ledger[ledger.length-1];
+  if(tail&&tail.type==='keymod') prevKey=tail.toKey;
+  steps.forEach(st=>{
+    if(prevKey&&st.key&&st.key!==prevKey){
+      const t=ledger[ledger.length-1];
+      // Back-to-back markers collapse into one; a marker that undoes itself goes.
+      if(t&&t.type==='keymod'){ if(t.fromKey===st.key) ledger.pop(); else t.toKey=st.key; }
+      else ledger.push({type:'keymod',fromKey:prevKey,toKey:st.key});
+    }
+    ledger.push({type:'chord', roman:st.roman||romanAny(st.note,st.key,st.qual), note:st.note,
+                 qual:st.qual||'maj', key:st.key, fi:faceForKey(st.key)});
+    prevKey=st.key;
+  });
+  if(!tonicAnchor){
+    const f=steps.find(s=>s.roman==='I')||steps[0];
+    tonicAnchor={semi:KS[f.note]??0, note:f.note, qual:f.qual||'maj', roman:f.roman||'I', key:f.key};
+  }
+  _armLedgerUndo(rec);
+  _afterLedgerRewrite();
+  const added=ledger.slice(start).filter(_isChordEntry);
+  if(play==='extended'){
+    added.forEach((e,i)=>musicTimeout(()=>{ playChordExtended(e.note,e.qual||'maj'); triggerFlash(e.fi>=0?e.fi:activeFace); },i*getChordStepMs()));
+  } else if(play){
+    const beatSec=60/seqBpm; let t=0;
+    added.forEach(e=>{ const d=entryBeats(e)*beatSec; playEntry(e,t,d); t+=d; });
+  }
+  return added;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -6746,6 +7056,20 @@ function onDrumInput(ev){
   if(ev.target.id==='dmt-vol') setDrumVol(dm.sel,+ev.target.value);
 }
 
+(function initAnalysis(){
+  const pg=document.getElementById('pg-sections');
+  if(pg) pg.addEventListener('click',ev=>{
+    const b=ev.target.closest('[data-lidx]'); if(!b) return;
+    const e=ledger[+b.dataset.lidx]; if(e) playEntry(e,0,Math.min(2.4,entryBeats(e)*60/seqBpm));
+  });
+  const sc=document.getElementById('sc-scope');
+  if(sc) sc.addEventListener('click',ev=>{
+    const b=ev.target.closest('[data-scope]'); if(!b) return;
+    scaleScope=b.dataset.scope==='all'?'all':+b.dataset.scope;
+    updateScalesPane();
+  });
+})();
+
 (function initModulate(){
   const m=document.getElementById('modsheet');
   if(m){ m.addEventListener('click',onModClick); m.addEventListener('change',onModChange); }
@@ -6813,10 +7137,11 @@ function drawConstellation(){
   ctx2.strokeStyle=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.08)';
   ctx2.lineWidth=1; ctx2.stroke();
 
-  // Get top scale
-  const top=getTopScale();
+  // Draw what the Scales tab has selected (a key area or the whole progression);
+  // fall back to the whole ledger, never letting 12-note Chromatic win.
+  const top=_wheelScope?_wheelScope.top:getTopScale({excludeChromatic:true});
   const activePCs=top?top.scalePCs:new Set();
-  const H=computeHarmonicCloud();
+  const H=_wheelScope?_wheelScope.H:computeHarmonicCloud();
 
   // Draw polygon connecting scale notes (filled)
   if(top && top.scalePCs.size>0){
@@ -6932,7 +7257,7 @@ function drawConstellation(){
   if(top){
     if(lbl)lbl.textContent=`${CHROM[(top.rootSemi+globalOffset+120)%12]} ${top.scaleName}`;
     const pStr=top._purity!=null?` · ♦ ${top._purity}% span`:'';
-    if(sub)sub.textContent=`consonance ${top.ck}% · ${top.scalePCs.size} tones${pStr}`;
+    if(sub)sub.textContent=`fit ${top.ck}% · ${top.scalePCs.size} notes${pStr}`;
   } else {
     if(lbl)lbl.textContent='—';
     if(sub)sub.textContent='place chords to generate';
@@ -6951,12 +7276,12 @@ function drawConstellation(){
 let _constellationTimer=null;
 function scheduleConstellationRedraw(){
   if(!grimoireOpen) return;
-  if(document.querySelector('.gtab.on')?.id!=='gt-wheel') return;
+  if(document.querySelector('.gtab.on')?.id!=='gt-scales') return;
   // Cancel any pending redraw — only the final call in a burst fires
   clearTimeout(_constellationTimer);
   _constellationTimer=setTimeout(()=>{
     _constellationTimer=null;
-    drawConstellation();
+    updateScalesPane();
   }, 250);
 }
 
@@ -7245,108 +7570,7 @@ function updateWorldIndicator(){
 // C(p) = Σ penalty(transition_i)
 // Five Laws scored against the chord ledger
 // ═══════════════════════════════════════════════════════════
-function computeGevurah(){
-  const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
-  if(!chords.length) return {score:null,violations:[],rules:Array(5).fill(null)};
 
-  const v=[];
-  let penalty=0;
-
-  // Law 1: Tonic Anchor — first chord must be I
-  const law1=chords[0].roman==='I';
-  if(!law1){v.push({severity:'high',rule:'Tonic Anchor',msg:`Begins on ${chords[0].roman}, not I`});penalty+=30;}
-
-  // Law 2: No ii→IV (subdominant ordering — IV must precede ii)
-  let law2=true;
-  for(let i=0;i<chords.length-1;i++){
-    if(chords[i].roman==='ii'&&chords[i+1].roman==='IV'){
-      law2=false;
-      v.push({severity:'high',rule:'Subdominant Order',msg:`ii→IV at step ${i+1} (reversed)`});
-      penalty+=40;break;
-    }
-  }
-
-  // Law 3: No V→IV retrogression (maximum penalty)
-  let law3=true;
-  for(let i=0;i<chords.length-1;i++){
-    if(chords[i].roman==='V'&&chords[i+1].roman==='IV'){
-      law3=false;
-      v.push({severity:'critical',rule:'Retrogression',msg:`V→IV at step ${i+1} — maximum penalty`});
-      penalty+=80;break;
-    }
-  }
-
-  // Law 4: vii° must precede V (never follow it)
-  let law4=true;
-  for(let i=0;i<chords.length-1;i++){
-    if(chords[i].roman==='V'&&chords[i+1].roman==='vii°'){
-      law4=false;
-      v.push({severity:'medium',rule:'vii° Rule',msg:`V→vii° at step ${i+1} (must precede V)`});
-      penalty+=25;break;
-    }
-  }
-
-  // Law 5: Authentic cadence — V→I at terminus
-  const last2=chords.slice(-2);
-  const law5=last2.length===2&&last2[0].roman==='V'&&last2[1].roman==='I';
-  if(chords.length>=2&&!law5){
-    v.push({severity:'medium',rule:'Authentic Cadence',msg:`Ends ${last2.map(c=>c.roman).join('→')}, not V→I`});
-    penalty+=20;
-  }
-
-  const raw=Math.max(0,100-Math.round(penalty/Math.max(1,Math.ceil(chords.length/3))));
-  const score=Math.min(100,raw);
-  return{score,violations:v,rules:[law1,law2,law3,law4,law5],total:chords.length};
-}
-
-function updateKharuPane(){
-  const res=computeGevurah();
-  const scoreEl=document.getElementById('gev-score');
-  const barEl=document.getElementById('gev-bar');
-  const verdictEl=document.getElementById('gev-verdict');
-  const violEl=document.getElementById('gev-violations');
-
-  if(res.score===null){
-    if(scoreEl)scoreEl.textContent='—';
-    if(barEl)barEl.style.width='0%';
-    if(verdictEl)verdictEl.textContent='Place chords to activate analysis.';
-    if(violEl)violEl.innerHTML='<span style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No violations detected.</span>';
-    ['rd-0','rd-1','rd-2','rd-3','rd-4'].forEach(id=>{const e=document.getElementById(id);if(e){e.className='rule-dot na';}});
-    ['rh-0','rh-1','rh-2','rh-3','rh-4'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
-    return;
-  }
-
-  if(scoreEl)scoreEl.textContent=res.score;
-  if(barEl)barEl.style.width=res.score+'%';
-
-  const verdicts=['Breaks every rule','Mostly outside the rules','Loosely follows the rules',
-                  'Broadly by the book','Close to textbook','Textbook voice-leading'];
-  const vi=Math.min(verdicts.length-1, Math.floor(res.score/17));
-  if(verdictEl)verdictEl.textContent=`${verdicts[vi]} · ${res.total} chord${res.total!==1?'s':''}`;
-
-  // Rule dots
-  const ruleHints=['Must start on I','IV before ii','Never V→IV','vii° before V only','End V→I'];
-  res.rules.forEach((pass,i)=>{
-    const dot=document.getElementById(`rd-${i}`);
-    const hint=document.getElementById(`rh-${i}`);
-    if(dot)dot.className='rule-dot '+(pass===null?'na':pass?'ok':'fail');
-    if(hint)hint.textContent=pass===null?'—':pass?'✓':ruleHints[i];
-  });
-
-  // Violations list
-  if(violEl){
-    if(!res.violations.length){
-      violEl.innerHTML='<span style="font-family:\'Cormorant Garamond\',serif;font-size:12px;font-style:italic;color:var(--text3);">No violations detected.</span>';
-    } else {
-      violEl.innerHTML='';
-      res.violations.forEach(viol=>{
-        const row=document.createElement('div');row.className='violation-row';
-        row.innerHTML=`<span class="v-severity ${viol.severity}">${viol.severity}</span><span class="v-rule">${viol.rule}</span><span class="v-msg">${viol.msg}</span>`;
-        violEl.appendChild(row);
-      });
-    }
-  }
-}
 
 // ═══════════════════════════════════════════════════════════
 // TONNETZ LATTICE RENDERER
@@ -7634,22 +7858,8 @@ function generateGevurahPath(){
   if(!activeFace&&builtSet.size===0){setSt('open a tonal center first');return;}
   const key=curKey;
   const path=findGevurahPhrase(6);
-  path.forEach((step,i)=>{
-    const note=noteFrom(key,step.semi);
-    musicTimeout(()=>{
-      playChord(note,step.qual);
-      ledger.push({type:'chord',roman:step.roman,note,qual:step.qual,key,fi:activeFace>=0?activeFace:-1});
-      renderLedger();
-      if(!tonicAnchor&&step.roman==='I'){
-        const semi=(KS[key]??0);
-        tonicAnchor={semi,note,qual:step.qual,roman:step.roman,key};
-        if(pedagogyLevel===3)renderChordStrip(key);
-      }
-      triggerFlash(activeFace>=0?activeFace:0);
-      updateGrimoire();
-    },i*getChordStepMs());
-  });
-  setSt(`Rule-compliant path: ${path.map(s=>s.roman).join('–')} in ${key} · authentic cadence`);
+  addGeneratedPhrase(path.map(st=>({roman:st.roman,note:noteFrom(key,st.semi),qual:st.qual,key})),'rule-following progression');
+  setSt(`Rule-following: ${path.map(s=>s.roman).join('–')} in ${transposedKey(key)} · added to the ledger · ↩ Undo removes it`);
 }
 
 // ── FULL LADDER — Hamiltonian traversal through all built tonal centers ──
@@ -7679,7 +7889,9 @@ function generateFullLadder(){
     return false;
   }
   bt();
-  // Play I chord at each face in topological sequence, rotating the solid to each center
+  // The whole tour lands in the ledger at once (with key-change markers); the
+  // solid then turns to each centre in time as its I chord plays.
+  addGeneratedPhrase(pathFaces.map(fi=>({roman:'I',note:noteFrom(FKEY[fi],0),qual:'maj',key:FKEY[fi]})),'key tour',{play:false});
   const STEP_MS=getChordStepMs();
   pathFaces.forEach((fi,i)=>{
     const key=FKEY[fi],note=noteFrom(key,0);
@@ -7687,12 +7899,10 @@ function generateFullLadder(){
       activeFace=fi;curKey=key;
       rotateTo(FACES[fi].cen);
       playChord(note,'maj');
-      ledger.push({type:'chord',roman:'I',note,qual:'maj',key,fi});
-      if(!tonicAnchor&&i===0){tonicAnchor={semi:(KS[key]??0),note,qual:'maj',roman:'I',key};if(pedagogyLevel===3)renderChordStrip(key);}
-      renderLedger();renderChordStrip(key);syncKeySelector();triggerFlash(fi);updateGrimoire();
+      renderChordStrip(key);syncKeySelector();triggerFlash(fi);
     },i*STEP_MS);
   });
-  setSt(`Full Ladder: ${pathFaces.length}/12 tonal centers · Hamiltonian traversal begins`);
+  setSt(`Key tour: ${pathFaces.length} open keys · added to the ledger · ↩ Undo removes it`);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -7833,10 +8043,10 @@ function generateGoeticPhrase(){
       phrase = markovPhrase(7, mu);
       break;
     case 'AMON':
-      // Reconciler: use Teshuvah contextual resolution path + Gevurah cadence
-      resolveContextually();
-      // Generate standard path as complement
-      phrase = findGevurahPhrase(6);
+      // Reconciler: the contextual resolution path, then a rule-following phrase —
+      // added together so one Undo takes both back.
+      phrase = (resolveContextually({dryRun:true})||[]).map(s=>({roman:s.roman,semi:((KS[s.note]??0)-(KS[curKey]??0)+12)%12,qual:s.qual}))
+        .concat(findGevurahPhrase(6));
       mu = 0.05;
       break;
     case 'ASMODEUS':
@@ -7868,22 +8078,9 @@ function generateGoeticPhrase(){
       break;
   }
 
-  // Play phrase using extended voicings
-  phrase.forEach((step,i)=>{
-    const note = noteFrom(key, step.semi||0);
-    musicTimeout(()=>{
-      playChordExtended(note, step.qual||'maj');
-      ledger.push({type:'chord',roman:step.roman,note,qual:step.qual||'maj',key,fi:activeFace>=0?activeFace:-1});
-      renderLedger();
-      if(!tonicAnchor&&step.roman==='I'){
-        const semi=(KS[key]??0);
-        tonicAnchor={semi,note,qual:step.qual||'maj',roman:step.roman,key};
-        if(pedagogyLevel===3)renderChordStrip(key);
-      }
-      triggerFlash(activeFace>=0?activeFace:0);
-      updateGrimoire();
-    },i*getChordStepMs());
-  });
+  // Add the phrase in one go and play it with extended voicings
+  addGeneratedPhrase(phrase.map(st=>({roman:st.roman,note:noteFrom(key,st.semi||0),qual:st.qual||'maj',key})),
+    `${STYLE_NAMES[goeticMode]||'style'} phrase`,{play:'extended'});
 
   const extLabel = fibExtLevel>0 ? ` · ${FIB_EXT_NAMES[fibExtLevel]}s` : '';
   setSt(`${STYLE_NAMES[goeticMode]||goeticMode} · ${phrase.map(s=>s.roman).join('–')}${extLabel}`);
@@ -7946,7 +8143,7 @@ function renderContextualDisplay(mode,H,path,pattern,impliedKeyName){
 }
 
 // Main contextual resolution function
-function resolveContextually(){
+function resolveContextually(opts){
   const chords=ledger.filter(e=>e.type==='chord'||e.type==='pivot');
   if(!chords.length){setSt('place chords first — the engine needs context to read');return;}
 
@@ -8069,19 +8266,14 @@ function resolveContextually(){
   }
   resPath.push({roman:'I',note:noteFrom(curKey,0),qual:'maj',label:'tonic'});
 
-  // ── Render display and play ──
+  // ── Render display, then add and play ──
   renderContextualDisplay(mode,H,resPath,pattern,impliedKeyName);
+  if(opts&&opts.dryRun) return resPath;   // the style generator folds this into its phrase
 
-  resPath.forEach((step,i)=>{
-    musicTimeout(()=>{
-      playChord(step.note,step.qual);
-      ledger.push({type:'chord',roman:step.roman,note:step.note,qual:step.qual,key:curKey,fi:activeFace>=0?activeFace:-1});
-      renderLedger();updateGrimoire();
-    },i*getChordStepMs());
-  });
-
+  addGeneratedPhrase(resPath.map(s=>({roman:s.roman,note:s.note,qual:s.qual,key:curKey})),'resolution');
   const pathStr=resPath.map(s=>s.roman).join('→');
-  setSt(`Resolution · ${MODE_LABELS[mode]||mode} · ${pathStr}`);
+  setSt(`Resolution · ${MODE_LABELS[mode]||mode} · ${pathStr} · ↩ Undo removes it`);
+  return resPath;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -8259,7 +8451,7 @@ function detectGenre(){
   scores.sort((a,b)=>b.score-a.score);
   const best=scores[0], second=scores[1];
   const pct=v=>Math.max(0,Math.round(v*100));
-  badge.textContent=`AUTO · ${best.key} · ${pct(best.score)}%  (${second.key} · ${pct(second.score)}%)`;
+  badge.textContent=`Closest style: ${GENRES[best.key]?.name||best.key} ${pct(best.score)}% · next ${GENRES[second.key]?.name||second.key} ${pct(second.score)}%`;
   // Highlight best genre button when nothing manually selected
   if(!selectedGenre){
     document.querySelectorAll('.genre-btn').forEach(b=>{

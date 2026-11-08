@@ -11,7 +11,7 @@ A syncretic 3D harmonic instrument. Dodecahedral geometry maps the Circle of Fif
 | Temporal | Drum machine: 8 synthesised drums × 16 steps, accents, swing, 4/4 · 3/4 · 5/8 · 7/8, per-drum loop lengths (true polyrhythm). One clock shared with the ledger loop |
 | Harmonic | 480-candidate consonance matrix, Harmonic Cloud H, Pitch Wheel (Shoelace area metric) |
 | Audio | Three buses: Drums (synthesised kit → lowpass → limiter) + Chords (LP 1800Hz, all pitched material) + Metronome (independent). ADSR envelopes. Global stop cancels queued phrases and cuts scheduled voices. |
-| Analysis | Transpose (global chromatic offset), Cloud, Scales, Ledger, Presets, Harmony Check, Tonnetz, Pitch Wheel |
+| Analysis | Reads the ledger in key areas (split at key changes, relative minor recognised), duration-weighted scale fit, cadences, key-aware rule check, Tonnetz, generators, capo (global chromatic offset) |
 
 ## Navigation
 
@@ -22,7 +22,7 @@ Five screens, one row of tabs at the bottom. No overlay menu.
 | **Play** | The dodecahedron, chord pills, ledger — the composing surface |
 | **Rhythm** | Drum machine — 8 drums, pattern library, tempo, swing, meter, per-drum loops; ＋ Chords plays your progression with the beat |
 | **Sound** | Every audio control: Stop All, tempo, tap, metronome, mixer, drone, tone, practice timer |
-| **Analysis** | Transpose, harmonic cloud, scale matrix, ledger, presets, Harmony Check, Tonnetz, Pitch Wheel |
+| **Analysis** | Five tabs — **Progression** (key areas, Roman numerals, cadences, how each key change happens, rule check, style fit) · **Scales** (best-fit scales per key area, notes used, pitch wheel) · **Tonnetz** · **Generate** (adds whole phrases; one Undo removes them) · **Pitch** (capo, session presets, CSV/JSON export) |
 | **Learn** | Ear, voice leading, cadences, fretboard, keyboard, degrees |
 
 **■ Stop** sits in the top bar on every screen. It cancels queued phrases and cuts
@@ -54,7 +54,7 @@ committed to the audio clock stops immediately.
 
 ## Session Presets
 
-Open Analysis → Presets for:
+Open Analysis → Pitch for:
 - **Soft Tone** — LP fc↓1200Hz, Q=1.2, drums rounded off (lowpass 3.5 kHz)
 - **First Session preset** — C Major, BPM 72, sparse offbeat rhythm
 - **Rhythm presets** — sparse Fibonacci and golden-angle drum patterns, loaded into the drum machine
