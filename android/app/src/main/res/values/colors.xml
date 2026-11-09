@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The app's light-theme background colour, so nothing flashes white on start. -->
+    <color name="jl_cream">#EEEAD8</color>
+</resources>

@@ -14,9 +14,14 @@
 <meta name="apple-mobile-web-app-title" content="Ladder">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
-  if('serviceWorker' in navigator){
+  // Inside the Android app the files are already on the phone, so the offline
+  // cache would only add a way to serve stale files. The website keeps it.
+  window.JL_NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+  if('serviceWorker' in navigator && !window.JL_NATIVE){
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   }
+  // iPhone: play through the silent switch, like any music app.
+  try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
 </script>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
@@ -1561,6 +1566,17 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
 }
 #settings .set-sheet,#rgen .rg-sheet,#chord-card .cc-sheet,
 #xpose .rg-sheet,#modsheet .rg-sheet,#sketches .rg-sheet{padding-bottom:var(--sa-b);}
+
+/* ══ STARTERS — one-tap progressions on an empty Play screen ══ */
+#starter-row{display:none;align-items:center;gap:4px;margin-bottom:6px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;min-width:0;}
+#starter-row.on{display:flex;}
+#starter-row::-webkit-scrollbar{display:none;}
+.st-lbl{font-size:9px;letter-spacing:0.30em;color:var(--text3);text-transform:uppercase;flex-shrink:0;margin-right:3px;}
+#starter-row .st-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;
+  padding:5px 11px;line-height:1.25;text-align:left;min-height:44px;}
+.st-n{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);}
+.st-c{font-size:10px;letter-spacing:0.04em;color:var(--text2);white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -2068,6 +2084,9 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     </div>
   </div>
 
+  <!-- Starters: shown only while the ledger has no chords -->
+  <div id="starter-row" role="group" aria-label="Start with a progression"></div>
+
   <div id="led-row">
     <span id="led-lbl">Ledger</span>
     <div id="led-seq"></div>
@@ -2144,7 +2163,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
       <button class="snd-seg-btn"    data-inst="guitar" onclick="setInstrument('guitar')">Guitar</button>
       <button class="snd-seg-btn"    data-inst="nylon"  onclick="setInstrument('nylon')">Nylon</button>
     </div>
-    <p class="snb-hint snd-hint">Chords, playback and ear drills all use it. Guitars strum real chord shapes. Recorded sounds download once (1–2 MB), then work offline.</p>
+    <p class="snb-hint snd-hint" id="inst-hint">Chords, playback and ear drills all use it. Guitars strum real chord shapes. Recorded sounds download once (1–2 MB), then work offline.</p>
 
     <!-- ── TRANSPORT ── -->
     <div class="s-section">Tempo</div>
@@ -3293,6 +3312,7 @@ function syncSceneBg(){
   // Phone status bar / browser chrome follows the in-app theme.
   const tc=document.querySelector('meta[name="theme-color"]');
   if(tc) tc.setAttribute('content',dark?'#07080e':'#eeead8');
+  if(typeof _nativeBarStyle==='function') _nativeBarStyle(dark);
   wireMat.color.set(dark?0xc8a84b:0x9a6e14);wireMat.opacity=dark?0.06:0.22;
   pivotEdgeLines.forEach(p=>p.mat.color.set(dark?0xc8a84b:0x9a6e14));
   layers.forEach(lyr=>{const h=lyr.h,l=!dark;
@@ -5104,6 +5124,7 @@ function undoLedgerSnapshot(){
   const u=ledgerUndo;
   // A key change may also have opened a face and moved the key — put those back.
   if(u.placedFace!=null) _popFace(u.placedFace);
+  if(u.placedFaces) [...u.placedFaces].reverse().forEach(_popFace);
   if(u.prevKey!=null){
     curKey=u.prevKey; activeFace=u.prevActive; previewFace=u.prevPreview??-1;
     if(activeFace>=0&&FACES[activeFace]) rotateTo(FACES[activeFace].cen);
@@ -6070,6 +6091,7 @@ function renderLedger(){
   else{const a=document.getElementById('tension-arc');if(a)a.style.display='none';}
   renderCadenceStrip();
   syncDroneToKey();
+  renderStarters();
 }
 
 function removeLedgerEntry(idx,el){
@@ -10927,6 +10949,118 @@ function deleteSketch(id){
   // Save straight away when the app is put away — phones may close it without warning.
   document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') _skSave(); });
   window.addEventListener('pagehide',_skSave);
+})();
+
+// ═══════════════════════════════════════════════════════════
+// STARTERS — a progression in one tap
+//
+// An empty Play screen used to offer only "tap the solid". Now it also offers six
+// well-worn progressions. One opens its key on the solid, lands in the ledger as a
+// single phrase (one ↩ Undo removes it, faces included) and plays. The row hides
+// as soon as there are chords.
+// ═══════════════════════════════════════════════════════════
+// var, not const: renderLedger runs during start-up, before this line is reached.
+var STARTERS=[
+  {name:'Pop',        key:'G', ch:[['G','maj'],['D','maj'],['E','min'],['C','maj']]},
+  {name:'Ballad',     key:'C', ch:[['C','maj'],['A','min'],['F','maj'],['G','maj']]},
+  {name:'Minor',      key:'C', ch:[['A','min'],['F','maj'],['C','maj'],['G','maj']]},
+  {name:'Blues',      key:'A', ch:[['A','maj'],['D','maj'],['E','maj']]},
+  {name:'ii–V–I',     key:'C', ch:[['D','min'],['G','maj'],['C','maj']]},
+  // Am is vi in C and ii in G, so it carries the music across.
+  {name:'Key change', key:'C', ch:[['C','maj'],['F','maj'],['A','min'],['D','maj','G'],['G','maj','G']]},
+];
+function _starterSteps(s){ return s.ch.map(([note,qual,key])=>({note,qual,key:key||s.key})); }
+function _starterLabel(s){
+  const sym=c=>chordSymbol(displayNote(c.note),c.qual);
+  const st=_starterSteps(s);
+  return st.map((c,i)=>(i&&c.key!==st[i-1].key?'→ ':'')+sym(c)).join(' ');
+}
+function renderStarters(){
+  const row=document.getElementById('starter-row'); if(!row||!STARTERS) return;
+  const show=!ledger.some(_isChordEntry);
+  row.classList.toggle('on',show);
+  if(!show) return;
+  row.innerHTML='<span class="st-lbl">Start with</span>'+STARTERS.map((s,i)=>
+    `<button class="ks st-chip" onclick="useStarter(${i})" title="Add ${s.name}: ${_starterLabel(s)} · ↩ Undo removes it">`+
+    `<span class="st-n">${s.name}</span><span class="st-c">${_starterLabel(s)}</span></button>`).join('');
+}
+function useStarter(i){
+  const s=STARTERS[i];
+  if(!s||ledger.some(_isChordEntry)) return;
+  const steps=_starterSteps(s);
+  const prev={key:curKey, active:activeFace, preview:previewFace};
+  // Open each key on the solid — the first anywhere, later ones only where they
+  // touch an open face, the same rule as a fold.
+  const opened=[];
+  [...new Set(steps.map(st=>st.key))].forEach(k=>{
+    const fi=faceForKey(k);
+    if(fi<0||builtSet.has(fi)) return;
+    if(builtSet.size===0||getAvailable().includes(fi)){ placeFace(fi,k); opened.push(fi); }
+  });
+  const endKey=steps[steps.length-1].key, efi=faceForKey(endKey);
+  curKey=endKey; previewFace=-1;
+  if(efi>=0&&builtSet.has(efi)){ activeFace=efi; rotateTo(FACES[efi].cen); }
+  addGeneratedPhrase(steps.map(st=>({...st, roman:romanAny(st.note,st.key,st.qual)})), `${s.name} starter`);
+  if(ledgerUndo){
+    ledgerUndo.placedFaces=opened;
+    ledgerUndo.prevKey=prev.key; ledgerUndo.prevActive=prev.active; ledgerUndo.prevPreview=prev.preview;
+  }
+  renderChordStrip(curKey); syncKeySelector();
+  setSt(`${s.name} · ${_starterLabel(s)} · ↩ Undo removes it`);
+}
+renderStarters();
+
+// ═══════════════════════════════════════════════════════════
+// BACK — Android's back button and gesture
+//
+// Closes whatever is on top: a pop-up first, then a full screen (back to Play).
+// Returns false on a bare Play screen, where the app goes to the background.
+// ═══════════════════════════════════════════════════════════
+function handleBack(){
+  const isOpen=id=>{ const el=document.getElementById(id); return !!el&&(el.classList.contains('open')||el.classList.contains('show')); };
+  const sheets=[
+    ['copy-fallback', ()=>document.getElementById('copy-fallback').classList.remove('open')],
+    ['chord-card',    closeChordCard],
+    ['modsheet',      closeModulate],
+    ['xpose',         closeTranspose],
+    ['rgen',          closeRhythmGens],
+    ['sketches',      closeSketches],
+    ['settings',      closeSettings],
+    ['drawer',        ()=>document.getElementById('drawer').classList.remove('open')],
+    ['complete',      ()=>document.getElementById('complete').classList.remove('show')],
+    ['mode-overlay',  ()=>document.getElementById('mode-overlay').classList.remove('open')],
+  ];
+  for(const [id,close] of sheets){ if(isOpen(id)){ close(); return true; } }
+  if(currentPane!=='ladder'){ showPane('ladder'); return true; }
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANDROID APP — only runs inside the Capacitor wrapper
+// ═══════════════════════════════════════════════════════════
+function _capPlugin(name){ return window.JL_NATIVE&&window.Capacitor.Plugins?window.Capacitor.Plugins[name]:null; }
+// Status-bar icons stay readable: dark icons on the light theme, light on the dark.
+function _nativeBarStyle(dark){
+  const bars=_capPlugin('SystemBars');
+  if(bars&&bars.setStyle) bars.setStyle({style:dark?'DARK':'LIGHT'}).catch(()=>{});
+}
+(function initNative(){
+  if(!window.JL_NATIVE) return;
+  document.documentElement.classList.add('native');
+  _nativeBarStyle(document.documentElement.dataset.theme==='dark');
+  // The recordings ship inside the app, so nothing downloads.
+  const hint=document.getElementById('inst-hint');
+  if(hint) hint.textContent='Chords, playback and ear drills all use it. Guitars strum real chord shapes.';
+  // The app's web view can't open new tabs, so the privacy page opens in place
+  // (the sketch is saved on the way out; back returns to it).
+  document.querySelectorAll('a[target="_blank"]').forEach(a=>{
+    if(!/^([a-z]+:|\/\/)/i.test(a.getAttribute('href')||'')) a.removeAttribute('target');   // the app's own pages only
+  });
+  const App=_capPlugin('App');
+  if(!App) return;
+  App.addListener('backButton',()=>{ if(!handleBack()) App.minimizeApp(); });
+  // Put away: save, and stop the sound rather than leave a loop running unseen.
+  App.addListener('pause',()=>{ _skSave(); stopAll(); });
 })();
 </script>
 </body>

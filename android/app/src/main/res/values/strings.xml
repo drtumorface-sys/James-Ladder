@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">James\' Ladder</string>
+    <string name="title_activity_main">James\' Ladder</string>
+    <string name="package_name">io.github.drtumorface.jamesladder</string>
+    <string name="custom_url_scheme">io.github.drtumorface.jamesladder</string>
+</resources>

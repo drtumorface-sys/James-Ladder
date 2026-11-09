@@ -1,0 +1,18 @@
+{
+  "appId": "io.github.drtumorface.jamesladder",
+  "appName": "James' Ladder",
+  "webDir": "www",
+  "backgroundColor": "#eeead8",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "initialViewportFitValueHint": "cover",
+      "style": "LIGHT"
+    }
+  }
+}

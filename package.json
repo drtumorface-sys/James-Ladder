@@ -1,0 +1,22 @@
+{
+  "name": "james-ladder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "James' Ladder: a harmonic sketchpad for chord progressions. Web app plus the Android (Capacitor) wrapper.",
+  "scripts": {
+    "build": "node scripts/build-www.mjs",
+    "sync": "npm run build && npx cap sync android",
+    "apk": "npm run sync && cd android && .\\gradlew.bat assembleDebug",
+    "icons": "python icons/make_android_assets.py && npx capacitor-assets generate --android --assetPath assets",
+    "open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.6.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "4.0.0",
+    "@capacitor/cli": "8.6.0"
+  }
+}

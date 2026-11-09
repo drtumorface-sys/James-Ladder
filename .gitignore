@@ -1,0 +1,7 @@
+# Android build (Capacitor)
+node_modules/
+www/
+# Signing keys stay off GitHub. Keep your own backup.
+*.jks
+*.keystore
+keystore.properties

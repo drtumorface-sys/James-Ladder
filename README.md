@@ -73,6 +73,20 @@ committed to the audio clock stops immediately.
   same files work inside an App Store / Play Store wrapper.
 - [privacy.html](privacy.html) is the privacy policy and support page the stores ask for.
 
+## Android app
+
+- The same `index.html` inside a Capacitor wrapper (`android/`). `npm run apk` builds a test
+  APK; [ANDROID-RELEASE.md](ANDROID-RELEASE.md) covers testing on a phone, signing and Play Console.
+- Inside the app: the recordings are built in, the service worker is off, the system back
+  button closes the top sheet or screen, the status bar follows the theme, and sound stops
+  when the app is put away.
+
+## Starters
+
+An empty Play screen offers six progressions in one tap: Pop, Ballad, Minor, Blues, ii–V–I
+and a key change through a pivot chord. Each opens its key on the solid and plays; one
+↩ Undo removes it. The row hides once there are chords.
+
 ## Rhythm — drum machine
 
 - **Tap a step** to cycle it: on → accent → off. On phones, pick a drum from the overview and
