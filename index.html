@@ -3527,8 +3527,10 @@ document.addEventListener('visibilitychange',()=>{
 // centred in the band between the top bar and the panel and scaled to fit it.
 // When that band is too thin to be useful the solid moves behind the panel as a
 // background (body.solid-bg makes the panel translucent so it still shows).
-// Desktop keeps the original framing. Wheel and pinch zoom still work on top of
-// this: they move the camera, while the fit only sets camera.zoom.
+// Desktop does the same fit: centring on the whole window left the lower half of
+// the solid under the chord panel. It never grows past its original size, so a
+// big screen only moves it up. Wheel and pinch zoom still work on top of this:
+// they move the camera, while the fit only sets camera.zoom.
 const PHONE_MQ=matchMedia('(max-width:700px), (max-height:500px)');
 const SOLID_MIN_BAND=220;   // px — below this the solid goes to the background
 
@@ -3548,14 +3550,7 @@ function fitSolidToSpace(){
   const barH=bar?bar.getBoundingClientRect().height:0;
   document.documentElement.style.setProperty('--bar-h',Math.round(barH)+'px');
 
-  if(!PHONE_MQ.matches){
-    camera.zoom=1;
-    camera.clearViewOffset();
-    camera.updateProjectionMatrix();
-    document.body.classList.remove('solid-bg');
-    updateBubbles();
-    return;
-  }
+  const phone=PHONE_MQ.matches;
   const nav=document.getElementById('bottom-nav');
   const bot=document.getElementById('bot');
   const navTop=nav?nav.getBoundingClientRect().top:H;
@@ -3567,6 +3562,16 @@ function fitSolidToSpace(){
   let L=0, R=side?botR.left:W, T=barH;
   let B=side?navTop:((botR&&botR.height)?botR.top:navTop);
   const bg=Math.min(R-L,B-T)<SOLID_MIN_BAND;
+  // Desktop: the panel is opaque there, so a band too thin for the solid keeps the
+  // original whole-window framing rather than hiding the solid behind it.
+  if(bg&&!phone){
+    camera.zoom=1;
+    camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+    document.body.classList.remove('solid-bg');
+    updateBubbles();
+    return;
+  }
   if(bg){ L=0; R=W; B=navTop; }   // background: centre behind the panel instead
   const cx=(L+R)/2, cy=(T+B)/2;
 

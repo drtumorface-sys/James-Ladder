@@ -15,7 +15,7 @@
 // VERSION on release anyway: the activate handler then clears the old cache.
 // ═══════════════════════════════════════════════════════════
 
-const VERSION = 'v23';
+const VERSION = 'v24';
 const CACHE   = 'james-ladder-' + VERSION;
 
 const PRECACHE = [
