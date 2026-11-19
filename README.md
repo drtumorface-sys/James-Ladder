@@ -81,6 +81,42 @@ committed to the audio clock stops immediately.
   button closes the top sheet or screen, the status bar follows the theme, and sound stops
   when the app is put away.
 
+## Seventh chords and tensions
+
+- **Chord colours** (Play → Root Key row): pick one and every chord you add comes in that
+  colour; tap the lit one again for triads. In C:
+
+  | Colour | I | ii | iii | IV | V | vi | vii | V/ii |
+  |---|---|---|---|---|---|---|---|---|
+  | 7ths | Cmaj7 | Dm7 | Em7 | Fmaj7 | G7 | Am7 | Bø7 | A7 |
+  | 6ths | C6 | Dm7 | Em7 | F6 | G7 | Am7 | Bø7 | A7 |
+  | 9ths | Cmaj9 | Dm9 | Em7 | Fmaj9 | G9 | Am9 | Bø7 | A7(♭9) |
+  | 13ths | C6/9 | Dm11 | Em7(11) | Fmaj13(♯11) | G13 | Am11 | Bø7(11) | A7(♭9,♭13) |
+  | Sus | Cmaj7 | Dm7 | Em7 | Fmaj7 | G9sus4 | Am7 | Bø7 | A9sus4 |
+  | Alt | Cmaj7 | Dm7 | Em7 | Fmaj7 | G7(♯9,♭13) | Am7 | Bø7 | A7(♭9,♭13) |
+
+  Every tension is one that suits that degree: iii gets no 9th (it would be a ♭9 over the
+  key), dominants heading for a minor chord take ♭9/♭13, and the tritone sub takes ♯11
+  (D♭9(♯11)). Secondary dominants are dominant chords; ♭VII and ♭II (backdoor and tritone
+  sub) too; ♭III and ♭VI are major 7ths. Starters, generators, key changes and the chord
+  card's suggestions follow the colour; the Blues starter is all dominants (A7 D7 E7, A13 D13 E13).
+  Each sketch remembers its colour.
+- **Tap a ledger chord → Chord type** to change any one chord: triad, maj7, 7, 6, 7sus4 (major);
+  m7, m6, m(maj7) (minor); ø7, °7 (diminished). Then add tensions that suit the type: ♭9 9 ♯9
+  11 ♯11 ♭13 13. Names follow chart conventions: G13, Cmaj9(♯11), G7(♭9,♯11), E♭6/9, G9sus4, Em7(11).
+  Each change is one ↩ Undo.
+- Chords keep their triad quality underneath (`qual`), with the type in `ch` and tensions in
+  `ext`, so the analysis, Roman numerals and substitutions read them as before. Ledger chips
+  and charts show V7, viiø7, V7/ii.
+- **Sound:** piano and synth play the root low and the 3rd, 5th and 7th above, dropping the
+  5th when there are tensions; guitars play jazz grips (root, 7th, 3rd, then 5th or tensions:
+  G7 = G F B D, G13 = G F B E).
+- **Spelling:** flats for the black keys (D♭ E♭ A♭ B♭, but F♯), and in a key, that key's letters
+  (C♯m7 in A, A♭maj7 in E♭). Chord tones are spelled exactly: D♭7 = D♭ F A♭ C♭.
+- Generate → Extensions now adds the 7th each chord's job calls for (V gets a dominant 7th,
+  vii a half-diminished one) and ♯11 on major chords instead of the clashing 11.
+- Exports: chart and line carry the full names; CSV/JSON add `type` and `tensions` columns.
+
 ## Starters
 
 An empty Play screen offers six progressions in one tap: Pop, Ballad, Minor, Blues, ii–V–I

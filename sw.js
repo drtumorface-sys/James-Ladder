@@ -15,7 +15,7 @@
 // VERSION on release anyway: the activate handler then clears the old cache.
 // ═══════════════════════════════════════════════════════════
 
-const VERSION = 'v21';
+const VERSION = 'v22';
 const CACHE   = 'james-ladder-' + VERSION;
 
 const PRECACHE = [
@@ -89,8 +89,12 @@ self.addEventListener('fetch', e => {
 
   // Network-first for the app itself, so a reload always picks up new code.
   // Falls back to cache when offline, which is what keeps the PWA installable.
+  // `no-cache` checks with the server every time (a cheap "not modified" when
+  // nothing changed); without it the browser's own cache could hand back the old
+  // page for up to ten minutes after a release.
+  const sameOrigin = new URL(req.url).origin === self.location.origin;
   e.respondWith(
-    fetch(req)
+    (sameOrigin ? fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : fetch(req))
       .then(res => {
         if (res && res.ok && new URL(req.url).origin === self.location.origin) {
           const copy = res.clone();

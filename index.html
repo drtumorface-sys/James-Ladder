@@ -1577,6 +1577,23 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   padding:5px 11px;line-height:1.25;text-align:left;min-height:44px;}
 .st-n{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);}
 .st-c{font-size:10px;letter-spacing:0.04em;color:var(--text2);white-space:nowrap;}
+
+/* ══ CHORD TYPE — chord card ══ */
+.ct-row{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 8px;}
+.ct-chip{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:'Fira Code',monospace;
+  font-size:11px;letter-spacing:0.02em;padding:6px 10px;min-height:44px;min-width:44px;border-radius:2px;cursor:pointer;transition:all 0.1s;}
+.ct-chip:hover{border-color:var(--glm);color:var(--gold);}
+.ct-chip.on{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+.ct-ext{font-size:12px;}
+/* Chord colours sit in the Root Key row, whose key highlight would clear .on */
+.col-group{display:inline-flex;gap:4px;flex-shrink:0;}
+.col-chip[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:var(--glo);}
+@media (max-width:700px){
+  /* Phones: the six colours get their own line, Fold and Modulate the next. */
+  .key-extra{flex-wrap:wrap;}
+  .col-group{display:flex;flex:1 1 100%;}
+  .col-group .ks{flex:1 1 0;padding:6px 2px;letter-spacing:0.06em;min-width:0;}
+}
 </style>
 </head>
 <body>
@@ -2126,6 +2143,9 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
     </div>
     <div class="cc-body" id="cc-body">
 
+      <div class="cc-section">Chord type</div>
+      <div id="cc-type"></div>
+
       <div class="cc-section">Movement</div>
       <div id="cc-move"></div>
       <div id="cc-cadence"></div>
@@ -2553,13 +2573,14 @@ function romanInKey(note,key){const ni=CHROM.indexOf(note),ki=KS[key]??0,iv=(ni-
 // ASCII and paste safely into any notes app.
 const ASCII_NOTE={'C♯':'C#','D♯':'D#','F♯':'F#','G♯':'G#','A♯':'A#',
                   'D♭':'Db','E♭':'Eb','A♭':'Ab','B♭':'Bb'};
-function noteAscii(n){ return ASCII_NOTE[n]||n; }
+function noteAscii(n){ return String(n).replace(/♯/g,'#').replace(/♭/g,'b'); }
 function romanAscii(r){ return String(r).replace(/♭/g,'b').replace(/♯/g,'#').replace(/°/g,'o'); }
 
-// Apply the global transpose to a stored ledger note.
+// Apply the global transpose to a stored ledger note, named the way charts do:
+// flats for the black keys, except F♯. spellNote() spells for a given key.
 function displayNote(note){
-  const i=CHROM.indexOf(note);
-  return i<0?note:CHROM[(i+globalOffset+120)%12];
+  const i=KS[note]??CHROM.indexOf(note);
+  return (i==null||i<0)?note:NOTE_NAME[(i+globalOffset+120)%12];
 }
 
 // What you actually play: "Am", "F", "C#dim", "B°"
@@ -2569,10 +2590,272 @@ function chordSymbol(note, qual, ascii=false){
   return root+suffix;
 }
 
-// Chord symbol straight from a ledger entry, transpose applied.
+// Chord symbol straight from a ledger entry: capo applied, spelled for its key,
+// with its type and tensions ("B♭maj7", "G7(♭9)", "F♯ø7").
 function entrySymbol(e, ascii=false){
-  return chordSymbol(displayNote(e.note), e.qual||'maj', ascii);
+  const root=spellNote(e.note,_entryKey(e));
+  return (ascii?noteAscii(root):root)+chordSuffix(e,ascii);
 }
+
+// ═══════════════════════════════════════════════════════════
+// CHORD TYPES — sevenths, sixths, sus chords and tensions
+//
+// A chord keeps its triad quality in `qual` (maj / min / dim), which is what the
+// analysis, Roman numerals, substitutions and voice leading all read. `ch` adds
+// the full chord type on top and `ext` its tensions: G with ch:'7', ext:['♭9']
+// is G7(♭9), and still analyses as V. No `ch` means a plain triad, so every
+// sketch saved before this works unchanged.
+// ═══════════════════════════════════════════════════════════
+const CH_TYPES={
+  maj7:   {qual:'maj', iv:[0,4,7,11], deg:[1,3,5,7], sym:'maj7',    rom:'maj7',   name:'major 7th'},
+  '7':    {qual:'maj', iv:[0,4,7,10], deg:[1,3,5,7], sym:'7',       rom:'7',      name:'dominant 7th'},
+  '6':    {qual:'maj', iv:[0,4,7,9],  deg:[1,3,5,6], sym:'6',       rom:'6',      name:'major 6th'},
+  '7sus4':{qual:'maj', iv:[0,5,7,10], deg:[1,4,5,7], sym:'7sus4',   rom:'7sus4',  name:'7th with a suspended 4th'},
+  m7:     {qual:'min', iv:[0,3,7,10], deg:[1,3,5,7], sym:'m7',      rom:'7',      name:'minor 7th'},
+  m6:     {qual:'min', iv:[0,3,7,9],  deg:[1,3,5,6], sym:'m6',      rom:'6',      name:'minor 6th'},
+  mMaj7:  {qual:'min', iv:[0,3,7,11], deg:[1,3,5,7], sym:'m(maj7)', rom:'(maj7)', name:'minor-major 7th'},
+  m7b5:   {qual:'dim', iv:[0,3,6,10], deg:[1,3,5,7], sym:'ø7',      rom:'ø7',     name:'half-diminished 7th'},
+  dim7:   {qual:'dim', iv:[0,3,6,9],  deg:[1,3,5,7], sym:'°7',      rom:'°7',     name:'diminished 7th'},
+};
+// What each triad can grow into, in the order the chord card lists them.
+const CH_BY_QUAL={maj:['maj7','7','6','7sus4'], min:['m7','m6','mMaj7'], dim:['m7b5','dim7']};
+// Tensions, in semitones above the root.
+const EXTS={'♭9':13,'9':14,'♯9':15,'11':17,'♯11':18,'♭13':20,'13':21};
+const EXT_ORDER=['♭9','9','♯9','11','♯11','♭13','13'];
+// The tensions that suit each type; the others clash with a chord tone.
+const CH_EXTS={maj7:['9','♯11','13'], '7':EXT_ORDER, '6':['9','♯11'], '7sus4':['♭9','9','13'],
+  m7:['9','11','13'], m6:['9','11'], mMaj7:['9','11','13'], m7b5:['9','11','♭13'], dim7:[]};
+// A chord has one kind of 9th, 11th and 13th: picking one drops the other.
+const EXT_EXCLUDES={'9':['♭9','♯9'],'♭9':['9'],'♯9':['9'],'11':['♯11'],'♯11':['11'],'13':['♭13'],'♭13':['13']};
+
+// Chord colour (Play → Root Key row): what chords added from Play come in as.
+// 'triad', or one of COLOURS below. `useSevenths` is true for any colour.
+// `let`s up here so the first renders, early in start-up, can read them.
+const COLOURS=[
+  {id:'7',   label:'7ths',  hint:'Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7'},
+  {id:'6',   label:'6ths',  hint:'I6 ii7 iii7 IV6 V7 vi7: the swing-era sound'},
+  {id:'9',   label:'9ths',  hint:'Imaj9 ii9 iii7 IVmaj9 V9 vi9; dominants into minor chords take ♭9'},
+  {id:'13',  label:'13ths', hint:'I6/9 ii11 iii7(11) IVmaj13(♯11) V13 vi11 viiø7(11)'},
+  {id:'sus', label:'Sus',   hint:'dominants become 9sus4; the rest are 7ths'},
+  {id:'alt', label:'Alt',   hint:'altered dominants: V7(♯9♭13), and 7(♭9♭13) into minor chords'},
+];
+let chordColour='triad';
+try{
+  const c=localStorage.getItem('jl-colour');
+  chordColour=COLOURS.some(x=>x.id===c)?c:(localStorage.getItem('jl-sevenths')==='1'?'7':'triad');
+}catch(err){}
+let useSevenths=chordColour!=='triad';
+
+function _chExts(e){
+  if(!e||!CH_TYPES[e.ch]) return [];
+  const ok=CH_EXTS[e.ch];
+  return EXT_ORDER.filter(x=>(e.ext||[]).includes(x)&&ok.includes(x));
+}
+function _entryKey(e){ return e.type==='pivot'?(e.originKey||e.key||curKey):(e.key||curKey); }
+
+// The seventh a jazz player reaches for on each degree of a major key:
+// Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7. Chords from outside the key take the type
+// that matches their usual job: secondary dominants, ♭VII (the backdoor) and ♭II
+// (the tritone sub) are dominant 7ths; ♭III and ♭VI are major 7ths.
+function defaultSeventh(note, qual, key, roman){
+  // A chord labelled as a secondary dominant (V/IV, V/ii…) is a dominant 7th even
+  // where its root is a scale degree that would otherwise take maj7 (C7 = V/IV in C).
+  if(qual==='maj'&&roman&&/^V\//.test(roman)) return '7';
+  const iv=(((KS[note]??0)-(KS[key]??0))%12+12)%12;
+  if(qual==='maj') return [0,3,5,8].includes(iv)?'maj7':'7';
+  if(qual==='min') return 'm7';
+  if(qual==='dim') return iv===11?'m7b5':'dim7';
+  return null;
+}
+// The chord a colour makes of a scale degree: {ch, ext}, or null for a triad.
+// Every tension is one a jazz player would use there. In C: Em gets no 9th
+// (F would be a ♭9 over the key), dominants that resolve to a minor chord take
+// ♭9/♭13 (A7(♭9♭13) → Dm), and the tritone sub takes ♯11 (D♭9(♯11) → C).
+function colourSpec(note, qual, key, roman, mode=chordColour){
+  if(mode==='triad') return null;
+  const ch=defaultSeventh(note, qual, key, roman);
+  if(!ch) return null;
+  const iv=(((KS[note]??0)-(KS[key]??0))%12+12)%12;
+  // A dominant resolves up a 4th; into ii, iii or vi it heads for a minor chord.
+  const toMinor=[2,4,9].includes((iv+5)%12)||!!(roman&&/^V\/(ii|iii|vi)$/.test(roman));
+  const tri=ch==='7'&&iv===1;
+  const S=(c,ext=[])=>({ch:c, ext});
+  switch(mode){
+    case '6':
+      return S(ch==='maj7'?'6':ch);
+    case '9':
+      if(ch==='maj7') return S(ch,['9']);
+      if(ch==='m7')   return S(ch, iv===4?[]:['9']);
+      if(ch==='7')    return S(ch,[toMinor?'♭9':'9']);
+      return S(ch);
+    case '13':
+      if(ch==='maj7') return iv===0?S('6',['9']):S(ch,['9','♯11','13']);
+      if(ch==='m7')   return S(ch, iv===4?['11']:['9','11']);
+      if(ch==='7')    return S(ch, tri?['9','♯11']:toMinor?['♭9','♭13']:['9','13']);
+      if(ch==='m7b5') return S(ch,['11']);
+      return S(ch);
+    case 'sus':
+      return ch==='7'&&!tri?S('7sus4',['9']):S(ch);
+    case 'alt':
+      if(ch==='7') return S(ch, tri?['♯11']:toMinor?['♭9','♭13']:['♯9','♭13']);
+      return S(ch);
+  }
+  return S(ch);
+}
+function _applySpec(e, sp){
+  if(sp&&sp.ch){ e.ch=sp.ch; if(sp.ext&&sp.ext.length) e.ext=[...sp.ext]; }
+  return e;
+}
+// The type a chord swapped in or added from the chord card takes: the current
+// colour if one is on, otherwise a plain 7th when it sits by a typed chord.
+function _cardSpec(note, qual, key, roman, nextToTyped){
+  if(useSevenths) return colourSpec(note, qual, key, roman);
+  if(nextToTyped){ const c=defaultSeventh(note, qual, key, roman); return c?{ch:c, ext:[]}:null; }
+  return null;
+}
+// With a colour on, give a new ledger entry that colour (unless it already has a type).
+function _withSeventh(e){
+  if(useSevenths&&_isChordEntry(e)&&!e.ch) _applySpec(e, colourSpec(e.note, e.qual||'maj', _entryKey(e), e.roman));
+  return e;
+}
+
+// What follows the root on a chart: "maj9", "7(♭9)", "m11", "ø7", "6/9", "13sus4".
+function chordSuffix(e, ascii){
+  const q=e.qual||'maj', t=CH_TYPES[e.ch];
+  let s;
+  if(!t) s=q==='min'?'m':q==='dim'?'°':q==='aug'?'+':'';
+  else{
+    const ext=_chExts(e);
+    const nat=['13','11','9'].find(x=>ext.includes(x));
+    let base=t.sym, alt=ext.filter(x=>!/^\d+$/.test(x));
+    // The highest natural tension names the chord: G7 with a 9 and 13 is G13. An
+    // 11th or 13th only names it when the 9th is there too (Em11 would promise an
+    // F♯ it doesn't have; that's Em7(11)), except a dominant's 13, which is G13
+    // with any 9th, G13(♭9) included.
+    const named=nat&&(nat==='9'||ext.includes('9')||(e.ch==='7'&&nat==='13'));
+    if(named&&['maj7','7','m7','mMaj7'].includes(e.ch)){
+      base={maj7:'maj'+nat, '7':nat, m7:'m'+nat, mMaj7:'m(maj'+nat+')'}[e.ch];
+    } else if(named&&e.ch==='7sus4'){
+      base=nat+'sus4';
+    } else if(nat==='9'&&(e.ch==='6'||e.ch==='m6')){
+      base=t.sym+'/9';
+    } else alt=ext;
+    s=base+(alt.length?`(${alt.join(',')})`:'');
+  }
+  if(ascii) s=s.replace(/ø7/g,'m7b5').replace(/ø/g,'m7b5').replace(/°7/g,'dim7').replace(/°/g,'dim')
+               .replace(/♭/g,'b').replace(/♯/g,'#');
+  return s;
+}
+// Roman numeral with the type: V7, ii7, Imaj7, viiø7, V7/ii.
+function romanWithType(roman, ch){
+  const t=CH_TYPES[ch];
+  if(!t||!roman) return roman;
+  const i=roman.indexOf('/');
+  let head=i<0?roman:roman.slice(0,i);
+  const tail=i<0?'':roman.slice(i);
+  if(/^[ø°]/.test(t.rom)) head=head.replace(/°$/,'');
+  return head+t.rom+tail;
+}
+function entryRoman(e){ return romanWithType(e.roman, e.ch); }
+function _typeName(e){
+  const t=CH_TYPES[e.ch], q=e.qual||'maj';
+  const base=t?t.name:(q==='min'?'minor triad':q==='dim'?'diminished triad':q==='aug'?'augmented triad':'major triad');
+  const ext=_chExts(e);
+  return base+(ext.length?` with ${ext.join(', ')}`:'');
+}
+
+// ── Spelling ──
+// Names a jazz chart prints: flats for the black keys (D♭ E♭ A♭ B♭) except F♯,
+// and inside a key, the letter that key's scale uses: C♯ in A major, A♭ in E♭.
+// E♯, B♯, C♭ and F♭ are written F, C, B and E, as lead sheets usually do.
+const NOTE_NAME=['C','D♭','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+const _LETTERS='CDEFGAB', _LETTER_PC=[0,2,4,5,7,9,11];
+const _DEG_STEP=[0,1,1,2,2,3,3,4,5,5,6,6];   // 1 ♭2 2 ♭3 3 4 ♯4 5 ♭6 6 ♭7 7 → letters above the tonic
+const _RARE={'E♯':'F','B♯':'C','C♭':'B','F♭':'E'};
+function _spellLetter(pc, li){
+  const L=_LETTERS[((li%7)+7)%7];
+  let a=((pc-_LETTER_PC[((li%7)+7)%7])%12+12)%12;
+  if(a>6) a-=12;
+  return a===0?L:a===1?L+'♯':a===-1?L+'♭':null;
+}
+// The pitch class a stored note sounds at, capo included.
+function _shownPc(note){ return (((KS[note]??CHROM.indexOf(note))+globalOffset)%12+12)%12; }
+// A stored note as shown, spelled for a key (a stored key name), or on its own.
+function spellNote(note, key){
+  const pc=_shownPc(note);
+  if(key==null||KS[key]==null) return NOTE_NAME[pc];
+  const kpc=_shownPc(key), kl=_LETTERS.indexOf(NOTE_NAME[kpc][0]);
+  const s=_spellLetter(pc, kl+_DEG_STEP[((pc-kpc)%12+12)%12]);
+  return s?(_RARE[s]||s):NOTE_NAME[pc];
+}
+// Every note of a chord, spelled up from its root by letter: B D F A♭ for B°7.
+function chordToneNames(e){
+  const root=spellNote(e.note,_entryKey(e));
+  const rl=_LETTERS.indexOf(root[0]), rpc=_shownPc(e.note), t=CH_TYPES[e.ch];
+  const tones=t?t.iv.map((v,i)=>[v,t.deg[i]])
+              :_qualIv(e.qual||'maj').map((v,i)=>[v,[1,3,5][i]]);
+  _chExts(e).forEach(x=>tones.push([EXTS[x], +x.replace(/[♭♯]/g,'')]));
+  return tones.map(([v,d])=>{
+    // Chord tones keep their exact letter (D♭7 has a C♭), as a chart would spell them.
+    const pc=(rpc+v)%12, s=_spellLetter(pc, rl+d-1);
+    return s||NOTE_NAME[pc];
+  });
+}
+
+// ── Sound ──
+// MIDI notes for a typed chord, low to high, around the root `rootMidi`.
+// Keys and synth: the root an octave down, then 3rd, 5th and 7th above it, with
+// tensions on top. With tensions the 5th drops out, as a pianist would leave it,
+// unless it's the flattened 5th of a ø7 or °7.
+// Guitars: a jazz guitarist's grip. Root on the low E or A string, then the 7th
+// (or 6th) and the 3rd, then the 5th or the tensions above.
+function _typedChordMidi(rootMidi, e){
+  const t=CH_TYPES[e.ch], ext=_chExts(e).map(x=>EXTS[x]);
+  const third=t.iv[1], fifth=t.iv[2], sev=t.iv[3];
+  const keep5=!ext.length||fifth!==7;
+  let out;
+  if(_isStrings()){
+    const pc=((Math.round(rootMidi)%12)+12)%12;
+    const r=40+((pc-4)%12+12)%12;                // E2–E♭3
+    out=[r, r+sev, r+12+third];
+    if(keep5) out.push(r+12+fifth);
+    // Tensions sit just above the 7th, as in the usual grips (G13 = G F B E).
+    ext.forEach(x=>{ let m=r+x; while(m<=r+sev) m+=12; out.push(m); });
+  } else {
+    // Roots from F♯ up sit an octave lower, so the top of a 13th chord stays in
+    // the middle of the keyboard instead of up near the top octave.
+    const r=rootMidi>65.5?rootMidi-12:rootMidi;
+    out=[r-12, r+third];
+    if(keep5) out.push(r+fifth);
+    out.push(r+sev);
+    ext.forEach(x=>out.push(r+x));
+  }
+  return [...new Set(out.map(m=>Math.round(m)))].sort((a,b)=>a-b);
+}
+
+// ── Generate → Extensions ──
+// What each level adds, chord by chord. The 7th now matches the chord's job in
+// the key (V gets a dominant 7th, vii a half-diminished one) instead of a major
+// 7th on every major chord, and major chords take ♯11 rather than the clashing 11.
+const FIB_TENSIONS={
+  maj7:[[],[],['9'],['9','♯11'],['9','♯11','13']],
+  '7': [[],[],['9'],['9','♯11'],['9','13']],
+  m7:  [[],[],['9'],['9','11'],['9','11','13']],
+  m7b5:[[],[],['11'],['11'],['11','♭13']],
+  dim7:[[],[],[],[],[]],
+};
+function fibSpec(note, qual, key){
+  if(!fibExtLevel) return null;
+  const ch=defaultSeventh(note, qual, key||curKey);
+  if(!ch) return null;
+  return {note, qual, ch, ext:(FIB_TENSIONS[ch]||[])[fibExtLevel]||[]};
+}
+// The notes a level adds above the triad, in semitones: the 7th, then tensions.
+function fibExtSemis(note, qual, key){
+  const s=fibSpec(note, qual, key);
+  return s?[CH_TYPES[s.ch].iv[3], ...s.ext.map(x=>EXTS[x])]:[];
+}
+
 
 // Roman numeral for ANY root relative to a key — chromatic degrees included.
 // Case carries quality: major upper, minor lower, diminished lower + °.
@@ -2649,12 +2932,12 @@ function scoreClass(s){
 // ═══════════════════════════════════════════════════════════
 let globalOffset=0; // semitones shift applied to all audio & labels
 
-function transposedNote(baseNoteSemi){return CHROM[(baseNoteSemi+globalOffset+12*10)%12];}
+function transposedNote(baseNoteSemi){return NOTE_NAME[(baseNoteSemi+globalOffset+12*10)%12];}
 function transposedFreq(baseHz){return baseHz*Math.pow(2,globalOffset/12);}
 function transposedKey(key){
   const base=KS[key]??0;
   const shifted=(base+globalOffset+12)%12;
-  return CHROM[shifted];
+  return NOTE_NAME[shifted];
 }
 
 // AUDIO — DUAL-CHAIN SPECTRAL SEPARATION
@@ -3063,9 +3346,13 @@ function _qualIv(q){ return q==='maj'?[0,4,7]:q==='min'?[0,3,7]:q==='aug'?[0,4,8
 // Frequencies for a chord on the current instrument, low to high. Keys and synth
 // keep the app's voicing (bass note + chord around middle C); guitars use a real
 // chord shape. `extra` adds extension intervals above the chord.
-function chordFreqs(root,qual,extra){
+function chordFreqs(root,qual,extra,e){
   const f=(HZ[root]||261.63)*Math.pow(2,globalOffset/12);
   const ext=(extra||[]).map(s=>f*Math.pow(2,s/12));
+  // A typed chord (7th, 6th, sus, tensions) gets its own voicing; see _typedChordMidi.
+  if(e&&CH_TYPES[e.ch]){
+    return [..._typedChordMidi(69+12*Math.log2(f/440), e).map(m=>440*Math.pow(2,(m-69)/12)), ...ext];
+  }
   if(_isStrings()){
     const pc=((Math.round(12*Math.log2(f/261.63))%12)+12)%12;   // sounding pitch class
     return [...guitarShape(pc,qual||'maj').midi.map(m=>440*Math.pow(2,(m-69)/12)), ...ext];
@@ -3129,8 +3416,9 @@ function triTone(freq, dur=0.65, vol=0.09, delay=0){
   harmonicVoice(freq, dur, vol, delay);
 }
 // playChord → harmonic chain (bubble taps, ledger playback, loop)
-function playChord(root, qual, sched=0){
-  const fr=chordFreqs(root,qual), gap=strikeGap();
+// `e` (optional) is the ledger entry, so a typed chord sounds with its 7th and tensions.
+function playChord(root, qual, sched=0, e){
+  const fr=chordFreqs(root,qual,null,e), gap=strikeGap();
   if(_curInst()==='synth'){   // the original sound, unchanged
     harmonicVoice(fr[0], 1.0, 0.08, sched);
     fr.slice(1).forEach((f,i)=>harmonicVoice(f, 0.85, 0.07, sched+i*gap));
@@ -3838,7 +4126,8 @@ function _col(s,w){ s=String(s); return s+' '.repeat(Math.max(1,w-s.length)); }
 function buildChordChart(){
   const secs=ledgerSections();
   if(!secs.length) return null;
-  const W=6;
+  // Columns fit the longest chord name ("Bbmaj9(#11)").
+  const W=Math.max(6,...ledger.filter(_isChordEntry).map(e=>entrySymbol(e,true).length+2));
   const lines=[];
   const d=new Date();
   lines.push(`JAMES' LADDER  —  ${d.toDateString()}`);
@@ -3850,7 +4139,7 @@ function buildChordChart(){
     for(let i=0;i<sec.chords.length;i+=8){
       const row=sec.chords.slice(i,i+8);
       lines.push('  '+row.map(e=>_col(entrySymbol(e,true),W)).join('').trimEnd());
-      lines.push('  '+row.map(e=>_col(romanAscii(e.roman),W)).join('').trimEnd());
+      lines.push('  '+row.map(e=>_col(romanAscii(entryRoman(e)),W)).join('').trimEnd());
       lines.push('');
     }
     // Pivot note between sections
@@ -3933,9 +4222,10 @@ function _exportRows(){
   const A=analyzeProgression();
   const rows=[];
   A.sections.forEach((s,si)=>s.items.forEach(x=>rows.push({
-    section:si+1, key:s.name, chord:entrySymbol(x.e,true), roman:romanAscii(x.roman),
-    root:noteAscii(displayNote(x.e.note)), quality:x.e.qual||'maj', beats:x.beats, figure:entryFigure(x.e),
-    notes:_pcsOf(x.e).map(pc=>noteAscii(displayNote(CHROM[pc]))).join('-'),
+    section:si+1, key:s.name, chord:entrySymbol(x.e,true), roman:romanAscii(romanWithType(x.roman,x.e.ch)),
+    root:noteAscii(spellNote(x.e.note,_entryKey(x.e))), quality:x.e.qual||'maj',
+    type:x.e.ch||'triad', tensions:noteAscii(_chExts(x.e).join(' ')), beats:x.beats, figure:entryFigure(x.e),
+    notes:chordToneNames(x.e).map(noteAscii).join('-'),
     pivot:x.e.type==='pivot'?`${romanAscii(x.e.roman)}->${romanAscii(x.e.romanInDest)}`:''
   })));
   return {A,rows};
@@ -3943,7 +4233,7 @@ function _exportRows(){
 function exportClipboard(){
   const {rows}=_exportRows();
   if(!rows.length){ setSt('add some chords first'); return; }
-  const cols=['section','key','chord','roman','root','quality','beats','figure','notes','pivot'];
+  const cols=['section','key','chord','roman','root','quality','type','tensions','beats','figure','notes','pivot'];
   const csv=[cols.join(',')].concat(rows.map(r=>cols.map(c=>`"${String(r[c]).replace(/"/g,'""')}"`).join(','))).join('\n');
   _copy(csv,`CSV copied — ${rows.length} chords`);
 }
@@ -4072,7 +4362,8 @@ function showGTab(id){
 // PLAY / PLACE LOGIC
 // ═══════════════════════════════════════════════════════════
 function playPlanar(roman,note,qual,key,fi){
-  playChord(note,qual);lastChord={roman,note,qual,key};
+  const entry=_withSeventh({type:'chord',roman,note,qual,key,fi});
+  playChord(note,qual,0,entry);lastChord={roman,note,qual,key};
   updatePLRStrip(note,qual);
   // Set tonic anchor on the very first chord struck — all scores measure against this
   if(!tonicAnchor){
@@ -4081,13 +4372,13 @@ function playPlanar(roman,note,qual,key,fi){
     // Re-render strip so score badges appear immediately
     if(pedagogyLevel===3) renderChordStrip(key);
   }
-  ledger.push({type:'chord',roman,note,qual,key,fi});
+  ledger.push(entry);
   renderLedger();triggerFlash(fi>=0?fi:activeFace);
   updateGrimoire();
   applyGenreTints();
   if(pedagogyLevel===3) updateVLDots();
   const avail=getAvailable();
-  const sym=chordSymbol(displayNote(note),qual);
+  const sym=entrySymbol(entry);
   if(builtSet.size===0)setSt(`${sym} (${roman}) — tap solid to open tonal center`);
   else if(foldMode!=='manual'&&avail.length>0&&pedagogyLevel>=2)setSt(`${sym} (${roman}) → ${FOLD_LABELS[foldMode]} fold pending…`);
   else if(avail.length>0&&pedagogyLevel>=2)setSt(`${sym} — ${roman} in ${transposedKey(key)} · tap a ghost face to modulate`);
@@ -4139,8 +4430,9 @@ function modulate(destFi){
   placeFace(destFi,destKey);renderLedger();setSt(`modulated → ${destKey}`);
 }
 function placeChordAndFace(roman,note,qual,key){
-  playChord(note,qual);lastChord={roman,note,qual,key};
-  ledger.push({type:'chord',roman,note,qual,key,fi:activeFace});
+  const entry=_withSeventh({type:'chord',roman,note,qual,key,fi:activeFace});
+  playChord(note,qual,0,entry);lastChord={roman,note,qual,key};
+  ledger.push(entry);
   renderLedger();triggerFlash(activeFace);updateGrimoire();
   if(builtSet.size<12){const avail=getAvailable();if(builtSet.size===0)plantFirst(avail[0]);else modulate(bestFace(key,avail));}
 }
@@ -4340,7 +4632,7 @@ function onIgnition(x, y) {
       // Play the I chord immediately
       const rootNote = noteFrom(curKey, 0);
       playChord(rootNote, 'maj');
-      ledger.push({type:'chord',roman:'I',note:rootNote,qual:'maj',key:curKey,fi:targetFi});
+      ledger.push(_withSeventh({type:'chord',roman:'I',note:rootNote,qual:'maj',key:curKey,fi:targetFi}));
       renderLedger();triggerFlash(targetFi);updateGrimoire();
       updatePLRStrip(rootNote,'maj');   // neighbours available from the first chord
       setSt(`Started in ${transposedKey(curKey)} Major · double-tap to open`);
@@ -4403,9 +4695,9 @@ function selectLedgerEntry(i){
   const wasSelected=(selectedLedgerIdx===i);
   selectedLedgerIdx=wasSelected?null:i;
   if(selectedLedgerIdx!==null){
-    playChord(e.note,e.qual||'maj');           // audition — the expected gesture
+    playChord(e.note,e.qual||'maj',0,e);           // audition — the expected gesture
     if(e.fi>=0)triggerFlash(e.fi);
-    setSt(`${entrySymbol(e)} · ${e.roman} in ${transposedKey(e.key||curKey)}`);
+    setSt(`${entrySymbol(e)} · ${entryRoman(e)} in ${transposedKey(e.key||curKey)}`);
     openChordCard(i);                          // one tap = hear it and read it
   } else {
     closeChordCard();
@@ -4575,10 +4867,9 @@ function openChordCard(i){
   const sym=entrySymbol(e);
 
   safeText(document.getElementById('cc-sym'), sym);
-  const pcs=chordPCs(KS[e.note]??0, qual).map(pc=>CHROM[(pc+globalOffset+120)%12]);
-  const qualWord=qual==='min'?'minor triad':qual==='dim'?'diminished triad':'major triad';
-  safeText(document.getElementById('cc-notes'), `${pcs.join(' · ')} — ${qualWord}`);
+  safeText(document.getElementById('cc-notes'), `${chordToneNames(e).join(' · ')} — ${_typeName(e)}`);
 
+  renderChordType(e);
   renderChordMovement(i);
   renderCardRhythm(e);
   renderChordReadings(e);
@@ -4592,6 +4883,107 @@ function closeChordCard(){
   if(card) card.classList.remove('open');
   chordCardIdx=null;
   ccSelectedSub=null;
+}
+
+// ── CHORD TYPE band — make this chord a 7th, 6th or sus, and add tensions ──
+// Types stay within the chord's quality (a major chord can become maj7, 7, 6 or
+// 7sus4); changing major to minor is a different chord, which "Instead, try"
+// covers. Every change is one ↩ Undo.
+function renderChordType(e){
+  const wrap=document.getElementById('cc-type');
+  if(!wrap) return;
+  const types=CH_BY_QUAL[e.qual||'maj']||[];
+  if(!types.length){ wrap.innerHTML='<p class="cc-hint">Augmented chords stay as triads.</p>'; return; }
+  const root=spellNote(e.note,_entryKey(e));
+  let h='<div class="ct-row" role="group" aria-label="Chord type">'+[null,...types].map(ch=>{
+    const on=(e.ch||null)===ch;
+    return `<button class="ct-chip${on?' on':''}" data-ch="${ch||''}" aria-pressed="${on}" `+
+           `title="${ch?CH_TYPES[ch].name:'plain triad'}">${root}${_skEsc(chordSuffix({qual:e.qual,ch}))}</button>`;
+  }).join('')+'</div>';
+  const exts=e.ch?CH_EXTS[e.ch]:[];
+  if(exts.length){
+    h+='<p class="cc-hint">Tensions: tap to add or remove.</p>'+
+       '<div class="ct-row" role="group" aria-label="Tensions">'+exts.map(x=>{
+         const on=(e.ext||[]).includes(x);
+         return `<button class="ct-chip ct-ext${on?' on':''}" data-ext="${x}" aria-pressed="${on}">${x}</button>`;
+       }).join('')+'</div>';
+  } else if(!e.ch){
+    h+='<p class="cc-hint">Pick a 7th or 6th to add tensions: 9ths, 11ths, 13ths.</p>';
+  }
+  wrap.innerHTML=h;
+}
+function _editChordType(change){
+  if(chordCardIdx===null) return;
+  const e=ledger[chordCardIdx];
+  if(!_isChordEntry(e)) return;
+  const before=entrySymbol(e);
+  const rec=_rememberLedger('chord change');
+  change(e);
+  if(!e.ext||!e.ext.length) delete e.ext;
+  if(JSON.stringify(ledger)===rec.before) return;
+  delete e.voicing;   // a voicing from Learn → Voicing was built for the old notes
+  rec.label=`${before} → ${entrySymbol(e)}`;
+  _armLedgerUndo(rec);
+  playChord(e.note, e.qual||'maj', 0, e);
+  if(e.fi>=0) triggerFlash(e.fi);
+  renderLedger();
+  updateGrimoire();
+  openChordCard(chordCardIdx);
+  setSt(`${before} → ${entrySymbol(e)} · ↩ Undo reverses`);
+}
+function setChordType(ch){
+  _editChordType(e=>{
+    if(ch) e.ch=ch; else delete e.ch;
+    // Keep the tensions that still suit the new type.
+    e.ext=(e.ext||[]).filter(x=>ch&&CH_EXTS[ch].includes(x));
+  });
+}
+function toggleChordExt(x){
+  _editChordType(e=>{
+    let ext=e.ext||[];
+    if(ext.includes(x)) ext=ext.filter(y=>y!==x);
+    else ext=[...ext.filter(y=>!(EXT_EXCLUDES[x]||[]).includes(y)), x];
+    e.ext=EXT_ORDER.filter(y=>ext.includes(y));
+  });
+}
+(function initChordType(){
+  const wrap=document.getElementById('cc-type');
+  if(wrap) wrap.addEventListener('click',ev=>{
+    const b=ev.target.closest('button'); if(!b) return;
+    ev.stopPropagation();
+    if(b.dataset.ext) toggleChordExt(b.dataset.ext);
+    else if('ch' in b.dataset) setChordType(b.dataset.ch||null);
+  });
+})();
+
+// ── Chord colours (Play → Root Key row): 7ths · 6ths · 9ths · 13ths · Sus · Alt ──
+// With one on, every chord added from Play comes in that colour (see colourSpec);
+// tapping the lit one goes back to triads. Chords already in the ledger keep
+// their type; the chord card changes any one of them.
+function setChordColour(id, opts){
+  chordColour=COLOURS.some(c=>c.id===id)?id:'triad';
+  useSevenths=chordColour!=='triad';
+  try{ localStorage.setItem('jl-colour',chordColour); localStorage.setItem('jl-sevenths',useSevenths?'1':'0'); }catch(err){}
+  buildKeySelector(); syncKeySelector();
+  renderChordStrip(curKey);
+  renderStarters();
+  if(lastChord) updatePLRStrip(lastChord.note, lastChord.qual);   // the "Next" row names chords in the colour too
+  if(!(opts&&opts.quiet)){
+    const c=COLOURS.find(x=>x.id===chordColour);
+    setSt(c ? `${c.label} · new chords come in as ${c.hint} · tap a chord in the ledger to change it`
+            : 'triads · new chords come in as plain triads · chords already in the ledger keep their type');
+  }
+}
+function toggleChordColour(id){ setChordColour(chordColour===id?'triad':id); }
+// The original on/off 7ths switch, kept for sketches saved with it.
+function setSevenths(on, opts){ setChordColour(on?'7':'triad', opts); }
+function toggleSevenths(){ toggleChordColour('7'); }
+// A chord pill's label, in 7ths mode showing the chord it will add ("V7 G7").
+function _pillInner(roman, note, qual, key, small){
+  const e=_withSeventh({type:'chord', note, qual, key, roman});
+  const head=`<span style="opacity:${small?'0.60;font-size:7px':'0.50'}">${romanWithType(roman,e.ch)}</span>&thinsp;`;
+  return e.ch ? head+entrySymbol(e)
+              : head+spellNote(note,key)+`&thinsp;<span style="opacity:0.36;font-size:7px">${qual}</span>`;
 }
 
 // ── MOVEMENT band — how this chord connects to the chords either side ──
@@ -4726,7 +5118,10 @@ function renderChordSubs(e){
   const best=subs.length?subs[0].common.length:0;
 
   subs.forEach((s,i)=>{
-    const sym=chordSymbol(displayNote(s.note), s.qual);
+    // Shown and auditioned the way Replace would put it in: with a 7th if this one has one.
+    const subE={type:'chord', note:s.note, qual:s.qual, key:_entryKey(e)};
+    _applySpec(subE, _cardSpec(s.note, s.qual, subE.key, s.short==='V/'?'V/':null, !!e.ch));
+    const sym=entrySymbol(subE);
     const ct=s.common.length;
     const isSel=(i===ccSelectedSub);
     const row=document.createElement('div');
@@ -4748,11 +5143,11 @@ function renderChordSubs(e){
     row.onclick=ev=>{
       ev.stopPropagation();
       const act=ev.target.closest('.cc-sub-swap')?.dataset.act;
-      if(act==='replace'){ replaceLedgerChord(s.note, s.qual); return; }
-      if(act==='add'){ insertLedgerChordAfter(s.note, s.qual); return; }
+      if(act==='replace'){ replaceLedgerChord(s.note, s.qual, subE); return; }
+      if(act==='add'){ insertLedgerChordAfter(s.note, s.qual, subE); return; }
       ccSelectedSub=(ccSelectedSub===i)?null:i;
       if(ccSelectedSub!==null){
-        playChord(s.note, s.qual);
+        playChord(s.note, s.qual, 0, subE);
         setSt(`${sym} · ${s.label} — Replace to swap it in`);
       }
       renderChordSubs(e);
@@ -4764,7 +5159,9 @@ function renderChordSubs(e){
 // Insert one of this chord's substitutions straight after it. The card then moves
 // to the new chord, so the next pick carries the progression on from there.
 // ↩ Undo removes it again.
-function insertLedgerChordAfter(note, qual){
+// `spec`, when given, is the type and tensions to add it with ({ch, ext}), as the
+// card has already worked them out.
+function insertLedgerChordAfter(note, qual, spec){
   if(chordCardIdx===null) return;
   const i=chordCardIdx, e=ledger[i];
   if(!_isChordEntry(e)) return;
@@ -4778,7 +5175,10 @@ function insertLedgerChordAfter(note, qual){
     key=e.destKey||e.originKey||curKey;
     if(ledger[at]&&ledger[at].type==='keymod') at++;
   }
-  ledger.splice(at,0,{type:'chord',roman:romanAny(note,key,qual),note,qual,key,fi:FKEY.indexOf(key)});
+  const ins={type:'chord',roman:romanAny(note,key,qual),note,qual,key,fi:FKEY.indexOf(key)};
+  // Next to a 7th chord (or in 7ths mode) the new chord comes in as its own natural 7th.
+  _applySpec(ins, spec||_cardSpec(note, qual, key, null, !!e.ch));
+  ledger.splice(at,0,ins);
   _armLedgerUndo(rec);
 
   const isLast=!ledger.slice(at+1).some(_isChordEntry);
@@ -4788,18 +5188,18 @@ function insertLedgerChordAfter(note, qual){
   }
   selectedLedgerIdx=at;
   ccSelectedSub=null;
-  playChord(note,qual);
+  playChord(note,qual,0,ins);
   renderLedger();
   renderChordStrip(curKey);
   updateGrimoire();
   applyGenreTints();
   if(pedagogyLevel===3) updateVLDots();
   openChordCard(at);
-  setSt(`${entrySymbol(e)} → ${sym} added · ↩ Undo removes it`);
+  setSt(`${entrySymbol(e)} → ${entrySymbol(ins)} added · ↩ Undo removes it`);
 }
 
 // Swap the chord this card describes for one of its substitutions, in place.
-function replaceLedgerChord(note, qual){
+function replaceLedgerChord(note, qual, spec){
   if(chordCardIdx===null) return;
   const e=ledger[chordCardIdx];
   if(!e||(e.type!=='chord'&&e.type!=='pivot')) return;
@@ -4813,6 +5213,9 @@ function replaceLedgerChord(note, qual){
   e.qual=qual;
   e.roman=romanAny(note, homeKey, qual);
   delete e.voicing;   // a voicing from Learn → Voicing belonged to the old chord
+  // A chord with a type keeps one: the swap comes in as its own natural 7th.
+  const hadType=!!e.ch; delete e.ch; delete e.ext;
+  _applySpec(e, spec||_cardSpec(note, qual, homeKey, null, hadType));
 
   // A pivot only holds if the new chord is genuinely diatonic in the destination
   // key as well. If it is not, this stops being a pivot and becomes a plain chord —
@@ -4848,7 +5251,7 @@ function replaceLedgerChord(note, qual){
   }
 
   ccSelectedSub=null;
-  playChord(note,qual);
+  playChord(note,qual,0,e);
   if(e.fi>=0) triggerFlash(e.fi);
   renderLedger();
   renderChordStrip(curKey);
@@ -5021,7 +5424,7 @@ function renderTranspose(cands){
       b.onclick=()=>{
         xposeTarget=c.shift;
         const first=c.moved[0];
-        if(first) playChord(first.note, first.qual||'maj');
+        if(first) playChord(first.note,first.qual||'maj',0,first);
         renderTranspose(cands);
         setSt(`start on ${c.sym} · whole progression ${c.score}%`);
       };
@@ -5260,8 +5663,8 @@ function _modEntries(plan, from, to){
   let crossed=false;
   plan.forEach(st=>{
     if(st.pivot){
-      out.push({type:'pivot', note:st.note, qual:st.qual, roman:romanAny(st.note,from,st.qual),
-                originKey:from, destKey:to, romanInDest:romanAny(st.note,to,st.qual), fi:faceForKey(to)});
+      out.push(_withSeventh({type:'pivot', note:st.note, qual:st.qual, roman:romanAny(st.note,from,st.qual),
+                originKey:from, destKey:to, romanInDest:romanAny(st.note,to,st.qual), fi:faceForKey(to)}));
       out.push({type:'keymod', fromKey:from, toKey:to});
       crossed=true; return;
     }
@@ -5269,8 +5672,8 @@ function _modEntries(plan, from, to){
       if(hasChords||out.length) out.push({type:'keymod', fromKey:from, toKey:to});
       crossed=true;
     }
-    out.push({type:'chord', roman:romanAny(st.note,st.key,st.qual), note:st.note, qual:st.qual,
-              key:st.key, fi:faceForKey(st.key)});
+    out.push(_withSeventh({type:'chord', roman:romanAny(st.note,st.key,st.qual), note:st.note, qual:st.qual,
+              key:st.key, fi:faceForKey(st.key)}));
   });
   return out;
 }
@@ -5354,7 +5757,7 @@ function onModClick(ev){
     const {last,from}=_modContext();
     modTarget=b.dataset.mkey;
     modType=modRecommend(from,modTarget,last);
-    const I=_keyI(modTarget); playChord(I.note,I.qual);
+    const I=_keyI(modTarget); playChord(I.note,I.qual,0,I);
     renderModulate();
   } else if(b.dataset.mtype){
     modType=b.dataset.mtype;
@@ -5744,8 +6147,9 @@ function addGeneratedPhrase(steps,label,opts){
       if(t&&t.type==='keymod'){ if(t.fromKey===st.key) ledger.pop(); else t.toKey=st.key; }
       else ledger.push({type:'keymod',fromKey:prevKey,toKey:st.key});
     }
-    ledger.push({type:'chord', roman:st.roman||romanAny(st.note,st.key,st.qual), note:st.note,
-                 qual:st.qual||'maj', key:st.key, fi:faceForKey(st.key)});
+    ledger.push(_withSeventh({type:'chord', roman:st.roman||romanAny(st.note,st.key,st.qual), note:st.note,
+                 qual:st.qual||'maj', key:st.key, fi:faceForKey(st.key),
+                 ...(st.ch?{ch:st.ch, ...(st.ext&&st.ext.length?{ext:[...st.ext]}:{})}:{})}));
     prevKey=st.key;
   });
   if(!tonicAnchor){
@@ -5756,7 +6160,7 @@ function addGeneratedPhrase(steps,label,opts){
   _afterLedgerRewrite();
   const added=ledger.slice(start).filter(_isChordEntry);
   if(play==='extended'){
-    added.forEach((e,i)=>musicTimeout(()=>{ playChordExtended(e.note,e.qual||'maj'); triggerFlash(e.fi>=0?e.fi:activeFace); },i*getChordStepMs()));
+    added.forEach((e,i)=>musicTimeout(()=>{ playChordExtended(e.note,e.qual||'maj',0,e.key,e); triggerFlash(e.fi>=0?e.fi:activeFace); },i*getChordStepMs()));
   } else if(play){
     const beatSec=60/seqBpm; let t=0;
     added.forEach(e=>{ const d=entryBeats(e)*beatSec; playEntry(e,t,d); t+=d; });
@@ -6056,7 +6460,7 @@ function renderLedger(){
       const badgeHTML=score!=null?`<span class="score-badge">${score}%</span>`:'';
       // Pivot chords carry their second reading on the roman line — that dual
       // function is the whole reason the chord is interesting.
-      const romanLine=isPivot?`${e.roman}→${e.romanInDest}`:e.roman;
+      const romanLine=isPivot?`${entryRoman(e)}→${romanWithType(e.romanInDest,e.ch)}`:entryRoman(e);
       d.innerHTML=`<span class="le-sym">${sym}</span>`+
                   `<span class="le-rom" style="color:${D_COL[idx]||'var(--text2)'}">${romanLine}</span>`+
                   badgeHTML;
@@ -6227,9 +6631,11 @@ function entryBeats(e){ const b=e&&e.beats; return (typeof b==='number'&&b>0)?b:
 function entryFigure(e){ return (e&&FIGURES.includes(e.figure))?e.figure:'hold'; }
 function entryAccent(e){ const a=e&&e.accent; return (typeof a==='number'&&a>0)?a:1.0; }
 
-// Frequencies for one entry: its committed voicing if it has one, otherwise the
-// root triad with a doubled bass, which is what the app has always played.
+// Frequencies for one entry: a typed chord (7th, tensions) in its own voicing; a
+// triad in its committed voicing if it has one, otherwise the root triad with a
+// doubled bass, which is what the app has always played.
 function entryPitches(e){
+  if(CH_TYPES[e.ch]) return chordFreqs(e.note, e.qual||'maj', null, e);
   if(Array.isArray(e.voicing)&&e.voicing.length){
     return e.voicing.map(m=>440*Math.pow(2,(m+globalOffset-69)/12));
   }
@@ -6511,6 +6917,11 @@ function buildKeySelector(){
   const extra=document.createElement('div');
   extra.className='key-extra';
   extra.innerHTML=
+    // Chord colours: one lit at a time; tap the lit one again for triads.
+    `<span class="col-group" role="group" aria-label="Chord colour">`+
+      COLOURS.map(c=>`<button class="ks col-chip" data-col="${c.id}" onclick="toggleChordColour('${c.id}')" `+
+        `aria-pressed="${chordColour===c.id}" title="${c.label}: ${c.hint}">${c.label}</button>`).join('')+
+    `</span>`+
     `<button class="ks" id="fold-chip" onclick="cycleFoldMode()" `+
       `title="How a fold to a new key is chosen — tap to cycle Manual · Proximity · Discovery">Fold: ${FOLD_LABELS[foldMode]}</button>`+
     `<button class="ks key-mod" onclick="openModulate()" title="Change key — pivot, dominant, common tone, direct, mediant or step up">⤳ Modulate</button>`;
@@ -6549,7 +6960,7 @@ function renderChordStrip(key){
       pill.title=score!=null
         ?`${roman} ${transNote} ${qual} · consonance ${score}% with ${tonicAnchor?.note||'tonic'}`
         :`${roman} ${transNote} ${qual}`;
-      pill.innerHTML=`<span style="opacity:0.50">${roman}</span>&thinsp;${transNote}&thinsp;<span style="opacity:0.36;font-size:7px">${qual}</span>${badgeHTML}`;
+      pill.innerHTML=_pillInner(roman,note,qual,key)+badgeHTML;
       pill.onclick=()=>{pendingPivot=null;playPlanar(roman,note,qual,key,activeFace>=0?activeFace:-1);};
       wrap.appendChild(pill);
     });
@@ -6634,7 +7045,7 @@ function buildSecDomRow(key){
     const pill=document.createElement('div');
     pill.className='cp cp-sec'+(sClass?' '+sClass:'');
     pill.title=`V/${ofRoman} = ${transNote} maj · secondary dominant`;
-    pill.innerHTML=`<span style="opacity:0.60;font-size:7px">V/${ofRoman}</span>&thinsp;${transNote}&thinsp;<span style="opacity:0.36;font-size:7px">${qual}</span>${badge}`;
+    pill.innerHTML=_pillInner(`V/${ofRoman}`,rootNote,qual,key,true)+badge;
     pill.onclick=()=>playPlanar(`V/${ofRoman}`,rootNote,qual,key,activeFace>=0?activeFace:-1);
     row.appendChild(pill);
   });
@@ -6664,7 +7075,7 @@ function buildBorrowedRow(key){
     const pill=document.createElement('div');
     pill.className='cp cp-bor'+(sClass?' '+sClass:'');
     pill.title=`${roman} = ${transNote} ${qual} · borrowed from parallel minor`;
-    pill.innerHTML=`<span style="opacity:0.60">${roman}</span>&thinsp;${transNote}&thinsp;<span style="opacity:0.36;font-size:7px">${qual}</span>${badge}`;
+    pill.innerHTML=_pillInner(roman,rootNote,qual,key)+badge;
     pill.onclick=()=>playPlanar(roman,rootNote,qual,key,activeFace>=0?activeFace:-1);
     row.appendChild(pill);
   });
@@ -6770,7 +7181,7 @@ function playBestPath(){
   const order=computeGenreOptimalOrder(gKey);
   if(!order.length)return;
   const stepMs=getChordStepMs();
-  order.forEach((e,i)=>musicTimeout(()=>playChord(e.note,e.qual||'maj'),i*stepMs));
+  order.forEach((e,i)=>musicTimeout(()=>playChord(e.note,e.qual||'maj',0,e),i*stepMs));
   setSt(`▶ ${GENRES[gKey].name} · ${order.map(e=>e.roman).join(' → ')}`);
 }
 
@@ -7867,7 +8278,8 @@ function updatePLRStrip(rootNote, qual){
   const best=subs.length?subs[0].common.length:0;
 
   subs.forEach(s=>{
-    const sym=chordSymbol(displayNote(s.note), s.qual);
+    // Named as the chord a tap adds: with its 7th in 7ths mode.
+    const sym=entrySymbol(_withSeventh({type:'chord', note:s.note, qual:s.qual, key:curKey, roman:romanAny(s.note,curKey,s.qual)}));
     const ct=s.common.length;
     const btn=document.createElement('button');
     btn.className='plr-btn nb-btn'+(ct===best&&ct>0?' nb-smooth':'');
@@ -8282,11 +8694,7 @@ const STYLE_NAMES = {
 // Fibonacci extension intervals (semitones above root, beyond base triad)
 // maj triad [0,4,7] → 7th +11, 9th +14, 11th +17, 13th +21
 // min triad [0,3,7] → 7th +10, 9th +14, 11th +17, 13th +21
-const FIB_EXT_SEMIS = {
-  maj: [[],[11],[11,14],[11,14,17],[11,14,17,21]],
-  min: [[],[10],[10,14],[10,14,17],[10,14,21]],
-  dim: [[],[9],[9,15],[9,15],[9,15]],
-};
+// (What each level adds, chord by chord, is FIB_TENSIONS in the chord-types section.)
 const FIB_EXT_NAMES = ['Triad','7th','9th','11th','13th'];
 const FIB_EXT_PHRASES = [
   'Triads — no added sevenths or extensions.',
@@ -8324,9 +8732,11 @@ function setFibExt(level){
 }
 
 // Play a chord with Fibonacci extensions applied
-function playChordExtended(root, qual, sched=0){
-  const extIv  = (FIB_EXT_SEMIS[qual]||FIB_EXT_SEMIS.maj)[fibExtLevel]||[];
-  const fr=chordFreqs(root,qual,extIv), gap=strikeGap(), v=stringsVol(0.07,fr.length);
+// The level picks the 7th the chord's job in the key calls for (fibSpec), so V
+// sounds as a dominant 7th. A chord that already has its own type keeps it.
+function playChordExtended(root, qual, sched=0, key, e){
+  const spec=(e&&CH_TYPES[e.ch])?e:fibSpec(root, qual, key);
+  const fr=chordFreqs(root,qual,null,spec), gap=strikeGap(), v=stringsVol(0.07,fr.length);
   harmonicVoice(fr[0], 1.0, _isStrings()?v:0.08, sched);
   fr.slice(1).forEach((f,i)=>harmonicVoice(f, 0.85/(1+i*0.1), v, sched+(i+(_isStrings()?1:0))*gap));
 }
@@ -8892,7 +9302,7 @@ function computeGenreOptimalOrder(genreKey){
 function playGenreOptimalSequence(genreKey){
   const ordered=computeGenreOptimalOrder(genreKey);
   if(!ordered.length)return;
-  ordered.forEach((e,i)=>musicTimeout(()=>playChord(e.note,e.qual),i*getChordStepMs()));
+  ordered.forEach((e,i)=>musicTimeout(()=>playChord(e.note,e.qual,0,e),i*getChordStepMs()));
   setSt(`▶ ${GENRES[genreKey].name} optimal: ${ordered.map(e=>e.roman).join(' → ')}`);
 }
 
@@ -9504,7 +9914,7 @@ function playVLPath(){
       // Overlay Fibonacci extensions if active
       if(fibExtLevel>0 && chords[i]){
         const c=chords[i];
-        const extIv=(FIB_EXT_SEMIS[c.qual]||FIB_EXT_SEMIS.maj)[fibExtLevel]||[];
+        const extIv=fibExtSemis(c.note, c.qual, c.key);
         const rootHz=(HZ[c.note]||261.63)*Math.pow(2,globalOffset/12);
         extIv.forEach(iv=>{
           harmonicVoice(rootHz*Math.pow(2,iv/12)*0.5, 0.55, 0.05, 0);
@@ -9754,7 +10164,7 @@ function renderInstChips(){
     const b = ev.target.closest('.inst-chip'); if(!b) return;
     const i = +b.dataset.i, c = ch[i];
     if(i < 0 || (instChord && c && instChord.pc===c.pc && instChord.qual===c.qual)) instChord = null;
-    else { instChord = c; _withInstrument(_learnInst(), ()=>playChord(c.note, c.qual)); }
+    else { instChord = c; _withInstrument(_learnInst(), ()=>playChord(c.note,c.qual,0,c)); }
     renderInstChips();
     instUpdate();
   };
@@ -10685,7 +11095,7 @@ function cycleInstrument(){
 // Play the last chord (or C) so the change is heard straight away.
 function _instPreview(){
   const c=lastChord||{note:'C',qual:'maj'};
-  playChord(c.note,c.qual||'maj');
+  playChord(c.note,c.qual||'maj',0,c);
 }
 function syncInstrumentUI(){
   const ins=INSTRUMENTS[instrument];
@@ -10738,7 +11148,7 @@ function _sketchState(){
     faces:builtFaces.map(f=>({fi:f.fi, key:f.key})),
     active:activeFace, key:curKey, capo:globalOffset,
     anchor:tonicAnchor?{...tonicAnchor}:null,
-    bpm:seqBpm, beats:chordBeats, drums:_drumState(), inst:instrument,
+    bpm:seqBpm, beats:chordBeats, drums:_drumState(), inst:instrument, sev:useSevenths, col:chordColour,
   };
 }
 function _skIsEmpty(st){ return !st.ledger.length&&!st.faces.length; }
@@ -10784,6 +11194,8 @@ function _applySketchState(st){
     if([1,2,4,8].includes(st.beats)) setChordBeats(st.beats);
     if(st.drums&&_applyDrumState(st.drums)){ renderDrums(); saveDrums(); }
     if(st.inst&&INSTRUMENTS[st.inst]) setInstrument(st.inst,{quiet:true});
+    const col=typeof st.col==='string'?st.col:typeof st.sev==='boolean'?(st.sev?'7':'triad'):null;
+    if(col&&col!==chordColour) setChordColour(col,{quiet:true});
     _afterLedgerRewrite();
     renderChordStrip(curKey); buildKeySelector(); syncKeySelector(); updateWorldIndicator();
     if(typeof renderRhythmTrack==='function') renderRhythmTrack();
@@ -10792,18 +11204,19 @@ function _applySketchState(st){
 }
 
 // ── Names and descriptions ──
+// A chord as the sketch list names it: full chart name, with that sketch's own capo.
 function _skSym(e,capo){
-  const i=CHROM.indexOf(e.note);
-  const n=i<0?e.note:CHROM[(i+(capo||0)+120)%12];
-  return chordSymbol(n,e.qual||'maj');
+  const keep=globalOffset;
+  globalOffset=capo||0;
+  try{ return entrySymbol(e); } finally{ globalOffset=keep; }
 }
 function _skChords(st){ return (st.ledger||[]).filter(_isChordEntry); }
 // The key the music is in at the end — the last chord's, else the open face's.
 function _skKeyName(st){
   const last=_skChords(st).slice(-1)[0];
   const k=(last&&(last.type==='pivot'?last.destKey:last.key))||st.key||(st.faces&&st.faces[0]&&st.faces[0].key)||'C';
-  const i=CHROM.indexOf(k);
-  return i<0?k:CHROM[(i+(st.capo||0)+120)%12];
+  const i=KS[k];
+  return i==null?k:NOTE_NAME[(i+(st.capo||0)+120)%12];
 }
 function _skAutoName(st){
   const ch=_skChords(st);
@@ -10964,14 +11377,23 @@ var STARTERS=[
   {name:'Pop',        key:'G', ch:[['G','maj'],['D','maj'],['E','min'],['C','maj']]},
   {name:'Ballad',     key:'C', ch:[['C','maj'],['A','min'],['F','maj'],['G','maj']]},
   {name:'Minor',      key:'C', ch:[['A','min'],['F','maj'],['C','maj'],['G','maj']]},
-  {name:'Blues',      key:'A', ch:[['A','maj'],['D','maj'],['E','maj']]},
+  // With a chord colour on, every blues chord is a dominant: A7 D7 E7, A13 D13 E13.
+  {name:'Blues',      key:'A', sev:'7', ch:[['A','maj'],['D','maj'],['E','maj']]},
   {name:'ii–V–I',     key:'C', ch:[['D','min'],['G','maj'],['C','maj']]},
   // Am is vi in C and ii in G, so it carries the music across.
   {name:'Key change', key:'C', ch:[['C','maj'],['F','maj'],['A','min'],['D','maj','G'],['G','maj','G']]},
 ];
-function _starterSteps(s){ return s.ch.map(([note,qual,key])=>({note,qual,key:key||s.key})); }
+function _starterSteps(s){
+  // sev:'7' marks every chord as a dominant, so it takes the colour's dominant
+  // form: A7 D7 E7, A9 D9 E9, A13 D13 E13…
+  return s.ch.map(([note,qual,key])=>{
+    const k=key||s.key;
+    const sp=useSevenths&&s.sev==='7'?colourSpec(note,qual,k,'V/'):null;
+    return {note,qual,key:k, ...(sp?{ch:sp.ch, ext:sp.ext}:{})};
+  });
+}
 function _starterLabel(s){
-  const sym=c=>chordSymbol(displayNote(c.note),c.qual);
+  const sym=c=>entrySymbol(_withSeventh({type:'chord',...c}));
   const st=_starterSteps(s);
   return st.map((c,i)=>(i&&c.key!==st[i-1].key?'→ ':'')+sym(c)).join(' ');
 }
