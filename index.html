@@ -333,6 +333,7 @@ body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0
 .deg-note{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--gold);line-height:1.1;}
 .deg-card.deg-root{border-color:var(--gold);background:var(--glo);}
 .deg-card.deg-dim{opacity:0.4;}
+.deg-card.deg-outside{border-style:dashed;}
 .deg-card .deg-tone{font-family:'Fira Code',monospace;font-size:9px;color:#fff;border-radius:6px;padding:0 4px;margin-top:2px;}
 
 @media (max-width:700px){
@@ -2782,11 +2783,36 @@ function _spellLetter(pc, li){
 function _shownPc(note){ return (((KS[note]??CHROM.indexOf(note))+globalOffset)%12+12)%12; }
 // A stored note as shown, spelled for a key (a stored key name), or on its own.
 function spellNote(note, key){
-  const pc=_shownPc(note);
-  if(key==null||KS[key]==null) return NOTE_NAME[pc];
-  const kpc=_shownPc(key), kl=_LETTERS.indexOf(NOTE_NAME[kpc][0]);
-  const s=_spellLetter(pc, kl+_DEG_STEP[((pc-kpc)%12+12)%12]);
+  if(key==null||KS[key]==null) return NOTE_NAME[_shownPc(note)];
+  return spellPc(_shownPc(note), _shownPc(key));
+}
+// A sounding pitch class, spelled for a key whose tonic is the pitch class keyPc.
+function spellPc(pc, keyPc){
+  if(keyPc==null) return NOTE_NAME[pc];
+  const kl=_LETTERS.indexOf(NOTE_NAME[keyPc][0]);
+  const s=_spellLetter(pc, kl+_DEG_STEP[((pc-keyPc)%12+12)%12]);
   return s?(_RARE[s]||s):NOTE_NAME[pc];
+}
+// A scale's notes spelled: pitch class → name. Seven-note scales take one letter
+// per degree (C Dorian: C D E♭ F G A B♭); others go by their place in the key.
+// A black-key root is tried both ways and the cleaner one kept, so it's C♯ minor
+// (four sharps) rather than D♭ minor.
+const _ENHARM={1:['D♭','C♯'],3:['E♭','D♯'],6:['F♯','G♭'],8:['A♭','G♯'],10:['B♭','A♯']};
+function spellScale(rootPc, ivs){
+  let best=null;
+  (_ENHARM[rootPc]||[NOTE_NAME[rootPc]]).forEach(rn=>{
+    const rl=_LETTERS.indexOf(rn[0]), m=new Map();
+    let cost=0;
+    ivs.forEach((v,i)=>{
+      const pc=(rootPc+v)%12;
+      let n=_spellLetter(pc, ivs.length===7 ? rl+i : rl+_DEG_STEP[v%12]);
+      if(!n){ n=NOTE_NAME[pc]; cost+=5; }
+      if(n.length>1) cost++;
+      m.set(pc, n);   // exact letters, one per degree: F♯ major ends on E♯
+    });
+    if(!best||cost<best.cost) best={cost, m};
+  });
+  return best.m;
 }
 // Every note of a chord, spelled up from its root by letter: B D F A♭ for B°7.
 function chordToneNames(e){
@@ -3442,11 +3468,58 @@ function playChordStaccato(root, qual, dur){
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,100);
 camera.position.set(0,0,5.2);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
+// `let`: if the browser drops the 3D context and won't give it back, the renderer
+// is replaced (see _rebuildRenderer below).
+let renderer=_makeRenderer();
 document.getElementById('three').appendChild(renderer.domElement);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);fitSolidToSpace();});
+
+// ── LOST 3D CONTEXT ──
+// Browsers can take a page's WebGL context away: too many open at once, a GPU
+// reset, a phone under memory pressure or coming back from the background. The
+// canvas then stays blank — the Play screen shows an empty cream box — until the
+// context comes back, and nothing used to ask for it. Now the app asks for it
+// back, and if the browser won't, builds a fresh renderer on a new canvas. The
+// solid, its faces and colours are scene objects, not tied to a renderer, so they
+// carry over; the pointer handlers sit on #three, the canvas's frame, so a new
+// canvas works straight away.
+function _makeRenderer(){
+  const r=new THREE.WebGLRenderer({antialias:true,alpha:false});
+  r.setPixelRatio(Math.min(devicePixelRatio,2));
+  r.setSize(innerWidth,innerHeight);
+  _watchContext(r);
+  return r;
+}
+let _glRetry=null;
+function _glLost(r){ try{ return r.getContext().isContextLost(); }catch(e){ return true; } }
+function _watchContext(r){
+  const c=r.domElement;
+  c.addEventListener('webglcontextlost',()=>{
+    clearTimeout(_glRetry);
+    // First ask for the same context back; if it hasn't come back soon, start over.
+    _glRetry=setTimeout(()=>{
+      if(r!==renderer||!_glLost(r)) return;
+      try{ r.forceContextRestore(); }catch(e){}
+      _glRetry=setTimeout(()=>{ if(r===renderer&&_glLost(r)) _rebuildRenderer(); },1500);
+    },600);
+  });
+  c.addEventListener('webglcontextrestored',()=>{ clearTimeout(_glRetry); syncSceneBg(); });
+}
+function _rebuildRenderer(){
+  if(document.visibilityState==='hidden') return;   // try again when the page is back
+  const old=renderer;
+  let fresh;
+  try{ fresh=_makeRenderer(); }catch(e){ return; }
+  old.domElement.replaceWith(fresh.domElement);
+  try{ old.dispose(); }catch(e){}
+  renderer=fresh;
+  syncSceneBg();
+  fitSolidToSpace();
+}
+// Coming back to the app (switching tabs, unlocking the phone) with a dead context.
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&_glLost(renderer)) setTimeout(()=>{ if(_glLost(renderer)) _rebuildRenderer(); },300);
+});
 
 // ── FIT THE SOLID TO THE SPACE LEFT OVER (phones) ──
 // The solid is centred on the whole window, which on a phone put it half behind
@@ -4511,7 +4584,9 @@ function onUp(x,y){
     }
   }
 }
-const rd=renderer.domElement;
+// The canvas's frame, not the canvas: the canvas is replaced if its 3D context is
+// lost for good (see _rebuildRenderer), and these handlers must keep working.
+const rd=document.getElementById('three');
 rd.addEventListener('mousedown',e=>onDn(e.clientX,e.clientY));
 rd.addEventListener('mousemove',e=>onMv(e.clientX,e.clientY));
 rd.addEventListener('mouseup',e=>onUp(e.clientX,e.clientY));
@@ -9648,7 +9723,7 @@ function getChordIntervals(qual,voiceCount){
 const VL_PERMS = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
 
 // MIDI pitch → "C4", "F#3" etc.
-function midiName(m){ return CHROM[m%12]+(Math.floor(m/12)-1); }
+function midiName(m){ return NOTE_NAME[m%12]+(Math.floor(m/12)-1); }
 
 // Generate all compact N-voice voicings of a chord within MIDI range
 // Voice count controlled by vlVoiceCount (3/4/5)
@@ -10083,20 +10158,25 @@ const INTERVAL_NAMES = ['R','m2','M2','m3','M3','P4','TT','P5','m6','M6','m7','M
 let instRoot  = 0;   // pitch class as it sounds (0 = C)
 let instScale = CANDIDATE_SCALES[0]; // default Major
 let instPcs   = new Set(CANDIDATE_SCALES[0].iv);
-let instChord = null; // {pc, qual, sym, note} when a chord from the progression is shown
+let instChord = null; // a chord from the progression, when one is shown (see _ledgerChordChoices)
+let instLedgerView = true;        // "All notes": every note the progression uses (when it has chords)
+let _instLedger = new Map();      // pitch class → {name, beats}, from _ledgerNotes()
+let _instScaleNames = new Map();  // pitch class → name in the shown scale
 let instBuilt = false;
 let _instFlash = null; // {kind:'g'|'p', a, b} — the fret or key just tapped
 
-// One colour per role. In scale view: root + scale notes. In chord view: the
-// chord's root, 3rd and 5th, with the scale's other notes left as faint rings.
-const INST_COL = { root:'#8b2800', scale:'#2e6ea6', third:'#2e6ea6', fifth:'#2e7a4a' };
+// One colour per role. Scale view: root + scale notes. All notes: the progression's
+// notes, inside the scale or outside it. Chord view: the chord's root, 3rd, 5th,
+// 7th and tensions, with the scale's other notes left as faint rings.
+const INST_COL = { root:'#8b2800', scale:'#2e6ea6', third:'#2e6ea6', fifth:'#2e7a4a',
+                   seventh:'#7a3fa0', tension:'#a86a00' };
 
 function buildInstControls(){
   if(instBuilt) return;
   instBuilt = true;
 
   const rootSel = document.getElementById('inst-root-sel');
-  if(rootSel) rootSel.innerHTML = CHROM.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
+  if(rootSel) rootSel.innerHTML = NOTE_NAME.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
   const sel = document.getElementById('inst-scale-sel');
   if(sel) sel.innerHTML = CANDIDATE_SCALES.map((sc,i)=>`<option value="${i}">${sc.name}</option>`).join('');
 
@@ -10129,33 +10209,73 @@ function instFollowProgression(silent){
   _syncInstSelects();
   if(!silent){
     instUpdate();
-    setSt(`following ${s.name} · showing ${CHROM[instRoot]} ${instScale.name}`);
+    setSt(`following ${s.name} · showing ${_instScaleLabel()}`);
   }
   return true;
 }
 
-// Each different chord in the progression, in the order it first appears.
+// Each different chord in the progression, in the order it first appears. Chords
+// count as different when anything about them differs (Dm7 and Dm9, G7 and
+// G9sus4), so every chord in the ledger has its own button.
 function _ledgerChordChoices(){
   const seen = new Set(), out = [];
   ledger.forEach(e=>{
     if(!_isChordEntry(e)) return;
-    const pc = ((KS[e.note] ?? 0) + globalOffset + 120) % 12, qual = e.qual || 'maj';
-    const k = pc + '|' + qual;
+    const pc = _shownPc(e.note), qual = e.qual || 'maj';
+    const k = [pc, qual, e.ch||'', _chExts(e).join(',')].join('|');
     if(seen.has(k)) return;
     seen.add(k);
-    out.push({ pc, qual, note:e.note, sym:entrySymbol(e) });
+    out.push({ k, pc, qual, note:e.note, ch:e.ch, ext:e.ext, key:_entryKey(e), type:'chord',
+               sym:entrySymbol(e), roles:_chordRoles(e) });
   });
   return out;
 }
 
+// What each note of a chord is: pitch class (as it sounds) → {role, label, name}.
+// Roles colour the diagram: root, 3rd (or the sus 4th), 5th, 7th (or 6th), tension.
+function _chordRoles(e){
+  const t = CH_TYPES[e.ch], rpc = _shownPc(e.note), names = chordToneNames(e);
+  const iv = t ? t.iv : _qualIv(e.qual || 'maj'), deg = t ? t.deg : [1,3,5];
+  const roleOf = d => d===1 ? 'root' : (d===3||d===4) ? 'third' : d===5 ? 'fifth' : 'seventh';
+  const m = new Map();
+  iv.forEach((v,i)=> m.set((rpc + v) % 12, { role:roleOf(deg[i]), label:deg[i]===1 ? 'R' : String(deg[i]), name:names[i] }));
+  _chExts(e).forEach((x,j)=>{
+    const pc = (rpc + EXTS[x]) % 12;
+    if(!m.has(pc)) m.set(pc, { role:'tension', label:x, name:names[iv.length + j] });
+  });
+  return m;
+}
+
+// Every note the progression uses (7ths and tensions included), as it sounds:
+// pitch class → {name, beats}. Each note keeps the spelling the chord chart uses.
+function _ledgerNotes(){
+  const m = new Map();
+  ledger.forEach(e=>{
+    if(!_isChordEntry(e)) return;
+    _chordRoles(e).forEach((r,pc)=>{
+      const x = m.get(pc) || { name:r.name, beats:0 };
+      x.beats += entryBeats(e);
+      m.set(pc, x);
+    });
+  });
+  return m;
+}
+function _instLedgerOn(){ return instLedgerView && !instChord && _instLedger.size > 0; }
+
 function renderInstChips(){
   const box = document.getElementById('inst-chips'); if(!box) return;
   const ch = _ledgerChordChoices();
-  if(instChord && !ch.some(c=>c.pc===instChord.pc && c.qual===instChord.qual)) instChord = null;
+  if(instChord){
+    // Keep the chosen chord if it's still in the ledger (refreshed in case its capo changed).
+    const same = ch.find(c=>c.k === instChord.k);
+    instChord = same || null;
+  }
+  const ledgerOn = instLedgerView && !instChord && ch.length > 0;
   box.innerHTML =
-    `<button class="inst-chip${instChord?'':' on'}" data-i="-1">Scale</button>` +
+    (ch.length ? `<button class="inst-chip${ledgerOn?' on':''}" data-i="-2" title="Every note your progression uses">All notes</button>` : '') +
+    `<button class="inst-chip${!instChord && !ledgerOn?' on':''}" data-i="-1" title="The scale chosen above">Scale</button>` +
     (ch.length
-      ? ch.map((c,i)=>`<button class="inst-chip${instChord&&instChord.pc===c.pc&&instChord.qual===c.qual?' on':''}" data-i="${i}" title="Show ${c.sym} on the diagram">${c.sym}</button>`).join('')
+      ? ch.map((c,i)=>`<button class="inst-chip${instChord&&instChord.k===c.k?' on':''}" data-i="${i}" title="Show ${c.sym} on the diagram">${c.sym}</button>`).join('')
       : `<span class="inst-chip-none">your chords appear here once you add some</span>`);
   // On a phone the chips are one swipeable row; keep the chosen one in view.
   const on = box.querySelector('.inst-chip.on');
@@ -10163,8 +10283,10 @@ function renderInstChips(){
   box.onclick = ev=>{
     const b = ev.target.closest('.inst-chip'); if(!b) return;
     const i = +b.dataset.i, c = ch[i];
-    if(i < 0 || (instChord && c && instChord.pc===c.pc && instChord.qual===c.qual)) instChord = null;
-    else { instChord = c; _withInstrument(_learnInst(), ()=>playChord(c.note,c.qual,0,c)); }
+    if(i === -2){ instChord = null; instLedgerView = true; }
+    else if(i === -1){ instChord = null; instLedgerView = false; }
+    else if(instChord && c && instChord.k === c.k) instChord = null;   // tap again: back to the last view
+    else if(c){ instChord = c; _withInstrument(_learnInst(), ()=>playChord(c.note, c.qual, 0, c)); }
     renderInstChips();
     instUpdate();
   };
@@ -10173,33 +10295,64 @@ function renderInstChips(){
 // What a pitch class is in the current view.
 function _instTone(pc){
   if(instChord){
-    const iv = (pc - instChord.pc + 12) % 12;
-    if(iv === 0) return 'root';
-    if(iv === (instChord.qual==='maj' ? 4 : 3)) return 'third';
-    if(iv === (instChord.qual==='dim' ? 6 : 7)) return 'fifth';
+    const r = instChord.roles.get(pc);
+    if(r) return r.role;
     return instPcs.has(pc) ? 'faint' : 'out';
+  }
+  if(_instLedgerOn()){
+    if(!_instLedger.has(pc)) return 'out';
+    if(pc === instRoot) return 'root';
+    return instPcs.has(pc) ? 'scale' : 'tension';    // outside the scale: the colour notes
   }
   if(pc === instRoot) return 'root';
   return instPcs.has(pc) ? 'scale' : 'out';
 }
 
+// A pitch class named for the current view: as the chord spells it, as the
+// progression spells it, or by its place in the scale (E♭ in C Dorian, not D♯).
+function _instName(pc){
+  if(instChord){ const r = instChord.roles.get(pc); if(r) return r.name; }
+  const x = _instLedger.get(pc);
+  if(x && (instChord || _instLedgerOn())) return x.name;
+  return _instScaleNames.get(pc) || spellPc(pc, instRoot);
+}
+function _instNoteName(midi){ return _instName(midi % 12) + (Math.floor(midi / 12) - 1); }
+function _instScaleLabel(){ return `${_instScaleNames.get(instRoot) || NOTE_NAME[instRoot]} ${instScale.name}`; }
+
 function _instLegendHTML(){
   const dot = (bg, bd)=>`<div class="gleg-dot" style="background:${bg};${bd?`border:1px solid ${bd};`:''}"></div>`;
   const item = (d, t)=>`<div class="gleg-item">${d}<span>${t}</span></div>`;
-  if(instChord) return item(dot(INST_COL.root),'Root') + item(dot(INST_COL.third),'3rd') +
-    item(dot(INST_COL.fifth),'5th') + item(dot('transparent','var(--glm)'),'Other scale note');
+  if(instChord){
+    const has = r=>[...instChord.roles.values()].filter(x=>x.role===r);
+    const lbl = (r, a, b)=>has(r).some(x=>x.label===b) ? `${b}th` : a;
+    let h = item(dot(INST_COL.root),'Root');
+    if(has('third').length)   h += item(dot(INST_COL.third),  has('third')[0].label==='4' ? '4th (sus)' : '3rd');
+    if(has('fifth').length)   h += item(dot(INST_COL.fifth),  '5th');
+    if(has('seventh').length) h += item(dot(INST_COL.seventh), lbl('seventh','7th','6'));
+    if(has('tension').length) h += item(dot(INST_COL.tension), 'Tension');
+    return h + item(dot('transparent','var(--glm)'),'Other scale note');
+  }
+  if(_instLedgerOn()) return item(dot(INST_COL.root),'Root') + item(dot(INST_COL.scale),'In the scale') +
+    item(dot(INST_COL.tension),'Outside the scale') + item(dot('transparent','var(--border2)'),'Not in your progression');
   return item(dot(INST_COL.root),'Root') + item(dot(INST_COL.scale),'Scale note') +
     item(dot('transparent','var(--border2)'),'Not in scale');
 }
 
 function _instInfo(){
-  const scale = `${CHROM[instRoot]} ${instScale.name}`;
+  const scale = _instScaleLabel();
   if(instChord){
-    const third = instChord.qual==='maj' ? 4 : 3, fifth = instChord.qual==='dim' ? 6 : 7;
-    const n = s=>CHROM[(instChord.pc + s) % 12];
-    return `${instChord.sym} = ${n(0)} · ${n(third)} · ${n(fifth)}   over ${scale}`;
+    const tones = [...instChord.roles.values()];
+    const outside = [...instChord.roles.keys()].filter(pc=>!instPcs.has(pc)).map(_instName);
+    return `${instChord.sym} = ${tones.map(t=>t.name).join(' · ')}   over ${scale}` +
+           (outside.length ? ` · outside it: ${outside.join(' ')}` : '');
   }
-  return `${scale} · ` + instScale.iv.map(s=>CHROM[(instRoot + s) % 12]).join(' ');
+  if(_instLedgerOn()){
+    const pcs = [..._instLedger.keys()].sort((a,b)=>((a-instRoot+12)%12)-((b-instRoot+12)%12));
+    const outside = pcs.filter(pc=>!instPcs.has(pc)).map(_instName);
+    return `Your progression uses ${pcs.length} note${pcs.length===1?'':'s'}: ${pcs.map(_instName).join(' ')} · ` +
+           (outside.length ? `outside ${scale}: ${outside.join(' ')}` : `all inside ${scale}`);
+  }
+  return `${scale} · ` + instScale.iv.map(s=>_instName((instRoot + s) % 12)).join(' ');
 }
 
 function instUpdate(){
@@ -10208,6 +10361,8 @@ function instUpdate(){
   const sel = document.getElementById('inst-scale-sel');
   if(sel && sel.value !== '') instScale = CANDIDATE_SCALES[+sel.value] || CANDIDATE_SCALES[0];
   instPcs = new Set(instScale.iv.map(s=>(instRoot + s) % 12));
+  _instScaleNames = spellScale(instRoot, instScale.iv);
+  _instLedger = _ledgerNotes();
 
   drawDegrees();
   const legend = _instLegendHTML(), info = _instInfo();
@@ -10241,7 +10396,7 @@ function _instDot(ctx, x, y, r, pc, fs, dark){
   }
   ctx.font = `${t==='root'?700:500} ${fs}px 'Fira Code',monospace`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(CHROM[pc], x, y + 0.5);
+  ctx.fillText(_instName(pc), x, y + 0.5);
 }
 
 function _flashTap(kind, a, b, redraw){
@@ -10357,7 +10512,7 @@ function drawGuitar(){
     const midi = GUITAR_MIDI[best.s] + best.f;
     learnNote(midi, _learnInst());
     _flashTap('g', best.s, best.f, drawGuitar);
-    setSt(`${midiName(midi)} · string ${6 - best.s}, ${best.f ? 'fret ' + best.f : 'open'}`);
+    setSt(`${_instNoteName(midi)} · string ${6 - best.s}, ${best.f ? 'fret ' + best.f : 'open'}`);
   };
 }
 
@@ -10439,26 +10594,37 @@ function drawPiano(){
     if(!k) return;
     learnNote(k.midi, _learnInst());
     _flashTap('p', k.midi, 0, drawPiano);
-    setSt(`${midiName(k.midi)}`);
+    setSt(`${_instNoteName(k.midi)}`);
   };
 }
 
 // ── SCALE DEGREES ─────────────────────────────────────────────
-// A strip of the scale's notes above the guitar and keyboard. Tap one to hear it.
-// With a chord shown, its root, 3rd and 5th are tagged and the rest dimmed.
+// A strip of notes above the guitar and keyboard; tap one to hear it.
+//   Scale view: the scale's notes.
+//   All notes: every note the progression uses, numbered from the root, with the
+//     ones outside the scale marked.
+//   Chord view: the chord's own tones, tagged R 3 5 7 and tensions.
 const DEGREE_NAMES   = ['1','♭2','2','♭3','3','4','♭5','5','♭6','6','♭7','7'];
 const DEGREE_ROMANS  = ['I','♭II','II','♭III','III','IV','♭V','V','♭VI','VI','♭VII','VII'];
 
 function drawDegrees(){
   const grid = document.getElementById('deg-grid'); if(!grid) return;
-  const tag = { root:'R', third:'3', fifth:'5' };
-  grid.innerHTML = instScale.iv.map(semi=>{
-    const pc = (instRoot + semi) % 12, t = _instTone(pc);
-    const cls = 'deg-card' + (semi === 0 && !instChord ? ' deg-root' : '') + (instChord && !tag[t] ? ' deg-dim' : '');
-    const chip = instChord && tag[t] ? `<span class="deg-tone" style="background:${INST_COL[t]}">${tag[t]}</span>` : '';
-    return `<button class="${cls}" data-midi="${60 + instRoot + semi}" title="${INTERVAL_NAMES[semi] || semi + ' st'} · ${DEGREE_ROMANS[semi] || ''}">` +
-      `<span class="deg-note">${CHROM[pc]}</span><span class="deg-num">${DEGREE_NAMES[semi] ?? semi}</span>${chip}</button>`;
-  }).join('');
+  const card = (pc, extra, chip)=>{
+    const semi = (pc - instRoot + 12) % 12;
+    return `<button class="deg-card${extra}" data-midi="${60 + instRoot + semi}" title="${INTERVAL_NAMES[semi] || semi + ' st'} · ${DEGREE_ROMANS[semi] || ''}">` +
+      `<span class="deg-note">${_instName(pc)}</span><span class="deg-num">${DEGREE_NAMES[semi] ?? semi}</span>${chip||''}</button>`;
+  };
+  const tag = (role, label)=>`<span class="deg-tone" style="background:${INST_COL[role]}">${label}</span>`;
+  let pcs;
+  if(instChord){
+    grid.innerHTML = [...instChord.roles].map(([pc, r])=>card(pc, r.role==='root' ? ' deg-root' : '', tag(r.role, r.label))).join('');
+  } else if(_instLedgerOn()){
+    pcs = [..._instLedger.keys()].sort((a,b)=>((a-instRoot+12)%12)-((b-instRoot+12)%12));
+    grid.innerHTML = pcs.map(pc=>card(pc, (pc===instRoot ? ' deg-root' : '') + (instPcs.has(pc) ? '' : ' deg-outside'),
+                                      instPcs.has(pc) ? '' : tag('tension','out'))).join('');
+  } else {
+    grid.innerHTML = instScale.iv.map(semi=>card((instRoot + semi) % 12, semi === 0 ? ' deg-root' : '')).join('');
+  }
   grid.onclick = ev=>{
     const b = ev.target.closest('.deg-card'); if(!b) return;
     learnNote(+b.dataset.midi, _learnInst());
