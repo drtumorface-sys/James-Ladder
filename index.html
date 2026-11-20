@@ -48,6 +48,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);user-selec
 body{font-family:'Fira Code',monospace;color:var(--text);transition:background 0.3s;}
 /* Canvas owns touch — panels override back to pan-y */
 #three{position:fixed;inset:0;touch-action:none;}
+/* Shown in place of the solid when the browser has no WebGL. */
+.nogl-note{position:absolute;top:calc(var(--bar-h,76px) + 28px);left:50%;transform:translateX(-50%);
+  width:min(440px,calc(100% - 32px));box-sizing:border-box;padding:16px 18px;
+  border:1px dashed var(--border2);border-radius:10px;background:var(--bg2);
+  font-family:'Cormorant Garamond',serif;font-size:15px;line-height:1.45;color:var(--text2);text-align:center;}
+.nogl-note b{display:block;font-weight:600;font-size:17px;color:var(--text);margin-bottom:6px;}
+.nogl-note small{display:block;margin-top:10px;font-family:'Fira Code',monospace;font-size:10px;line-height:1.6;color:var(--text3);}
 
 /* ═══ BUBBLE SYSTEM ═══ */
 #vlayer{position:fixed;inset:0;pointer-events:none;z-index:50;}
@@ -1445,6 +1452,10 @@ input[type=range].loom-range::-moz-range-thumb{width:20px;height:20px;border:non
 #constellation-canvas{display:block;width:100%;aspect-ratio:1;cursor:default;}
 #constellation-label{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--text2);text-align:center;margin-top:6px;min-height:18px;}
 #constellation-sub{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:0.28em;color:var(--text3);text-align:center;text-transform:uppercase;margin-top:2px;}
+/* "The Ladder is Complete" — all twelve keys opened. Its selector had been lost,
+   so it sat unstyled at the top of the page behind the canvas and never appeared. */
+#complete{position:fixed;top:calc(var(--bar-h,76px) + 40px);left:50%;transform:translateX(-50%);z-index:210;
+max-width:calc(100% - 32px);box-sizing:border-box;cursor:pointer;
 text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;background:var(--bg2);border:1px solid var(--border2);padding:28px 38px;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,0.12);}
 #complete.show{opacity:1;pointer-events:all;}
 #complete h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;font-weight:400;color:var(--gold);margin-bottom:6px;}
@@ -2020,7 +2031,7 @@ text-align:center;opacity:0;pointer-events:none;transition:opacity 0.7s;backgrou
   <div class="lcard"    id="lc3" onclick="setLevel(3)"><div class="lc-n">III</div><div><div class="lc-title">Harmonic Advisor</div><div class="lc-desc">Chord pills show consonance scores against your tonic anchor. Use Fold Mode (topbar) to set how modulation fires: Manual, Proximity (nearest diatonic match), or Discovery (most new pitch classes).</div></div></div>
 </div>
 
-<div id="complete"><h2>The Ladder is Complete</h2><p>twelve tonal centers · the solid is the song</p></div>
+<div id="complete" title="Tap to close" onclick="this.classList.remove('show')"><h2>The Ladder is Complete</h2><p>twelve tonal centers · the solid is the song</p></div>
 
 <section id="bot">
   <!-- METRO STRIP -->
@@ -3470,7 +3481,13 @@ const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,100);
 camera.position.set(0,0,5.2);
 // `let`: if the browser drops the 3D context and won't give it back, the renderer
 // is replaced (see _rebuildRenderer below).
-let renderer=_makeRenderer();
+// No WebGL at all (Firefox with a blocked graphics driver or hardware
+// acceleration off, some locked-down browsers): creating the renderer throws, and
+// that used to stop the whole script, so no button worked. Now a stand-in takes its
+// place: the solid isn't drawn, a note says so, and everything else works. Taps on
+// the area still reach the (invisible) faces, since picking is plain maths.
+let renderer;
+try{ renderer=_makeRenderer(); }catch(e){ renderer=_noGLRenderer(); }
 document.getElementById('three').appendChild(renderer.domElement);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);fitSolidToSpace();});
 
@@ -3489,6 +3506,18 @@ function _makeRenderer(){
   r.setSize(innerWidth,innerHeight);
   _watchContext(r);
   return r;
+}
+function _noGLRenderer(){
+  const el=document.createElement('div');
+  el.className='nogl-note';
+  el.innerHTML='<b>The 3D solid can’t be drawn in this browser</b>'+
+    'It needs WebGL, which is switched off or blocked here. Everything else works: '+
+    'pick a key and tap chords below, or start with a progression.'+
+    '<small>Firefox: Settings → Performance → “Use hardware acceleration when available”, '+
+    'then restart Firefox. about:support → WebGL shows why it was blocked.</small>';
+  // Looks like a lost context, so coming back to the page tries a real renderer again.
+  return { noGL:true, domElement:el, setSize(){}, setPixelRatio(){}, render(){}, dispose(){},
+           forceContextRestore(){}, getContext(){ return { isContextLost:()=>true }; } };
 }
 let _glRetry=null;
 function _glLost(r){ try{ return r.getContext().isContextLost(); }catch(e){ return true; } }

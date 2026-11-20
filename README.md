@@ -72,6 +72,8 @@ committed to the audio clock stops immediately.
 - `viewport-fit=cover` plus safe-area insets keep the bars clear of the notch and home bar, so the
   same files work inside an App Store / Play Store wrapper.
 - [privacy.html](privacy.html) is the privacy policy and support page the stores ask for.
+- No WebGL (Firefox with a blocked graphics driver or hardware acceleration off): the solid
+  isn't drawn and a note says why, but every other part of the app works.
 
 ## Android app
 
